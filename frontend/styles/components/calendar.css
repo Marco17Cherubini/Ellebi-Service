@@ -1,0 +1,178 @@
+/* ============================================================================
+   LB SERVICE - CALENDAR & TIME SLOTS COMPONENT
+   ============================================================================ */
+
+/* Calendar */
+.calendar {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+    padding: var(--space-2) 0;
+}
+
+.calendar-month {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.calendar-nav-btn {
+    min-height: 36px;
+    min-width: 36px;
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: var(--color-border-secondary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.calendar-day-header {
+    padding: var(--space-3);
+    text-align: center;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg-secondary);
+}
+
+.calendar-day {
+    min-height: 44px;
+    padding: var(--space-3);
+    text-align: center;
+    font-size: var(--font-size-sm);
+    background-color: var(--color-bg-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.calendar-day:hover:not(.disabled):not(.empty) {
+    background-color: var(--color-bg-secondary);
+}
+
+.calendar-day.selected {
+    background-color: var(--color-accent);
+    color: #ffffff;
+    font-weight: var(--font-weight-semibold);
+}
+
+.calendar-day.disabled {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+}
+
+[data-theme="dark"] .calendar-day.disabled {
+    color: var(--system-gray2);
+}
+
+.calendar-day.empty {
+    background-color: var(--color-bg-secondary);
+    cursor: default;
+}
+
+/* Time Slots */
+.time-slots {
+    margin-top: var(--space-6);
+}
+
+.time-slots-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border-secondary);
+    color: var(--color-text-primary);
+}
+
+.time-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--space-2);
+}
+
+.time-slot {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3);
+    font-size: var(--font-size-sm);
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.time-slot:hover:not(.disabled):not(.holiday) {
+    background-color: var(--color-bg-tertiary);
+}
+
+.time-slot.selected {
+    background-color: var(--color-accent);
+    color: #ffffff;
+    font-weight: var(--font-weight-medium);
+}
+
+.time-slot.disabled {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+}
+
+.time-slot.holiday {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+}
+
+.no-slots-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+}
+
+/* Booking Cards */
+.booking-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding: var(--space-5);
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-4);
+    box-shadow: var(--shadow-xs);
+}
+
+.booking-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.booking-info h4 {
+    margin-bottom: var(--space-2);
+}
+
+.booking-details {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.booking-details>div {
+    margin-bottom: var(--space-1);
+}

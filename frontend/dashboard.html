@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Ellebi Service SRL</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+  <!-- Sidebar Overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- Sidebar Menu -->
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <span>Menu</span>
+      <button id="close-sidebar" class="sidebar-close">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/bookings" class="sidebar-item">Gestione Prenotazioni</a>
+      <a href="/subscriptions" class="sidebar-item">Prenotazioni di lungo periodo</a>
+      <button id="sidebar-logout" class="sidebar-item sidebar-logout">Logout</button>
+    </nav>
+  </div>
+
+  <div class="header">
+    <div class="header-left">
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Apri menu">☰</button>
+      <a href="/home" class="header-logo-link">
+        <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo">
+      </a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="welcome-section" class="mb-3">
+      <h2 id="welcome-message">Bentornato</h2>
+    </div>
+
+
+
+    <!-- Sezione calendario -->
+    <div id="calendar-section">
+      <h3 class="text-center mb-2">Prenota un appuntamento</h3>
+
+      <div class="calendar">
+        <div class="calendar-header">
+          <button id="prev-month" class="btn calendar-nav-btn">←</button>
+          <div id="current-month" class="calendar-month"></div>
+          <button id="next-month" class="btn calendar-nav-btn">→</button>
+        </div>
+
+        <div id="calendar-grid" class="calendar-grid">
+          <div class="calendar-day-header">Lun</div>
+          <div class="calendar-day-header">Mar</div>
+          <div class="calendar-day-header">Mer</div>
+          <div class="calendar-day-header">Gio</div>
+          <div class="calendar-day-header">Ven</div>
+          <div class="calendar-day-header">Sab</div>
+          <div class="calendar-day-header">Dom</div>
+          <!-- I giorni verranno aggiunti qui via JavaScript -->
+        </div>
+
+        <!-- Time slots -->
+        <div id="time-slots-section" class="time-slots hidden">
+          <div class="time-slots-title">Seleziona un orario</div>
+          <div id="time-slots-grid" class="time-slots-grid"></div>
+          <button id="confirm-datetime-btn" class="btn btn-full" disabled>
+            Conferma Giorno e Orario
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Selezione Gruppo (Quanti si presenteranno?) -->
+  <div id="group-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 class="modal-title">Quanti si presenteranno all'appuntamento?</h3>
+      <div class="modal-buttons" style="flex-direction: column; gap: 16px;">
+        <button class="btn btn-full group-btn" data-group="1">1 persona</button>
+        <button class="btn btn-full group-btn" data-group="2">2 persone</button>
+        <button class="btn btn-full group-btn" data-group="3">3 persone</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Appuntamento Ricorrente (Il Solito) -->
+  <div id="recurring-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 class="modal-title" id="recurring-title">Il solito?</h3>
+
+      <div class="modal-details" style="text-align: center; background: none; border: none; padding: 0;">
+        <div style="font-size: 1.1rem; margin-bottom: 20px; line-height: 1.6;">
+          <div id="recurring-prev-date" style="color: var(--color-text-secondary);"></div>
+          <div style="font-weight: bold; margin: 5px 0;">↓</div>
+          <div id="recurring-next-date" style="font-weight: 600; font-size: 1.2rem;"></div>
+        </div>
+
+        <div id="recurring-service-name" style="font-weight: 500; color: var(--color-accent); margin-bottom: 10px;">
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button type="button" id="recurring-btn-no" class="btn modal-btn-cancel">No</button>
+        <button type="button" id="recurring-btn-book" class="btn modal-btn-confirm">Prenota</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+
+</html>

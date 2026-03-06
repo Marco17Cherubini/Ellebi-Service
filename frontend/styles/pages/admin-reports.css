@@ -1,0 +1,86 @@
+/* ============================================================================
+   LB SERVICE - ADMIN REPORTS PAGE STYLES
+   Booking statistics and charts
+   ============================================================================ */
+
+.reports-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: var(--space-3);
+}
+
+.page-subtitle {
+    text-align: center;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-8);
+}
+
+/* ==================== FILTERS ==================== */
+
+.filter-container {
+    margin-bottom: var(--space-6);
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    align-items: center;
+}
+
+.filter-label {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+
+.filter-select {
+    padding: var(--space-3) var(--space-5);
+    border: 2px solid var(--color-border-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+}
+
+/* ==================== CHART ==================== */
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    background-color: var(--color-bg-primary);
+    border: 2px solid var(--color-border-primary);
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+}
+
+/* ==================== STATS SUMMARY ==================== */
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-5);
+    margin-top: var(--space-8);
+}
+
+.stat-card {
+    background-color: var(--color-bg-secondary);
+    border: 2px solid var(--color-border-primary);
+    padding: var(--space-5);
+    text-align: center;
+    border-radius: var(--radius-md);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: var(--space-1);
+    color: var(--color-accent);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}

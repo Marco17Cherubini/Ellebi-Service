@@ -1,0 +1,23 @@
+# Dipendenze
+node_modules/
+
+# File ambiente (contiene password!)
+.env
+
+# Database (dati sensibili!)
+database/*.sqlite
+database/*.sqlite-*
+database/*.csv
+database/*_backup.*
+!database/.gitkeep
+
+# Backup
+backups/
+
+# Log
+logs/
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db

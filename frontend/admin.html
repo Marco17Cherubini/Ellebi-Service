@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Ellebi Service SRL</title>
+  <link rel="stylesheet" href="/styles.css">
+  <!-- FullCalendar CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+</head>
+
+<body>
+  <!-- Sidebar Overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- Sidebar Menu -->
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <a href="/admin" class="sidebar-logo-link">
+        <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="sidebar-logo">
+      </a>
+      <button id="close-sidebar" class="sidebar-close">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin/reports" class="sidebar-item">
+        <span>Resoconto Clientela</span>
+      </a>
+      <a href="/admin/clienti" class="sidebar-item">
+        <span>Gestione Clienti</span>
+      </a>
+      <button id="sidebar-logout" class="sidebar-item sidebar-logout">
+        <span>Logout</span>
+      </button>
+    </nav>
+  </div>
+
+  <div class="header">
+    <div class="header-left">
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Apri menu">☰</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="admin-calendar">
+
+      <!-- Legenda con selezione modalità ferie -->
+      <div class="admin-calendar__legend">
+        <div class="admin-calendar__legend-item">
+          <span class="admin-calendar__legend-box admin-calendar__legend-box--booking"></span>
+          <span>Prenotato</span>
+        </div>
+        <div class="admin-calendar__legend-item admin-calendar__legend-item--selectable" id="holiday-mode-toggle">
+          <span class="admin-calendar__legend-box admin-calendar__legend-box--holiday"></span>
+          <span>Ferie (clicca per attivare)</span>
+        </div>
+        <div class="admin-calendar__nav">
+          <button id="prev-week" class="admin-calendar__nav-btn">←</button>
+          <button id="next-week" class="admin-calendar__nav-btn">→</button>
+        </div>
+        <div id="holiday-mode-indicator" class="admin-calendar__holiday-mode hidden">
+          <span>MODALITÀ FERIE ATTIVA - Clicca sulle celle per selezionare/deselezionare</span>
+          <button id="save-holidays-btn" class="btn admin-calendar__btn--holiday-save">Salva Ferie</button>
+          <button id="cancel-holidays-btn" class="btn admin-calendar__btn--holiday-cancel">Annulla</button>
+        </div>
+      </div>
+
+      <div id="admin-calendar-grid" class="admin-calendar__grid">
+        <!-- Header colonne: Orario + 6 giorni (Lun-Sab) -->
+        <div class="admin-calendar__header">ORARIO</div>
+        <div class="admin-calendar__header" id="day-header-0">LUNEDÌ</div>
+        <div class="admin-calendar__header" id="day-header-1">MARTEDÌ</div>
+        <div class="admin-calendar__header" id="day-header-2">MERCOLEDÌ</div>
+        <div class="admin-calendar__header" id="day-header-3">GIOVEDÌ</div>
+        <div class="admin-calendar__header" id="day-header-4">VENERDÌ</div>
+        <div class="admin-calendar__header" id="day-header-5">SABATO</div>
+        <!-- Le righe degli orari verranno generate da JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Inserimento/Modifica Appuntamento -->
+  <div id="booking-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content modal-large">
+      <h3 class="modal-title" id="modal-title">Nuovo Appuntamento</h3>
+      <p class="modal-subtitle">
+        <span id="modal-date-display"></span> alle <span id="modal-time-display"></span>
+      </p>
+
+      <form id="booking-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Cognome *</label>
+            <input type="text" id="input-cognome" class="form-input" placeholder="Inserisci cognome" autocomplete="off"
+              required>
+            <div id="suggestions-list" class="suggestions-list hidden"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nome</label>
+            <input type="text" id="input-nome" class="form-input" placeholder="Inserisci nome">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="input-email" class="form-input" placeholder="email@esempio.it">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telefono</label>
+            <input type="tel" id="input-telefono" class="form-input" placeholder="+39 123 456 7890">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Servizio</label>
+            <select id="input-servizio" class="form-input">
+              <option value="">— Seleziona servizio —</option>
+              <option value="Tagliando">Tagliando</option>
+              <option value="Revisione">Revisione</option>
+              <option value="Cambio gomme">Cambio gomme</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="form-error" class="form-error hidden"></div>
+
+        <div class="modal-buttons">
+          <button type="button" id="modal-cancel" class="btn modal-btn-cancel">Annulla</button>
+          <button type="submit" id="modal-save" class="btn modal-btn-confirm">Conferma</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Dettaglio/Cancella Appuntamento -->
+  <div id="detail-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 class="modal-title">Dettaglio Appuntamento</h3>
+      <div class="modal-details" id="detail-content">
+        <!-- Dettagli inseriti via JS -->
+      </div>
+      <div class="modal-buttons">
+        <button type="button" id="detail-close" class="btn modal-btn-cancel">Chiudi</button>
+        <button type="button" id="detail-delete" class="btn modal-btn-delete">Cancella</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Conferma Cancellazione -->
+  <div id="delete-confirm-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 class="modal-title">Conferma Cancellazione</h3>
+      <p class="modal-text">
+        Stai per cancellare l'appuntamento di:<br>
+        <strong id="delete-client-name"></strong>
+      </p>
+      <div class="modal-details" id="delete-booking-details">
+        <!-- Dettagli inseriti via JS -->
+      </div>
+      <p class="modal-question">Sei sicuro di voler procedere?</p>
+      <div class="modal-buttons">
+        <button type="button" id="delete-cancel" class="btn modal-btn-cancel">No</button>
+        <button type="button" id="delete-confirm" class="btn modal-btn-delete">Sì</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/components/Modal.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+
+</html>

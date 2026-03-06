@@ -1,0 +1,121 @@
+/* ============================================================================
+   LB SERVICE - LAYOUT CONTAINERS
+   Container utilities and layout helpers
+   ============================================================================ */
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-4);
+    /* Apple: 24pt verticale, 16pt laterale */
+}
+
+@media (min-width: 768px) {
+    .container {
+        padding: var(--space-8) var(--space-8);
+        /* Apple: 32pt su tablet+ */
+    }
+}
+
+.center-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: var(--space-6);
+}
+
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4) var(--space-6);
+    background-color: var(--color-bg-primary);
+    border-bottom: 1px solid var(--color-border-secondary);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.header-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.header-logo {
+    height: 70px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.header-logo-link {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    background: none;
+    padding: 0;
+    border-radius: var(--radius-md);
+    transition: opacity 0.2s ease;
+}
+
+.header-logo-link:hover {
+    opacity: 0.75;
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.header-btn {
+    min-height: 36px;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm);
+}
+
+/* ============================================================================
+   HIDDEN UTILITY
+   ============================================================================ */
+
+.hidden {
+    display: none !important;
+}
+
+/* ============================================================================
+   SIDEBAR LOGO
+   ============================================================================ */
+
+.sidebar-logo {
+    height: 52px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.sidebar-logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    border: none;
+    background: none;
+    padding: 0;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar-logo-link:hover {
+    opacity: 0.75;
+}

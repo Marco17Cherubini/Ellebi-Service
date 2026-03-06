@@ -1,0 +1,168 @@
+/* ============================================================================
+   LB SERVICE - ADMIN COMPONENT TOKENS
+   Tokens specifici per l'interfaccia Admin (Calendario, Sidebar, Modal)
+   ============================================================================ */
+
+:root {
+    /* ==================== ADMIN CALENDAR COLORS (Light Mode) ==================== */
+    /* Struttura Calendario */
+    --admin-calendar-border: #ccc;
+    --admin-header-bg: #f8f8f8;
+    --admin-header-text: #333;
+    --admin-header-border: #ddd;
+    --admin-time-bg: #f8f8f8;
+    --admin-time-text: #666;
+    --admin-cell-bg: #fff;
+    --admin-cell-border: #eee;
+    --admin-cell-hover-bg: #f0f0f0;
+    --admin-no-booking-text: #aaa;
+
+    /* Prenotazioni (Booking) */
+    --admin-booking-cell-bg: #fffbeb;
+    --admin-booking-item-bg: #fef3c7;
+    --admin-booking-item-border: #fbbf24;
+    --admin-booking-item-left-border: #f59e0b;
+    --admin-booking-service-text: #666;
+
+    /* Ferie (Holiday) */
+    --admin-holiday-bg: #b0e0e6;
+    --admin-holiday-text: #2c5282;
+    --admin-holiday-mode-bg: #e0f4ff;
+    --admin-holiday-mode-border: #b0e0e6;
+    --admin-holiday-btn-border: #87ceeb;
+    --admin-holiday-selected-bg: #d4f1f9;
+    --admin-holiday-selected-border: #87ceeb;
+
+    /* Legenda */
+    --admin-legend-bg: #f5f5f5;
+    --admin-legend-border: #ddd;
+    --admin-legend-box-border: #000;
+    --admin-legend-hover-bg: #e6f0ff;
+    --admin-legend-hover-border: #0066cc;
+    --admin-legend-active-bg: #cce0ff;
+
+    /* Hamburger Menu */
+    --admin-hamburger-color: #000;
+    --admin-hamburger-hover: #333;
+
+    /* Sidebar */
+    --admin-sidebar-bg: #fff;
+    --admin-sidebar-overlay: rgba(0, 0, 0, 0.5);
+    --admin-sidebar-shadow: rgba(0, 0, 0, 0.2);
+    --admin-sidebar-header-border: #000;
+    --admin-sidebar-item-text: #000;
+    --admin-sidebar-item-hover-bg: #f5f5f5;
+    --admin-sidebar-logout-text: #c00;
+    --admin-sidebar-logout-hover-bg: #fee;
+    --admin-sidebar-logout-border: #eee;
+
+    /* Pulsanti Navigazione */
+    --admin-nav-btn-bg: #fff;
+    --admin-nav-btn-border: #000;
+    --admin-nav-btn-text: #000;
+    --admin-nav-btn-hover-bg: #f0f0f0;
+
+    /* Modal */
+    --admin-modal-overlay: rgba(0, 0, 0, 0.7);
+    --admin-modal-bg: #fff;
+    --admin-modal-border: #000;
+    --admin-modal-subtitle-text: #666;
+    --admin-modal-details-bg: #f5f5f5;
+    --admin-form-input-border: #000;
+    --admin-form-input-bg: #fff;
+    --admin-btn-cancel-bg: #fff;
+    --admin-btn-cancel-text: #000;
+    --admin-btn-confirm-bg: #000;
+    --admin-btn-confirm-text: #fff;
+    --admin-btn-delete-bg: #c00;
+
+    /* Drag & Drop */
+    --admin-drop-valid-bg: #d1fae5;
+    --admin-drop-valid-border: #10b981;
+    --admin-drop-invalid-bg: #fee2e2;
+    --admin-drop-invalid-border: #ef4444;
+    --admin-toast-success-bg: #10b981;
+    --admin-toast-error-bg: #ef4444;
+}
+
+/* ==================== ADMIN DARK MODE ==================== */
+[data-theme="dark"] {
+    /* Struttura Calendario */
+    --admin-calendar-border: #FFFFFF;
+    --admin-header-bg: #1C1C1E;
+    --admin-header-text: #EBEBF5;
+    --admin-header-border: #FFFFFF;
+    --admin-time-bg: #1C1C1E;
+    --admin-time-text: rgba(235, 235, 245, 0.6);
+    --admin-cell-bg: #000000;
+    --admin-cell-border: #FFFFFF;
+    --admin-cell-hover-bg: #2C2C2E;
+    --admin-no-booking-text: #636366;
+
+    /* Prenotazioni (Booking) */
+    --admin-booking-cell-bg: #3D3419;
+    --admin-booking-item-bg: #4A3F1A;
+    --admin-booking-item-border: #FFD60A;
+    --admin-booking-item-left-border: #FF9F0A;
+    --admin-booking-service-text: rgba(235, 235, 245, 0.6);
+
+    /* Ferie (Holiday) */
+    --admin-holiday-bg: #1A3A42;
+    --admin-holiday-text: #64D2FF;
+    --admin-holiday-mode-bg: #0F2832;
+    --admin-holiday-mode-border: #1A3A42;
+    --admin-holiday-btn-border: #64D2FF;
+    --admin-holiday-selected-bg: #1F4551;
+    --admin-holiday-selected-border: #64D2FF;
+
+    /* Legenda */
+    --admin-legend-bg: #1C1C1E;
+    --admin-legend-border: #2C2C2E;
+    --admin-legend-box-border: #FFFFFF;
+    --admin-legend-hover-bg: #1A2A3A;
+    --admin-legend-hover-border: #0A84FF;
+    --admin-legend-active-bg: #1E3A52;
+
+    /* Hamburger Menu */
+    --admin-hamburger-color: #FFFFFF;
+    --admin-hamburger-hover: #EBEBF5;
+
+    /* Sidebar */
+    --admin-sidebar-bg: #1C1C1E;
+    --admin-sidebar-overlay: rgba(0, 0, 0, 0.7);
+    --admin-sidebar-shadow: rgba(0, 0, 0, 0.5);
+    --admin-sidebar-header-border: #FFFFFF;
+    --admin-sidebar-item-text: #FFFFFF;
+    --admin-sidebar-item-hover-bg: #2C2C2E;
+    --admin-sidebar-logout-text: #FF453A;
+    --admin-sidebar-logout-hover-bg: #3A1A1A;
+    --admin-sidebar-logout-border: #2C2C2E;
+
+    /* Pulsanti Navigazione */
+    --admin-nav-btn-bg: #1C1C1E;
+    --admin-nav-btn-border: #FFFFFF;
+    --admin-nav-btn-text: #FFFFFF;
+    --admin-nav-btn-hover-bg: #2C2C2E;
+
+    /* Modal */
+    --admin-modal-overlay: rgba(0, 0, 0, 0.85);
+    --admin-modal-bg: #1C1C1E;
+    --admin-modal-border: #FFFFFF;
+    --admin-modal-subtitle-text: rgba(235, 235, 245, 0.6);
+    --admin-modal-details-bg: #2C2C2E;
+    --admin-form-input-border: #48484A;
+    --admin-form-input-bg: #2C2C2E;
+    --admin-btn-cancel-bg: #2C2C2E;
+    --admin-btn-cancel-text: #FFFFFF;
+    --admin-btn-confirm-bg: #FFFFFF;
+    --admin-btn-confirm-text: #000000;
+    --admin-btn-delete-bg: #FF453A;
+
+    /* Drag & Drop */
+    --admin-drop-valid-bg: #1A3A2A;
+    --admin-drop-valid-border: #30D158;
+    --admin-drop-invalid-bg: #3A1A1A;
+    --admin-drop-invalid-border: #FF453A;
+    --admin-toast-success-bg: #30D158;
+    --admin-toast-error-bg: #FF453A;
+}

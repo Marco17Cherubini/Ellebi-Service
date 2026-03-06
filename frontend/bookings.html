@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Mie Prenotazioni - Ellebi Service SRL</title>
+  <link rel="stylesheet" href="/styles.css">
+
+</head>
+
+<body>
+  <!-- Sidebar Overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- Sidebar Menu -->
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <span>Menu</span>
+      <button id="close-sidebar" class="sidebar-close">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard" class="sidebar-item">Prenota</a>
+      <a href="/subscriptions" class="sidebar-item">Prenotazioni di lungo periodo</a>
+      <button id="sidebar-logout" class="sidebar-item sidebar-logout">Logout</button>
+    </nav>
+  </div>
+
+  <div class="header">
+    <div class="header-left">
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Apri menu">☰</button>
+      <a href="/home" class="header-logo-link">
+        <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo">
+      </a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2 class="text-center mb-3">Le Mie Prenotazioni</h2>
+
+    <div id="bookings-list">
+      <div class="loading">Caricamento prenotazioni...</div>
+    </div>
+
+    <div id="no-bookings" class="text-center hidden">
+      <p>Non hai ancora effettuato prenotazioni.</p>
+      <a href="/dashboard" class="btn mt-2">Prenota Ora</a>
+    </div>
+  </div>
+
+  <!-- Modal Conferma Cancellazione -->
+  <div id="delete-confirm-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 class="modal-title">Conferma Cancellazione</h3>
+      <p class="modal-text">
+        Stai per cancellare l'appuntamento:
+      </p>
+      <div class="modal-details" id="delete-booking-details">
+        <!-- Dettagli inseriti via JS -->
+      </div>
+      <p class="modal-question">Sei sicuro di voler procedere?</p>
+      <div class="modal-buttons">
+        <button type="button" id="delete-cancel" class="btn modal-btn-cancel">No, Annulla</button>
+        <button type="button" id="delete-confirm" class="btn modal-btn-delete">Sì, Cancella</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/bookings.js"></script>
+</body>
+
+</html>

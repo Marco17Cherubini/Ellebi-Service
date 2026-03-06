@@ -1,0 +1,271 @@
+/* ============================================================================
+   LB SERVICE - GLOBAL DESIGN TOKENS
+   Sistema di design basato sulle specifiche tecniche Apple
+   
+   Contenuto:
+   - Grid system 8pt
+   - Typography scale
+   - Shadows, Radius, Transitions, Z-index
+   - System Colors (Apple palette)
+   - Semantic Colors
+   ============================================================================ */
+
+:root {
+    /* ============================================================
+       🎨 BRAND COLORS — MODIFICA QUI I COLORI SOCIALI DEL BRAND
+       ============================================================
+       Queste variabili controllano l'aspetto visivo dell'intera
+       applicazione. Cambia solo questi valori per adattare i
+       colori ai colori sociali del marchio.
+
+       ✅ COLORI PRINCIPALI (pulsanti CTA, accenti, link attivi)
+    */
+    --brand-accent: #FF6B00;
+    /* Colore principale (CTA, bottoni primari)    */
+    --brand-accent-hover: #cc5500;
+    /* Hover del colore principale (light mode)    */
+    --brand-accent-dark: #ff8c33;
+    /* Hover del colore principale (dark mode)     */
+
+    /*
+       ✅ OMBRE PULSANTI E UI
+       Usa rgba con il colore brand per ombre "colorate",
+       oppure rgba(0,0,0,...) per ombre neutre classiche.
+    */
+    --brand-shadow-color: rgba(0, 0, 0, 0.15);
+    /* Colore base ombre (light mode)              */
+    --brand-shadow-color-dark: rgba(0, 0, 0, 0.5);
+    /* Colore base ombre (dark mode)               */
+
+    /*
+       ✅ TESTO
+       Cambia solo se il brand usa un colore di testo personalizzato.
+    */
+    --brand-text-primary: #000000;
+    /* Testo principale (light mode)               */
+    --brand-text-on-accent: #ffffff;
+    /* Testo sopra i pulsanti colorati             */
+
+    /* ============================================================
+       Fine sezione BRAND COLORS. Non toccare il resto del file.
+       ============================================================ */
+    /* ==================== 8-POINT GRID SYSTEM ==================== */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 28px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+
+    /* ==================== TYPOGRAPHY ==================== */
+    --font-primary: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 2rem;
+    --font-size-4xl: 2.5rem;
+
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.7;
+
+    --letter-spacing-tight: -0.02em;
+    --letter-spacing-normal: 0;
+    --letter-spacing-wide: 0.02em;
+
+    /* ==================== CORNER RADIUS (Squircle System) ==================== */
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+
+    /* ==================== SHADOWS (Apple Formula) ==================== */
+    --shadow-xs: 0 1px 2px var(--brand-shadow-color);
+    --shadow-sm: 0 2px 4px var(--brand-shadow-color);
+    --shadow-md: 0 4px 8px var(--brand-shadow-color);
+    --shadow-lg: 0 8px 16px var(--brand-shadow-color);
+    --shadow-xl: 0 12px 24px var(--brand-shadow-color);
+    --shadow-2xl: 0 20px 40px var(--brand-shadow-color);
+
+    /* ==================== TRANSITIONS ==================== */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+    --transition-slow: 350ms ease;
+    --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* ==================== Z-INDEX SCALE ==================== */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-popover: 600;
+    --z-tooltip: 700;
+
+    /* ==================== APPLE SYSTEM COLORS (Light Mode) ==================== */
+    --system-blue: #007AFF;
+    --system-green: #34C759;
+    --system-red: #FF3B30;
+    --system-yellow: #FFCC00;
+    --system-orange: #FF9500;
+    --system-pink: #FF2D55;
+    --system-purple: #AF52DE;
+    --system-indigo: #5856D6;
+    --system-teal: #5AC8FA;
+    --system-brown: #A2845E;
+
+    /* ==================== APPLE GRAY SCALE (Light Mode) ==================== */
+    --system-gray: #8E8E93;
+    --system-gray2: #AEAEB2;
+    --system-gray3: #C7C7CC;
+    --system-gray4: #D1D1D6;
+    --system-gray5: #E5E5EA;
+    --system-gray6: #F2F2F7;
+
+    /* ==================== APPLE BACKGROUNDS (Light Mode) ==================== */
+    --system-background: #FFFFFF;
+    --secondary-system-background: #F2F2F7;
+    --tertiary-system-background: #FFFFFF;
+    --system-grouped-background: #F2F2F7;
+    --secondary-system-grouped-background: #FFFFFF;
+    --tertiary-system-grouped-background: #F2F2F7;
+
+    /* ==================== APPLE LABELS (Light Mode) ==================== */
+    --label: #000000;
+    --secondary-label: rgba(60, 60, 67, 0.6);
+    --tertiary-label: rgba(60, 60, 67, 0.3);
+    --quaternary-label: rgba(60, 60, 67, 0.18);
+    --placeholder-text: rgba(60, 60, 67, 0.3);
+
+    /* ==================== APPLE FILLS (Light Mode) ==================== */
+    --system-fill: rgba(120, 120, 128, 0.2);
+    --secondary-system-fill: rgba(120, 120, 128, 0.16);
+    --tertiary-system-fill: rgba(118, 118, 128, 0.12);
+    --quaternary-system-fill: rgba(116, 116, 128, 0.08);
+
+    /* ==================== APPLE SEPARATORS (Light Mode) ==================== */
+    --separator: rgba(60, 60, 67, 0.29);
+    --opaque-separator: #C6C6C8;
+
+    /* ==================== SEMANTIC COLORS (Light Mode) ==================== */
+    --color-bg-primary: var(--system-background);
+    --color-bg-secondary: var(--secondary-system-background);
+    --color-bg-tertiary: var(--system-gray5);
+    --color-bg-elevated: var(--system-background);
+
+    --color-text-primary: var(--label);
+    --color-text-secondary: var(--secondary-label);
+    --color-text-tertiary: var(--tertiary-label);
+    --color-text-disabled: var(--quaternary-label);
+
+    --color-border-primary: var(--opaque-separator);
+    --color-border-secondary: var(--system-gray5);
+    --color-border-strong: var(--label);
+
+    --color-accent: var(--brand-accent);
+    --color-accent-hover: var(--brand-accent-hover);
+    --color-success: var(--system-green);
+    --color-warning: var(--system-orange);
+    --color-error: var(--system-red);
+
+    --color-overlay: rgba(0, 0, 0, 0.4);
+    --color-shadow: var(--brand-shadow-color);
+}
+
+/* ==================== DARK THEME (Apple Specifications) ==================== */
+[data-theme="dark"] {
+    /* === APPLE SYSTEM COLORS (Dark Mode) === */
+    --system-blue: #0A84FF;
+    --system-green: #30D158;
+    --system-red: #FF453A;
+    --system-yellow: #FFD60A;
+    --system-orange: #FF9F0A;
+    --system-pink: #FF375F;
+    --system-purple: #BF5AF2;
+    --system-indigo: #5E5CE6;
+    --system-teal: #64D2FF;
+    --system-brown: #AC8E68;
+
+    /* === APPLE GRAY SCALE (Dark Mode) === */
+    --system-gray: #8E8E93;
+    --system-gray2: #636366;
+    --system-gray3: #48484A;
+    --system-gray4: #3A3A3C;
+    --system-gray5: #2C2C2E;
+    --system-gray6: #1C1C1E;
+
+    /* === APPLE BACKGROUNDS (Dark Mode) === */
+    --system-background: #000000;
+    --secondary-system-background: #1C1C1E;
+    --tertiary-system-background: #2C2C2E;
+    --system-grouped-background: #000000;
+    --secondary-system-grouped-background: #1C1C1E;
+    --tertiary-system-grouped-background: #2C2C2E;
+
+    /* === APPLE LABELS (Dark Mode) === */
+    --label: #FFFFFF;
+    --secondary-label: rgba(235, 235, 245, 0.6);
+    --tertiary-label: rgba(235, 235, 245, 0.3);
+    --quaternary-label: rgba(235, 235, 245, 0.18);
+    --placeholder-text: rgba(235, 235, 245, 0.3);
+
+    /* === APPLE FILLS (Dark Mode) === */
+    --system-fill: rgba(120, 120, 128, 0.36);
+    --secondary-system-fill: rgba(120, 120, 128, 0.32);
+    --tertiary-system-fill: rgba(118, 118, 128, 0.24);
+    --quaternary-system-fill: rgba(116, 116, 128, 0.18);
+
+    /* === APPLE SEPARATORS (Dark Mode) === */
+    --separator: #FFFFFF;
+    --opaque-separator: #FFFFFF;
+
+    /* === SEMANTIC COLORS (Dark Mode) === */
+    --color-bg-primary: var(--system-background);
+    --color-bg-secondary: var(--secondary-system-background);
+    --color-bg-tertiary: var(--tertiary-system-background);
+    --color-bg-elevated: var(--secondary-system-background);
+
+    --color-text-primary: var(--label);
+    --color-text-secondary: var(--secondary-label);
+    --color-text-tertiary: var(--tertiary-label);
+    --color-text-disabled: var(--quaternary-label);
+
+    --color-border-primary: var(--opaque-separator);
+    --color-border-secondary: #FFFFFF;
+    --color-border-strong: var(--label);
+
+    --color-accent: var(--brand-accent);
+    --color-accent-hover: var(--brand-accent-dark);
+    --color-success: var(--system-green);
+    --color-warning: var(--system-orange);
+    --color-error: var(--system-red);
+
+    --color-overlay: rgba(0, 0, 0, 0.6);
+    --color-shadow: var(--brand-shadow-color-dark);
+
+    /* Dark mode shadows */
+    --shadow-xs: 0 1px 2px var(--brand-shadow-color-dark);
+    --shadow-sm: 0 2px 4px var(--brand-shadow-color-dark);
+    --shadow-md: 0 4px 8px var(--brand-shadow-color-dark);
+    --shadow-lg: 0 8px 16px var(--brand-shadow-color-dark);
+    --shadow-xl: 0 12px 24px var(--brand-shadow-color-dark);
+    --shadow-2xl: 0 20px 40px var(--brand-shadow-color-dark);
+}

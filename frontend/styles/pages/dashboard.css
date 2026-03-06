@@ -1,0 +1,15 @@
+/* ============================================================================
+   LB SERVICE - DASHBOARD PAGE STYLES
+   User dashboard with sidebar and recurring booking modal
+   ============================================================================ */
+
+/* ==================== HEADER LEFT ==================== */
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+/* ==================== SIDEBAR ==================== */
+/* Styles inherited from global styles.css */

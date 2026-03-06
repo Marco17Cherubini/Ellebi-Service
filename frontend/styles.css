@@ -1,0 +1,568 @@
+/* ============================================================================
+   LB SERVICE - MAIN STYLESHEET ENTRY POINT
+   
+   Questo file importa tutti i moduli CSS nell'ordine corretto.
+   La struttura segue il pattern: Tokens → Base → Layout → Components → Pages
+   ============================================================================ */
+
+/* ==================== 1. TOKENS (Design Foundations) ==================== */
+@import 'styles/tokens/global.css';
+@import 'styles/tokens/admin.css';
+
+/* ==================== 2. BASE (Reset & Primitives) ==================== */
+@import 'styles/base/reset.css';
+@import 'styles/base/typography.css';
+
+/* ==================== 3. LAYOUT (Structure) ==================== */
+@import 'styles/layout/containers.css';
+
+/* ==================== 4. COMPONENTS (Reusable Blocks) ==================== */
+@import 'styles/components/buttons.css';
+@import 'styles/components/forms.css';
+@import 'styles/components/cards.css';
+@import 'styles/components/calendar.css';
+@import 'styles/components/modal.css';
+
+/* ==================== 5. PAGES (Page-specific styles) ==================== */
+@import 'styles/pages/admin.css';
+@import 'styles/pages/admin-reports.css';
+@import 'styles/pages/admin-clienti.css';
+@import 'styles/pages/guest-booking.css';
+@import 'styles/pages/dashboard.css';
+
+/* ==================== 6. REMAINING STYLES ==================== */
+/* Note: Sidebar, Theme Toggle, Hamburger, Utilities & Responsive remain here */
+
+/* ============================================================================
+   SIDEBAR (Apple Style)
+   ============================================================================ */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100%;
+  background-color: var(--color-bg-elevated);
+  border-right: 1px solid var(--color-border-secondary);
+  transform: translateX(-100%);
+  transition: transform var(--transition-normal);
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.active {
+  transform: translateX(0);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-overlay);
+  z-index: calc(var(--z-modal) - 1);
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+}
+
+.sidebar-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.sidebar-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sidebar-close {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
+}
+
+.sidebar-close:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: var(--space-4) 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: background-color var(--transition-fast);
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.sidebar-item:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.sidebar-item.active {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-medium);
+}
+
+.sidebar-logout {
+  color: var(--color-error);
+  margin-top: auto;
+}
+
+/* ============================================================================
+   THEME TOGGLE (Apple Style)
+   ============================================================================ */
+
+.theme-toggle {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  z-index: var(--z-fixed);
+}
+
+.theme-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.theme-switch:hover {
+  box-shadow: var(--shadow-xl);
+  transform: scale(1.05);
+}
+
+.theme-switch-icon {
+  font-size: var(--font-size-lg);
+  transition: opacity var(--transition-fast);
+}
+
+.theme-switch-icon.sun {
+  display: block;
+}
+
+.theme-switch-icon.moon {
+  display: none;
+}
+
+[data-theme="dark"] .theme-switch-icon.sun {
+  display: none;
+}
+
+[data-theme="dark"] .theme-switch-icon.moon {
+  display: block;
+  color: #FFFFFF;
+}
+
+/* ============================================================================
+   HAMBURGER MENU
+   ============================================================================ */
+
+.hamburger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: var(--radius-md);
+  font-size: 1.4rem;
+  color: var(--color-text-primary);
+  line-height: 1;
+  transition: background-color var(--transition-fast);
+}
+
+.hamburger-btn:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.hidden {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mt-2 {
+  margin-top: var(--space-2);
+}
+
+.mt-4 {
+  margin-top: var(--space-4);
+}
+
+.mt-6 {
+  margin-top: var(--space-6);
+}
+
+.mt-8 {
+  margin-top: var(--space-8);
+}
+
+.mb-2 {
+  margin-bottom: var(--space-2);
+}
+
+.mb-4 {
+  margin-bottom: var(--space-4);
+}
+
+.mb-6 {
+  margin-bottom: var(--space-6);
+}
+
+.mb-8 {
+  margin-bottom: var(--space-8);
+}
+
+.p-2 {
+  padding: var(--space-2);
+}
+
+.p-4 {
+  padding: var(--space-4);
+}
+
+.p-6 {
+  padding: var(--space-6);
+}
+
+.p-8 {
+  padding: var(--space-8);
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-2 {
+  gap: var(--space-2);
+}
+
+.gap-4 {
+  gap: var(--space-4);
+}
+
+.gap-6 {
+  gap: var(--space-6);
+}
+
+.grid {
+  display: grid;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile Small (max 480px) */
+@media (max-width: 480px) {
+  :root {
+    --font-size-4xl: 2rem;
+    --font-size-3xl: 1.5rem;
+    --font-size-2xl: 1.25rem;
+  }
+
+  .container {
+    padding: 0 var(--space-4);
+  }
+
+  .header {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-group .btn {
+    width: 100%;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .modal-content {
+    padding: var(--space-6);
+    margin: var(--space-4);
+  }
+
+  .booking-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .calendar-day-header {
+    font-size: var(--font-size-xs);
+    padding: var(--space-2);
+  }
+}
+
+/* Tablet (max 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--space-5);
+  }
+
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-grid {
+    gap: 1px;
+  }
+
+  .time-slots-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Desktop (min 1024px) */
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 var(--space-8);
+  }
+}
+
+/* Touch devices */
+@media (pointer: coarse) {
+
+  .btn,
+  .calendar-day:not(.disabled):not(.empty),
+  .time-slot:not(.disabled),
+  .form-input,
+  .sidebar-item {
+    min-height: 44px;
+  }
+}
+
+/* Print */
+@media print {
+
+  .header,
+  .sidebar,
+  .sidebar-overlay,
+  .theme-toggle,
+  .btn {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+  }
+}
+
+/* Admin Drag & Drop Mobile */
+.admin-cell.has-booking,
+.booking-item,
+.booking-chip {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* ============================================================================
+   BRAND LOGO - LB SERVICE
+   ============================================================================ */
+
+.brand-logo {
+  display: inline-block;
+  width: 100%;
+  max-width: 340px;
+  height: 260px;
+  max-height: 40vh;
+  background-image: url("/images/LB-Service-Logo.webp");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Light Mode: multiply rende trasparente lo sfondo bianco del logo */
+html[data-theme="light"] .brand-logo {
+  mix-blend-mode: multiply;
+}
+
+/* Dark Mode: contenitore bianco arrotondato per rendere il logo leggibile */
+html[data-theme="dark"] .brand-logo {
+  background-color: #FFFFFF;
+  border-radius: var(--radius-2xl);
+  padding: 12px;
+  background-origin: content-box;
+  mix-blend-mode: normal;
+}
+
+/* ============================================================================
+   THEME WIPE ANIMATION (View Transitions & Fallback)
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 420ms;
+    animation-timing-function: ease-in-out;
+  }
+
+  /* Dark ON: wipe L -> R */
+  html[data-vt="to-dark"]::view-transition-new(root) {
+    animation-name: wipe-ltr;
+  }
+
+  /* Light ON: wipe R -> L */
+  html[data-vt="to-light"]::view-transition-new(root) {
+    animation-name: wipe-rtl;
+  }
+
+  @keyframes wipe-ltr {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes wipe-rtl {
+    from {
+      clip-path: inset(0 0 0 100%);
+    }
+
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+}
+
+/* Fallback Overlay Wipe */
+.theme-wipe {
+  position: fixed;
+  inset: 0;
+  background: var(--wipe-color);
+  pointer-events: none;
+  z-index: 999999;
+  clip-path: inset(0 100% 0 0);
+}
+
+.theme-wipe.is-on.ltr {
+  animation: wipe-ltr 420ms ease-in-out forwards;
+}
+
+.theme-wipe.is-on.rtl {
+  animation: wipe-rtl 420ms ease-in-out forwards;
+}
+
+/* ============================================================================
+   GROUP SELECTION BUTTONS (Apple 16px spacing, 44pt hit area)
+   ============================================================================ */
+
+.group-selection-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Apple standard spacing between blocks */
+}
+
+.group-selection-buttons .btn,
+.group-btn {
+  min-height: 44px;
+  /* Apple minimum touch target */
+  font-size: 1rem;
+}

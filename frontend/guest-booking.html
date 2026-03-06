@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prenotazione Rapida - Ellebi Service SRL</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+  <div class="header">
+    <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo">
+    <div class="header-actions">
+      <a href="/guest-home" class="btn header-btn">Indietro</a>
+    </div>
+  </div>
+
+  <div class="guest-container">
+    <div class="guest-header">
+      <h1>Prenotazione Rapida</h1>
+      <p>Prenota in pochi secondi, senza creare un account</p>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      <div class="step active" id="step-ind-0">
+        <span class="step-number">1</span>
+        <span class="step-label">Persone</span>
+      </div>
+      <div class="step" id="step-ind-1">
+        <span class="step-number">2</span>
+        <span class="step-label">Data e Ora</span>
+      </div>
+      <div class="step" id="step-ind-2">
+        <span class="step-number">3</span>
+        <span class="step-label">Dati</span>
+      </div>
+    </div>
+
+    <!-- Step 0: Numero Persone -->
+    <div class="guest-section active" id="step-0">
+      <h2 class="section-title">Quanti si presenteranno all'appuntamento?</h2>
+      <div class="group-selection-buttons">
+        <button class="btn btn-full group-btn" data-group="1">1 persona</button>
+        <button class="btn btn-full group-btn" data-group="2">2 persone</button>
+        <button class="btn btn-full group-btn" data-group="3">3 persone</button>
+      </div>
+    </div>
+
+    <!-- Step 1: Data e Ora -->
+    <div class="guest-section" id="step-1">
+      <h2 class="section-title">Scegli data e ora</h2>
+
+      <div class="calendar">
+        <div class="calendar-header">
+          <button class="btn calendar-nav-btn" id="prev-month">&lt;</button>
+          <span class="calendar-month" id="current-month"></span>
+          <button class="btn calendar-nav-btn" id="next-month">&gt;</button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid">
+          <div class="calendar-day-header">Lun</div>
+          <div class="calendar-day-header">Mar</div>
+          <div class="calendar-day-header">Mer</div>
+          <div class="calendar-day-header">Gio</div>
+          <div class="calendar-day-header">Ven</div>
+          <div class="calendar-day-header">Sab</div>
+          <div class="calendar-day-header">Dom</div>
+        </div>
+      </div>
+
+      <div class="time-slots hidden" id="time-slots-container">
+        <h3 class="time-slots-title" id="selected-date-title">Orari disponibili</h3>
+        <div class="time-slots-grid" id="time-slots-grid"></div>
+      </div>
+
+      <div class="btn-group" style="margin-top: 1rem;">
+        <button class="btn btn-outline" onclick="goToStep(0)">Indietro</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Dati Personali -->
+    <div class="guest-section" id="step-2">
+      <h2 class="section-title">I tuoi dati</h2>
+
+      <div class="selection-summary">
+        <p><strong>Data:</strong> <span id="summary-date"></span></p>
+        <p><strong>Ora:</strong> <span id="summary-time"></span></p>
+      </div>
+
+      <form id="guest-info-form" class="form">
+        <div class="guest-form-row">
+          <div class="form-group">
+            <label class="form-label" for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" class="form-input" required placeholder="Il tuo nome">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cognome">Cognome</label>
+            <input type="text" id="cognome" name="cognome" class="form-input" required placeholder="Il tuo cognome">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" name="email" class="form-input" required placeholder="La tua email">
+        </div>
+        <div id="form-error" class="form-error hidden"></div>
+        <div class="btn-group" style="gap: var(--space-3);">
+          <button type="button" class="btn btn-outline" onclick="goToStep(1)">Indietro</button>
+          <button type="submit" class="btn btn-large">Conferma Prenotazione</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 4: Conferma -->
+    <div class="guest-section" id="step-confirmation">
+      <div class="confirmation-box">
+        <h2>Prenotazione Confermata! ✓</h2>
+        <p>Ti abbiamo inviato una email con tutti i dettagli.</p>
+
+        <div class="confirmation-details">
+          <p><strong>Nome:</strong> <span id="conf-nome"></span></p>
+          <p><strong>Data:</strong> <span id="conf-data"></span></p>
+          <p><strong>Ora:</strong> <span id="conf-ora"></span></p>
+        </div>
+
+        <a href="/" class="btn btn-large">Torna alla Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/guest-booking.js"></script>
+</body>
+
+</html>

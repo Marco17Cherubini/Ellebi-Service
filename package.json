@@ -1,0 +1,46 @@
+{
+  "name": "lb-service",
+  "version": "1.0.0",
+  "description": "Sistema gestionale completo per LB Service",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "start:prod": "pm2 start ecosystem.config.js",
+    "stop": "pm2 stop lb-service",
+    "restart": "pm2 restart lb-service",
+    "logs": "pm2 logs lb-service",
+    "status": "pm2 status",
+    "backup": "node server/backup.js",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "workshop",
+    "officina",
+    "booking",
+    "management"
+  ],
+  "author": "LB Service",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.7",
+    "resend": "^6.6.0",
+    "sql.js": "^1.13.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1"
+  }
+}

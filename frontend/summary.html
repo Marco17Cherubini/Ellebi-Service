@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riepilogo Prenotazione - Ellebi Service SRL</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+  <div class="header">
+    <a href="/home" class="header-logo-link">
+      <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo">
+    </a>
+    <button id="back-btn" class="btn header-btn">← Indietro</button>
+  </div>
+
+  <div class="container">
+    <h2 class="text-center mb-3">Riepilogo Prenotazione</h2>
+
+    <div class="card">
+      <h3 class="mb-2">Dettagli Prenotazione</h3>
+
+      <div class="form-group">
+        <div class="form-label">Data</div>
+        <div id="booking-date"></div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Orario</div>
+        <div id="booking-time"></div>
+      </div>
+    </div>
+
+    <div class="card mt-2">
+      <h3 class="mb-2">Dati Cliente</h3>
+
+      <div class="form-group">
+        <div class="form-label">Nome</div>
+        <div id="customer-name"></div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Email</div>
+        <div id="customer-email"></div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Telefono</div>
+        <div id="customer-phone"></div>
+      </div>
+    </div>
+
+    <div id="error-message" class="form-error hidden mt-2"></div>
+
+    <button id="complete-booking-btn" class="btn btn-full">
+      Completa Prenotazione
+    </button>
+  </div>
+
+  <!-- Modal di Conferma -->
+  <div id="confirm-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 class="modal-title">Conferma Prenotazione</h3>
+      <p class="modal-text">
+        Stai per prenotare un appuntamento presso<br>
+        <strong>Ellebi Service SRL</strong>
+      </p>
+      <div class="modal-details">
+        <div><strong>Data:</strong> <span id="modal-date"></span></div>
+        <div><strong>Ora:</strong> <span id="modal-time"></span></div>
+      </div>
+      <p class="modal-question">Confermi la prenotazione?</p>
+      <div class="modal-buttons">
+        <button id="modal-cancel" class="btn modal-btn-cancel">Annulla</button>
+        <button id="modal-confirm" class="btn modal-btn-confirm">Sì, Conferma</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-content {
+      position: relative;
+      background-color: #fff;
+      color: #000;
+      padding: 40px;
+      border: 3px solid #000;
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #000;
+    }
+
+    .modal-text {
+      font-size: 1rem;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      color: #000;
+    }
+
+    .modal-text strong {
+      color: #000;
+    }
+
+    .modal-details {
+      background-color: #f5f5f5;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: left;
+      border: 1px solid #000;
+      color: #000;
+    }
+
+    .modal-details div {
+      margin-bottom: 8px;
+      color: #000;
+    }
+
+    .modal-details div:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-question {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 25px;
+      color: #000;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-btn-cancel {
+      background-color: #fff;
+      color: #000;
+      min-width: 120px;
+    }
+
+    .modal-btn-confirm {
+      background-color: #000;
+      color: #fff;
+      min-width: 120px;
+    }
+
+    .modal-btn-confirm:hover {
+      background-color: #333;
+    }
+  </style>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/summary.js"></script>
+</body>
+
+</html>

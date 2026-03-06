@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selezione Servizio - Ellebi Service SRL</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+  <div class="header">
+    <a href="/home" class="header-logo-link">
+      <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo">
+    </a>
+    <button id="back-btn" class="btn header-btn">← Indietro</button>
+  </div>
+
+  <div class="container">
+    <h2 class="text-center mb-3">Seleziona il Servizio</h2>
+
+    <div id="selected-datetime" class="alert mb-3">
+      <strong>Data e Ora selezionate:</strong>
+      <div id="datetime-display"></div>
+    </div>
+
+    <div id="services-list" class="grid grid-3">
+      <!-- Services will be loaded here -->
+    </div>
+
+    <button id="confirm-service-btn" class="btn btn-full" disabled>
+      Conferma Prestazione
+    </button>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/services.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,530 @@
+/* ============================================================================
+   LB SERVICE - ADMIN PAGE STYLES
+   Styles specific to the Admin Calendar view
+   ============================================================================ */
+
+/* ==================== ADMIN CALENDAR GRID ==================== */
+
+.admin-calendar {
+    max-width: 100%;
+    overflow: auto;
+    max-height: calc(100vh - 150px);
+    position: relative;
+    border: 1px solid var(--admin-calendar-border);
+    border-radius: 8px;
+}
+
+.admin-calendar__grid {
+    display: grid;
+    grid-template-columns: 58px repeat(6, minmax(80px, 1fr));
+    gap: 0;
+}
+
+.admin-calendar__header {
+    background-color: var(--admin-header-bg);
+    color: var(--admin-header-text);
+    padding: var(--space-2) var(--space-1);
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.7rem;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border-bottom: 1px solid var(--admin-header-border);
+}
+
+.admin-calendar__header:first-child {
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 30;
+    background-color: var(--admin-header-bg);
+    border-right: 1px solid var(--admin-header-border);
+}
+
+.admin-time-header {
+    background-color: var(--admin-time-bg);
+    color: var(--admin-time-text);
+    padding: 4px 2px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    border-right: 1px solid var(--admin-header-border);
+    min-height: 50px;
+}
+
+/* ==================== ADMIN CELLS ==================== */
+
+.admin-cell {
+    border: 1px solid var(--admin-cell-border);
+    min-height: 50px;
+    padding: var(--space-1);
+    background-color: var(--admin-cell-bg);
+    font-size: 0.65rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-cell:hover {
+    background-color: var(--admin-cell-hover-bg);
+}
+
+.admin-cell.has-booking {
+    background-color: var(--admin-booking-cell-bg);
+}
+
+.admin-cell.has-booking:hover {
+    background-color: var(--admin-cell-hover-bg);
+}
+
+/* ==================== BOOKING ITEMS ==================== */
+
+.booking-item {
+    position: relative;
+    background-color: var(--admin-booking-item-bg);
+    border: 1px solid var(--admin-booking-item-border);
+    border-left: 3px solid var(--admin-booking-item-left-border);
+    padding: var(--space-1) 6px;
+    margin-bottom: 2px;
+    font-size: 0.6rem;
+    line-height: 1.3;
+    border-radius: var(--radius-xs);
+    color: var(--color-text-primary);
+}
+
+.booking-item .name {
+    font-weight: 700;
+    font-size: 0.7rem;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.booking-item .service {
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: var(--admin-booking-service-text);
+}
+
+.booking-item .duration,
+.booking-item .contact {
+    display: none;
+}
+
+.booking-delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--admin-btn-delete-bg);
+    color: #fff;
+    border: none;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border-radius: var(--radius-xs);
+}
+
+.booking-item:hover .booking-delete-btn {
+    display: flex;
+}
+
+.no-booking {
+    color: var(--admin-no-booking-text);
+    text-align: center;
+    padding: 20px 0;
+    font-style: italic;
+}
+
+/* ==================== WEEK NAVIGATION ==================== */
+
+.admin-calendar__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-left: auto;
+}
+
+.admin-calendar__nav-btn {
+    padding: var(--space-1) var(--space-3);
+    font-size: 0.85rem;
+    min-width: auto;
+    border: 1px solid var(--color-border-secondary);
+    background-color: transparent;
+    color: var(--admin-nav-btn-text);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.15s;
+}
+
+.admin-calendar__nav-btn:hover {
+    background-color: var(--admin-nav-btn-hover-bg);
+}
+
+/* ==================== CALENDAR LEGEND ==================== */
+
+.admin-calendar__legend {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0;
+    padding: var(--space-2) var(--space-3);
+    background-color: var(--admin-legend-bg);
+    border: 1px solid var(--admin-legend-border);
+    border-bottom: none;
+    flex-wrap: wrap;
+    border-radius: 6px 6px 0 0;
+    min-width: 538px;
+}
+
+.admin-calendar__legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8rem;
+    color: var(--color-text-primary);
+}
+
+.admin-calendar__legend-item--selectable {
+    cursor: pointer;
+    padding: 5px 10px;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    border-radius: var(--radius-xs);
+}
+
+.admin-calendar__legend-item--selectable:hover {
+    border-color: var(--admin-legend-hover-border);
+    background-color: var(--admin-legend-hover-bg);
+}
+
+.admin-calendar__legend-item--selectable.active {
+    border-color: var(--admin-legend-hover-border);
+    background-color: var(--admin-legend-active-bg);
+}
+
+.admin-calendar__legend-box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--admin-legend-box-border);
+}
+
+.admin-calendar__legend-box--booking {
+    background-color: var(--admin-booking-item-bg);
+    border-color: var(--admin-booking-item-left-border);
+}
+
+.admin-calendar__legend-box--holiday {
+    background-color: var(--admin-holiday-bg);
+    border-color: var(--admin-holiday-bg);
+}
+
+/* ==================== HOLIDAY MODE ==================== */
+
+.admin-calendar__holiday-mode {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--admin-holiday-mode-bg);
+    border: 2px solid var(--admin-holiday-mode-border);
+    color: var(--admin-holiday-text);
+    font-weight: 600;
+    flex-grow: 1;
+    border-radius: var(--radius-xs);
+}
+
+.admin-calendar__holiday-mode.hidden {
+    display: none;
+}
+
+.admin-calendar__btn--holiday-save {
+    background-color: var(--admin-holiday-bg);
+    color: var(--admin-holiday-text);
+    border-color: var(--admin-holiday-btn-border);
+    padding: 5px 15px;
+    font-size: 0.85rem;
+}
+
+.admin-calendar__btn--holiday-save:hover {
+    background-color: var(--admin-holiday-btn-border);
+}
+
+.admin-calendar__btn--holiday-cancel {
+    background-color: var(--admin-btn-cancel-bg);
+    color: var(--admin-btn-cancel-text);
+    border-color: var(--admin-btn-cancel-text);
+    padding: 5px 15px;
+    font-size: 0.85rem;
+}
+
+.admin-cell.is-holiday {
+    background-color: var(--admin-holiday-bg) !important;
+    position: relative;
+}
+
+.admin-cell.is-holiday .holiday-label {
+    color: var(--admin-holiday-text);
+    text-align: center;
+    padding: 30px 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.admin-cell.holiday-selected {
+    background-color: var(--admin-holiday-selected-bg) !important;
+    border: 2px solid var(--admin-holiday-selected-border) !important;
+}
+
+.admin-cell.holiday-selected .no-booking {
+    color: var(--admin-holiday-text);
+}
+
+.holiday-mode .admin-cell:not(.has-booking) {
+    cursor: crosshair;
+    user-select: none;
+}
+
+.holiday-mode .admin-cell.is-holiday {
+    cursor: pointer;
+}
+
+.holiday-mode .admin-cell:not(.has-booking):hover {
+    outline: 2px dashed var(--admin-holiday-bg);
+    outline-offset: -2px;
+}
+
+/* ==================== HEADER LEFT ==================== */
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+/* ==================== ADMIN SIDEBAR ==================== */
+/* Styles inherited from global styles.css */
+
+/* ==================== ADMIN MODAL OVERRIDES ==================== */
+
+.modal-btn-cancel {
+    background-color: var(--admin-btn-cancel-bg);
+    color: var(--admin-btn-cancel-text);
+    min-width: 100px;
+    border: 2px solid var(--admin-btn-cancel-text);
+    border-radius: var(--radius-md);
+}
+
+.modal-btn-confirm {
+    background-color: var(--admin-btn-confirm-bg);
+    color: var(--admin-btn-confirm-text);
+    min-width: 150px;
+    border-radius: var(--radius-md);
+}
+
+.modal-btn-delete {
+    background-color: var(--admin-btn-delete-bg);
+    color: #fff;
+    border-color: var(--admin-btn-delete-bg);
+    min-width: 150px;
+    border-radius: var(--radius-md);
+}
+
+.modal-btn-delete:hover {
+    opacity: 0.9;
+}
+
+.delete-icon {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: var(--space-4);
+}
+
+.modal-question {
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-top: var(--space-4);
+    color: var(--color-text-primary);
+}
+
+/* ==================== AUTOCOMPLETE SUGGESTIONS ==================== */
+
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--admin-modal-bg);
+    border: 2px solid var(--admin-form-input-border);
+    border-top: none;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.suggestions-list.hidden {
+    display: none;
+}
+
+.suggestion-item {
+    padding: var(--space-3);
+    cursor: pointer;
+    border-bottom: 1px solid var(--admin-cell-border);
+    color: var(--color-text-primary);
+}
+
+.suggestion-item:hover {
+    background-color: var(--admin-cell-hover-bg);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-name {
+    font-weight: 600;
+}
+
+.suggestion-details {
+    font-size: 0.8rem;
+    color: var(--admin-modal-subtitle-text);
+}
+
+/* ==================== DRAG AND DROP ==================== */
+
+@keyframes snapBack {
+    0% {
+        transform: scale(1.1);
+        background-color: var(--admin-drop-invalid-bg);
+    }
+
+    25% {
+        transform: scale(0.95);
+    }
+
+    50% {
+        transform: scale(1.05);
+        background-color: var(--admin-drop-invalid-bg);
+    }
+
+    75% {
+        transform: scale(0.98);
+    }
+
+    100% {
+        transform: scale(1);
+        background-color: inherit;
+    }
+}
+
+.snap-back-animation {
+    animation: snapBack 0.4s ease-out;
+}
+
+.snap-back-animation .booking-item {
+    animation: snapBack 0.4s ease-out;
+}
+
+.admin-cell.drop-target {
+    background-color: var(--admin-drop-valid-bg);
+    border: 2px dashed var(--admin-drop-valid-border);
+    transition: all 0.15s ease;
+}
+
+.admin-cell.drop-invalid {
+    background-color: var(--admin-drop-invalid-bg);
+    border: 2px dashed var(--admin-drop-invalid-border);
+}
+
+.booking-drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    background-color: var(--admin-booking-item-bg);
+    border: 2px solid var(--admin-booking-item-border);
+    border-left: 4px solid var(--admin-booking-item-left-border);
+    padding: var(--space-2) var(--space-3);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    opacity: 0.95;
+    min-width: 120px;
+    color: var(--color-text-primary);
+}
+
+.booking-drag-ghost .name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: var(--space-1);
+}
+
+.booking-drag-ghost .service {
+    font-size: 0.75rem;
+    color: var(--admin-booking-service-text);
+}
+
+body.is-dragging-booking,
+body.is-dragging-booking * {
+    cursor: grabbing;
+}
+
+.admin-cell.dragging-source {
+    opacity: 0.5;
+    background-color: var(--admin-cell-hover-bg);
+}
+
+/* ==================== DROP FEEDBACK TOAST ==================== */
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.drop-feedback {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 28px;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 0.95rem;
+    z-index: 10001;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+.drop-feedback.success {
+    background-color: var(--admin-toast-success-bg);
+    color: #fff;
+}
+
+.drop-feedback.error {
+    background-color: var(--admin-toast-error-bg);
+    color: #fff;
+}
+
+.drop-feedback.fade-out {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+    transition: all 0.3s ease;
+}

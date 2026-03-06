@@ -1,0 +1,86 @@
+/* ============================================================================
+   LB SERVICE - FORM COMPONENT
+   Apple Style Forms with 44x44pt minimum tap targets
+   ============================================================================ */
+
+.form {
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-group {
+    margin-bottom: var(--space-6);
+    position: relative;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+}
+
+.form-input {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-primary);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.form-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+}
+
+.form-input::placeholder {
+    color: var(--color-text-disabled);
+}
+
+.form-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+select.form-input {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236e6e73' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-4) center;
+    padding-right: var(--space-10);
+}
+
+.form-row {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-error {
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-4);
+    font-size: var(--font-size-sm);
+    color: var(--color-error);
+    background-color: rgba(255, 59, 48, 0.1);
+    border-radius: var(--radius-md);
+}
+
+.form-success {
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-4);
+    font-size: var(--font-size-sm);
+    color: var(--color-success);
+    background-color: rgba(52, 199, 89, 0.1);
+    border-radius: var(--radius-md);
+}

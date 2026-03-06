@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenotazione di lungo periodo - Ellebi Service SRL</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Sidebar styles */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--admin-sidebar-overlay);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background-color: var(--admin-sidebar-bg);
+            z-index: 999;
+            box-shadow: 2px 0 10px var(--admin-sidebar-shadow);
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 2px solid var(--admin-sidebar-header-border);
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--admin-sidebar-item-text);
+        }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            color: var(--admin-sidebar-item-text);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 10px 0;
+        }
+
+        .sidebar-item {
+            display: block;
+            padding: 18px 20px;
+            text-decoration: none;
+            color: var(--admin-sidebar-item-text);
+            font-size: 1rem;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background-color: var(--admin-sidebar-item-hover-bg);
+        }
+
+        .sidebar-logout {
+            border-top: 1px solid var(--admin-sidebar-logout-border);
+            margin-top: auto;
+            color: var(--admin-sidebar-logout-text);
+        }
+
+        .sidebar-logout:hover {
+            background-color: var(--admin-sidebar-logout-hover-bg);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+
+
+        /* Subscription Progress Banner */
+        .subscription-banner {
+            background-color: var(--color-accent);
+            color: #fff;
+            padding: var(--space-4) var(--space-6);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+        }
+
+        .subscription-banner-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .subscription-banner-counter {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+        }
+
+        .subscription-banner-type {
+            font-size: var(--font-size-sm);
+            opacity: 0.9;
+        }
+
+        /* Week Info */
+        .week-info {
+            text-align: center;
+            margin-bottom: var(--space-4);
+            padding: var(--space-3);
+            background-color: var(--color-bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .week-info-number {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .week-info-dates {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        /* Selected bookings list */
+        .selected-bookings {
+            margin-top: var(--space-6);
+            padding: var(--space-4);
+            background-color: var(--color-bg-secondary);
+            border-radius: var(--radius-lg);
+        }
+
+        .selected-bookings-title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-3);
+            color: var(--color-text-primary);
+        }
+
+        .selected-booking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3);
+            background-color: var(--color-bg-elevated);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+        }
+
+        .selected-booking-info {
+            flex: 1;
+        }
+
+        .selected-booking-date {
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .selected-booking-time {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .selected-booking-week {
+            font-size: var(--font-size-xs);
+            color: var(--color-accent);
+        }
+
+        .btn-modify {
+            padding: var(--space-2) var(--space-3);
+            font-size: var(--font-size-sm);
+            background-color: var(--color-bg-tertiary);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-modify:hover {
+            background-color: var(--color-accent);
+            color: #fff;
+            border-color: var(--color-accent);
+        }
+
+        /* Modal Riepilogo */
+        .modal-booking-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: var(--space-4) 0;
+        }
+
+        .modal-booking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3);
+            background-color: var(--admin-modal-details-bg);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+        }
+
+        .cancel-subscription-btn {
+            margin-top: var(--space-4);
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Sidebar Menu -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span>Menu</span>
+            <button id="close-sidebar" class="sidebar-close">&times;</button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="sidebar-item">Prenota</a>
+            <a href="/bookings" class="sidebar-item">Gestisci Prenotazioni</a>
+            <a href="/subscriptions" class="sidebar-item">Prenotazioni di lungo periodo</a>
+            <button id="sidebar-logout" class="sidebar-item sidebar-logout">Logout</button>
+        </nav>
+    </div>
+
+    <div class="header">
+        <div class="header-left">
+            <button id="hamburger-btn" class="hamburger-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <a href="/home" class="header-title header-link">Ellebi Service SRL</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Banner Progresso -->
+        <div id="subscription-banner" class="subscription-banner">
+            <div>
+                <div class="subscription-banner-title">Seleziona fino a <span id="total-slots">4</span> date</div>
+                <div class="subscription-banner-type" id="subscription-type-label">Prenotazione Mensile</div>
+            </div>
+            <div class="subscription-banner-counter">
+                <span id="current-count">0</span> / <span id="max-count">4</span>
+            </div>
+        </div>
+
+        <!-- Info Settimana Corrente -->
+        <div class="week-info" id="week-info">
+            <div class="week-info-number">Settimana <span id="week-number">1</span> di <span id="total-weeks">4</span>
+            </div>
+            <div class="week-info-dates" id="week-dates">Seleziona data e ora</div>
+        </div>
+
+        <!-- Calendario -->
+        <div id="calendar-section">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <button id="prev-month" class="btn calendar-nav-btn">←</button>
+                    <div id="current-month" class="calendar-month"></div>
+                    <button id="next-month" class="btn calendar-nav-btn">→</button>
+                </div>
+
+                <div id="calendar-grid" class="calendar-grid">
+                    <div class="calendar-day-header">Lun</div>
+                    <div class="calendar-day-header">Mar</div>
+                    <div class="calendar-day-header">Mer</div>
+                    <div class="calendar-day-header">Gio</div>
+                    <div class="calendar-day-header">Ven</div>
+                    <div class="calendar-day-header">Sab</div>
+                    <div class="calendar-day-header">Dom</div>
+                </div>
+
+                <!-- Time slots -->
+                <div id="time-slots-section" class="time-slots hidden">
+                    <div class="time-slots-title">Seleziona un orario</div>
+                    <div id="time-slots-grid" class="time-slots-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista appuntamenti selezionati -->
+        <div id="selected-bookings" class="selected-bookings hidden">
+            <div class="selected-bookings-title">Appuntamenti selezionati</div>
+            <div id="selected-bookings-list"></div>
+        </div>
+
+        <!-- Pulsante Annulla -->
+        <button id="cancel-subscription" class="btn btn-outline cancel-subscription-btn">
+            Annulla Prenotazione
+        </button>
+    </div>
+
+    <!-- Modal Conferma Finale -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <h3 class="modal-title">Conferma Prenotazione</h3>
+            <p class="modal-subtitle">Riepilogo dei tuoi appuntamenti</p>
+
+            <div id="modal-booking-list" class="modal-booking-list">
+                <!-- Lista appuntamenti -->
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" id="modal-cancel" class="btn modal-btn-cancel">Modifica</button>
+                <button type="button" id="modal-confirm" class="btn modal-btn-confirm">Conferma</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Successo -->
+    <div id="success-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div style="font-size: 4rem; margin-bottom: 20px; text-align: center;">✓</div>
+            <h3 class="modal-title">Prenotazione Confermata!</h3>
+            <p class="modal-text">
+                La tua prenotazione di lungo periodo è stata registrata con successo.<br>
+                Tutti gli appuntamenti sono stati aggiunti al tuo calendario.
+            </p>
+            <div class="modal-buttons" style="justify-content: center; margin-top: var(--space-6);">
+                <button id="success-home-btn" class="btn btn-primary" style="min-width: 150px;">Torna alla Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/subscription-booking.js"></script>
+</body>
+
+</html>

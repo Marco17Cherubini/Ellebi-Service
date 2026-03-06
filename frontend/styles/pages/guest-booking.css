@@ -1,0 +1,197 @@
+/* ============================================================================
+   LB SERVICE - GUEST BOOKING PAGE STYLES
+   Multi-step booking flow for guest users
+   ============================================================================ */
+
+.guest-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--space-10) var(--space-5);
+}
+
+.guest-header {
+    text-align: center;
+    margin-bottom: var(--space-10);
+}
+
+.guest-header h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: var(--space-3);
+    color: var(--color-text-primary);
+}
+
+.guest-header p {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+}
+
+/* ==================== STEP INDICATOR ==================== */
+
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-5);
+    margin-bottom: var(--space-10);
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-tertiary);
+}
+
+.step.active {
+    color: var(--color-text-primary);
+}
+
+.step.completed {
+    color: var(--color-text-primary);
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.step.completed .step-number {
+    background-color: var(--color-text-primary);
+    color: var(--color-bg-primary);
+}
+
+/* ==================== SECTIONS ==================== */
+
+.guest-section {
+    display: none;
+}
+
+.guest-section.active {
+    display: block;
+}
+
+.section-title {
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
+}
+
+.selection-summary {
+    background-color: var(--color-bg-secondary);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+}
+
+.selection-summary p {
+    margin: var(--space-2) 0;
+    color: var(--color-text-primary);
+}
+
+/* ==================== SERVICE CARDS ==================== */
+
+.service-cards {
+    display: grid;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+}
+
+.service-card {
+    padding: var(--space-5);
+    border: 2px solid var(--color-border-strong);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+}
+
+.service-card:hover {
+    background-color: var(--color-bg-secondary);
+}
+
+.service-card.selected {
+    background-color: var(--color-text-primary);
+    color: var(--color-bg-primary);
+}
+
+.service-card h3 {
+    margin: 0;
+    font-weight: 500;
+}
+
+/* ==================== CONFIRMATION ==================== */
+
+.confirmation-box {
+    text-align: center;
+    padding: var(--space-16) var(--space-5);
+}
+
+.confirmation-box h2 {
+    font-size: 1.8rem;
+    margin-bottom: var(--space-5);
+    color: var(--color-text-primary);
+}
+
+.confirmation-details {
+    background-color: var(--color-bg-secondary);
+    padding: var(--space-8);
+    margin: var(--space-8) 0;
+    text-align: left;
+    border-radius: var(--radius-lg);
+    color: var(--color-text-primary);
+}
+
+.confirmation-details p {
+    margin: var(--space-3) 0;
+    font-size: 1rem;
+}
+
+.confirmation-details strong {
+    display: inline-block;
+    min-width: 100px;
+}
+
+/* ==================== LINKS ==================== */
+
+.back-link {
+    display: inline-block;
+    margin-top: var(--space-5);
+    color: var(--color-text-primary);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.back-link:hover {
+    text-decoration: none;
+}
+
+/* ==================== FORM LAYOUT ==================== */
+
+.guest-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 480px) {
+    .guest-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .step-indicator {
+        gap: var(--space-3);
+    }
+
+    .step-label {
+        display: none;
+    }
+}
