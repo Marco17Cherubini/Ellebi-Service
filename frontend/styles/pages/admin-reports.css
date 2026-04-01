@@ -1,28 +1,49 @@
 /* ============================================================================
    LB SERVICE - ADMIN REPORTS PAGE STYLES
-   Booking statistics and charts
+   Booking statistics and charts (Single Page Application layout)
    ============================================================================ */
 
+/* Blocca lo scrolling globale della pagina */
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Fa in modo che il container prenda lo spazio rimanente */
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
 .reports-container {
-    max-width: 900px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 56rem;
+    width: 100%;
     margin: 0 auto;
+    min-height: 0;
 }
 
 .page-title {
     text-align: center;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
 }
 
 .page-subtitle {
     text-align: center;
     color: var(--color-text-secondary);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-4);
 }
 
 /* ==================== FILTERS ==================== */
 
 .filter-container {
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-4);
     display: flex;
     justify-content: center;
     gap: var(--space-4);
@@ -36,8 +57,8 @@
 }
 
 .filter-select {
-    padding: var(--space-3) var(--space-5);
-    border: 2px solid var(--color-border-primary);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border-primary);
     font-size: 1rem;
     cursor: pointer;
     background-color: var(--color-bg-primary);
@@ -49,38 +70,65 @@
 
 .chart-container {
     position: relative;
-    height: 400px;
+    flex: 1;
+    min-height: 0;
     background-color: var(--color-bg-primary);
-    border: 2px solid var(--color-border-primary);
-    padding: var(--space-5);
+    border: 1px solid var(--color-border-primary);
+    padding: var(--space-4);
     border-radius: var(--radius-lg);
+    margin-bottom: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 /* ==================== STATS SUMMARY ==================== */
 
 .stats-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: var(--space-5);
-    margin-top: var(--space-8);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
 }
 
 .stat-card {
-    background-color: var(--color-bg-secondary);
-    border: 2px solid var(--color-border-primary);
-    padding: var(--space-5);
+    flex: 1;
     text-align: center;
+    background-color: var(--color-bg-secondary);
+    padding: var(--space-3) var(--space-2);
     border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-secondary);
 }
 
 .stat-value {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
     font-weight: 700;
     margin-bottom: var(--space-1);
     color: var(--color-accent);
 }
 
 .stat-label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--color-text-secondary);
 }
+@media (max-width: 768px) {
+    body {
+        height: auto;
+        overflow: auto;
+    }
+    .container {
+        overflow: visible;
+    }
+    .reports-container {
+        height: auto;
+        overflow: visible;
+    }
+    .chart-container {
+        height: 60vh;
+        flex: none;
+    }
+    .stats-summary {
+        flex-direction: column;
+    }
+}
+
+

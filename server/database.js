@@ -87,6 +87,99 @@ async function initDatabase() {
     )
   `);
 
+    db.run(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    )
+  `);
+
+    // Imposta default per maxDeposits se non esiste
+    const maxDepositsResult = db.exec("SELECT value FROM settings WHERE key = 'maxDeposits'");
+    if (!maxDepositsResult.length || maxDepositsResult[0].values.length === 0) {
+        db.run("INSERT INTO settings (key, value) VALUES ('maxDeposits', '5')");
+    }
+
+    // ── Nuove tabelle v2 ────────────────────────────────────────────────────────
+
+    db.run(`
+    CREATE TABLE IF NOT EXISTS vehicles (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      targa TEXT NOT NULL,
+      modello TEXT NOT NULL,
+      anno TEXT DEFAULT '',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+    db.run(`
+    CREATE TABLE IF NOT EXISTS services (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT NOT NULL,
+      tipo_veicolo TEXT NOT NULL,
+      tipo_servizio TEXT NOT NULL,
+      durata_minuti INTEGER DEFAULT 60,
+      prezzo_interno REAL DEFAULT 0,
+      campi_extra TEXT DEFAULT '[]',
+      attivo INTEGER DEFAULT 1,
+      stagionale INTEGER DEFAULT 0,
+      data_inizio_stagione TEXT DEFAULT '',
+      data_fine_stagione TEXT DEFAULT ''
+    )
+  `);
+
+    db.run(`
+    CREATE TABLE IF NOT EXISTS deposits (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      booking_id INTEGER,
+      nome TEXT NOT NULL,
+      cognome TEXT NOT NULL,
+      email TEXT NOT NULL,
+      telefono TEXT DEFAULT '',
+      targa TEXT DEFAULT '',
+      modello TEXT DEFAULT '',
+      ore_stimate REAL DEFAULT 0,
+      ore_residue REAL DEFAULT 0,
+      stato TEXT DEFAULT 'in_attesa',
+      note_cliente TEXT DEFAULT '',
+      nota_lorenzo TEXT DEFAULT '',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+    db.run(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      booking_id INTEGER,
+      tipo TEXT DEFAULT '',
+      data_prevista TEXT DEFAULT '',
+      inviata INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+    // ── Migrazioni colonne su bookings (schema v2) ───────────────────────────
+    const bookingsMigrazioni = [
+        "ALTER TABLE bookings ADD COLUMN user_id INTEGER",
+        "ALTER TABLE bookings ADD COLUMN vehicle_id INTEGER",
+        "ALTER TABLE bookings ADD COLUMN service_id INTEGER",
+        "ALTER TABLE bookings ADD COLUMN targa TEXT DEFAULT ''",
+        "ALTER TABLE bookings ADD COLUMN modello TEXT DEFAULT ''",
+        "ALTER TABLE bookings ADD COLUMN tipo TEXT DEFAULT 'cliente'",
+        "ALTER TABLE bookings ADD COLUMN stato TEXT DEFAULT 'confermato'",
+        "ALTER TABLE bookings ADD COLUMN note_cliente TEXT DEFAULT ''",
+        "ALTER TABLE bookings ADD COLUMN nota_interna TEXT DEFAULT ''",
+        "ALTER TABLE bookings ADD COLUMN deposit_id INTEGER",
+        "ALTER TABLE bookings ADD COLUMN durata_minuti INTEGER DEFAULT 60"
+    ];
+    bookingsMigrazioni.forEach(function(sql) {
+        try { db.run(sql); } catch (e) { /* colonna già presente */ }
+    });
+
+    // ── Migrazioni legacy su users ───────────────────────────────────────────
+
     // Aggiungi colonna vip se non esiste (migrazione)
     try {
         db.run(`ALTER TABLE users ADD COLUMN vip INTEGER DEFAULT 0`);
@@ -113,6 +206,20 @@ async function initDatabase() {
         db.run(`ALTER TABLE bookings ADD COLUMN token TEXT`);
     } catch (e) {
         // Colonna gia esiste
+    }
+
+    // Migrazione deposits: aggiunge colonna 'servizio' per mostrare il tipo di lavoro nelle card
+    try {
+        db.run(`ALTER TABLE deposits ADD COLUMN servizio TEXT DEFAULT ''`);
+    } catch (e) {
+        // Colonna già presente
+    }
+
+    // Migrazione: corregge nome errato 'Taglio olio + filtro' → 'Tagliando olio + filtro'
+    try {
+        db.run(`UPDATE services SET nome = 'Tagliando olio + filtro' WHERE nome = 'Taglio olio + filtro'`);
+    } catch (e) {
+        // Tabella non ancora presente
     }
 
     // Migrazione: ricrea tabella bookings se servizio è NOT NULL
@@ -167,6 +274,8 @@ async function initDatabase() {
 
     // Inizializza admin
     initializeDefaultAdmin();
+    // Popola catalogo servizi (idempotente)
+    seedServices();
 
     console.log('📦 Database SQLite inizializzato');
 }
@@ -174,9 +283,11 @@ async function initDatabase() {
 // ==================== CLASSE DB WRAPPER ====================
 
 class SQLiteTable {
-    constructor(tableName, columns) {
+    constructor(tableName, columns, idField) {
         this.tableName = tableName;
         this.columns = columns;
+        // Se specificato, update/delete useranno WHERE {idField} = ? (es. 'id')
+        this.idField = idField || null;
     }
 
     // Leggi tutti i record
@@ -187,6 +298,10 @@ class SQLiteTable {
         while (stmt.step()) {
             const row = stmt.getAsObject();
             const obj = {};
+            // Includi sempre id: serve per update/delete con idField
+            if (row.id !== null && row.id !== undefined) {
+                obj.id = String(row.id);
+            }
             this.columns.forEach(col => {
                 obj[col] = row[col] !== null && row[col] !== undefined ? String(row[col]) : '';
             });
@@ -235,7 +350,10 @@ class SQLiteTable {
                 const values = Object.values(updates);
 
                 let whereClause, whereValues;
-                if (this.tableName === 'users' || this.tableName === 'admins') {
+                if (this.idField) {
+                    whereClause = this.idField + ' = ?';
+                    whereValues = [row[this.idField]];
+                } else if (this.tableName === 'users' || this.tableName === 'admins') {
                     whereClause = 'email = ?';
                     whereValues = [row.email];
                 } else if (this.tableName === 'bookings') {
@@ -265,7 +383,10 @@ class SQLiteTable {
         allData.forEach(row => {
             if (filterFn(row)) {
                 let whereClause, whereValues;
-                if (this.tableName === 'users' || this.tableName === 'admins') {
+                if (this.idField) {
+                    whereClause = this.idField + ' = ?';
+                    whereValues = [row[this.idField]];
+                } else if (this.tableName === 'users' || this.tableName === 'admins') {
                     whereClause = 'email = ?';
                     whereValues = [row.email];
                 } else if (this.tableName === 'bookings') {
@@ -301,14 +422,48 @@ class SQLiteTable {
 // ==================== INIZIALIZZA TABELLE ====================
 
 const userColumns = ['nome', 'cognome', 'email', 'telefono', 'password', 'vip', 'banned', 'isGuest'];
-const bookingColumns = ['nome', 'cognome', 'email', 'telefono', 'giorno', 'ora', 'token'];
+const bookingColumns = [
+    'nome', 'cognome', 'email', 'telefono', 'giorno', 'ora', 'token',
+    'user_id', 'vehicle_id', 'service_id', 'targa', 'modello',
+    'tipo', 'stato', 'note_cliente', 'nota_interna', 'deposit_id', 'durata_minuti'
+];
 const adminColumns = ['email', 'password'];
 const holidayColumns = ['giorno', 'ora'];
+const vehicleColumns = ['user_id', 'targa', 'modello', 'anno'];
+const serviceColumns = [
+    'nome', 'tipo_veicolo', 'tipo_servizio', 'durata_minuti',
+    'prezzo_interno', 'campi_extra', 'attivo',
+    'stagionale', 'data_inizio_stagione', 'data_fine_stagione'
+];
+const depositColumns = [
+    'booking_id', 'nome', 'cognome', 'email', 'telefono', 'targa', 'modello',
+    'ore_stimate', 'ore_residue', 'stato', 'note_cliente', 'nota_lorenzo', 'servizio'
+];
+const settingColumns = ['key', 'value'];
 
-const usersDB = new SQLiteTable('users', userColumns);
-const bookingsDB = new SQLiteTable('bookings', bookingColumns);
-const adminDB = new SQLiteTable('admins', adminColumns);
-const holidaysDB = new SQLiteTable('holidays', holidayColumns);
+const usersDB    = new SQLiteTable('users',         userColumns);
+const bookingsDB = new SQLiteTable('bookings',      bookingColumns, 'id');
+const adminDB    = new SQLiteTable('admins',         adminColumns);
+const holidaysDB = new SQLiteTable('holidays',      holidayColumns);
+const vehiclesDB = new SQLiteTable('vehicles',      vehicleColumns, 'id');
+const servicesDB = new SQLiteTable('services',      serviceColumns, 'id');
+const depositsDB = new SQLiteTable('deposits',      depositColumns, 'id');
+const settingsDB = new SQLiteTable('settings',      settingColumns, 'key');
+
+// Helper per settings
+function getSetting(key) {
+    const s = settingsDB.findOne(r => r.key === key);
+    return s ? s.value : null;
+}
+
+function setSetting(key, value) {
+    const exists = settingsDB.findOne(r => r.key === key);
+    if (exists) {
+        settingsDB.update(r => r.key === key, { value });
+    } else {
+        settingsDB.insert({ key, value });
+    }
+}
 
 // ==================== INIZIALIZZA ADMIN ====================
 
@@ -334,6 +489,121 @@ function initializeDefaultAdmin() {
     }
 }
 
+// ==================== SEED SERVIZI ====================
+
+function seedServices() {
+    if (!db) return;
+    if (servicesDB.readAll().length > 0) return; // idempotente
+
+    var catalogo = [
+        // ── AUTO ──────────────────────────────────────────────────────────────
+        {
+            nome: 'Tagliando olio + filtro',
+            tipo_veicolo: 'auto',
+            tipo_servizio: 'appuntamento',
+            durata_minuti: 60,
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello']),
+            attivo: 1, stagionale: 0,
+            data_inizio_stagione: '', data_fine_stagione: ''
+        },
+        {
+            nome: 'Tagliando completo',
+            tipo_veicolo: 'auto',
+            tipo_servizio: 'appuntamento',
+            durata_minuti: 120,
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello']),
+            attivo: 1, stagionale: 0,
+            data_inizio_stagione: '', data_fine_stagione: ''
+        },
+        {
+            nome: 'Freni',
+            tipo_veicolo: 'auto',
+            tipo_servizio: 'appuntamento',
+            durata_minuti: 90,
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello']),
+            attivo: 1, stagionale: 0,
+            data_inizio_stagione: '', data_fine_stagione: ''
+        },
+        {
+            nome: 'Distribuzione',
+            tipo_veicolo: 'auto',
+            tipo_servizio: 'consegna',
+            durata_minuti: 30,  // slot accoglienza
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello']),
+            attivo: 1, stagionale: 0,
+            data_inizio_stagione: '', data_fine_stagione: ''
+        },
+        {
+            nome: 'Lavoro straordinario',
+            tipo_veicolo: 'auto',
+            tipo_servizio: 'consegna',
+            durata_minuti: 30,  // slot accoglienza
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello', 'note_cliente']),
+            attivo: 1, stagionale: 0,
+            data_inizio_stagione: '', data_fine_stagione: ''
+        },
+        {
+            nome: 'Cambio gomme stagionale',
+            tipo_veicolo: 'auto',
+            tipo_servizio: 'appuntamento',
+            durata_minuti: 45,
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello']),
+            attivo: 1, stagionale: 1,
+            data_inizio_stagione: '11-15', data_fine_stagione: '04-15' // 15 nov – 15 apr
+        },
+        {
+            nome: 'Vendita gomme',
+            tipo_veicolo: 'auto',
+            tipo_servizio: 'appuntamento',
+            durata_minuti: 45,
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello', 'misura', 'indice_velocita']),
+            attivo: 1, stagionale: 0,
+            data_inizio_stagione: '', data_fine_stagione: ''
+        },
+        // ── MOTO ──────────────────────────────────────────────────────────────
+        {
+            nome: 'Tagliando completo',
+            tipo_veicolo: 'moto',
+            tipo_servizio: 'appuntamento',
+            durata_minuti: 120,
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello']),
+            attivo: 1, stagionale: 0,
+            data_inizio_stagione: '', data_fine_stagione: ''
+        },
+        {
+            nome: 'Cambio gomme',
+            tipo_veicolo: 'moto',
+            tipo_servizio: 'appuntamento',
+            durata_minuti: 60,
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello', 'misura']),
+            attivo: 1, stagionale: 0,
+            data_inizio_stagione: '', data_fine_stagione: ''
+        },
+        {
+            nome: 'Revisione sospensioni',
+            tipo_veicolo: 'moto',
+            tipo_servizio: 'consegna',
+            durata_minuti: 30,  // slot accoglienza
+            prezzo_interno: 0,
+            campi_extra: JSON.stringify(['targa', 'modello']),
+            attivo: 1, stagionale: 0,
+            data_inizio_stagione: '', data_fine_stagione: ''
+        }
+    ];
+
+    catalogo.forEach(function(s) { servicesDB.insert(s); });
+    console.log('\uD83D\uDD27 Catalogo servizi inizializzato (' + catalogo.length + ' servizi)');
+}
+
 // ==================== EXPORT ====================
 
 module.exports = {
@@ -341,6 +611,12 @@ module.exports = {
     bookingsDB,
     adminDB,
     holidaysDB,
+    vehiclesDB,
+    servicesDB,
+    depositsDB,
+    settingsDB,
+    getSetting,
+    setSetting,
     initDatabase,
     saveDatabase
 };

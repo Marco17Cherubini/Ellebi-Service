@@ -1,0 +1,176 @@
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.hidden {
+    display: none;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.mt-2 {
+    margin-top: var(--space-2);
+}
+
+.mt-4 {
+    margin-top: var(--space-4);
+}
+
+.mt-6 {
+    margin-top: var(--space-6);
+}
+
+.mt-8 {
+    margin-top: var(--space-8);
+}
+
+.mb-2 {
+    margin-bottom: var(--space-2);
+}
+
+.mb-3 {
+    margin-bottom: var(--space-3);
+}
+
+.mb-4 {
+    margin-bottom: var(--space-4);
+}
+
+.mb-6 {
+    margin-bottom: var(--space-6);
+}
+
+.mb-8 {
+    margin-bottom: var(--space-8);
+}
+
+/* ==================== SPECIAL BADGES & CALLOUTS ==================== */
+.badge-special {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-special-bg, #EED4FF) !important;
+    color: var(--color-special-text, #7B00C8) !important;
+    border: 1px solid var(--color-special-text, #7B00C8);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.box-special {
+    background-color: var(--color-special-bg, #EED4FF);
+    border: 1px solid var(--color-special-border, #C800FF);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 0 20px;
+    font-size: 0.88rem;
+    color: var(--color-special-text, #7B00C8);
+}
+
+.box-special strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+}
+
+/* ==================== SPACING & UTIL ==================== */
+
+.p-2 {
+    padding: var(--space-2);
+}
+
+.p-4 {
+    padding: var(--space-4);
+}
+
+.p-6 {
+    padding: var(--space-6);
+}
+
+.p-8 {
+    padding: var(--space-8);
+}
+
+.depositi-loading {
+    text-align: center;
+    padding: var(--space-10);
+    color: var(--color-text-secondary);
+}
+
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+.text-secondary {
+    color: var(--color-text-secondary);
+}
+
+.text-accent {
+    color: var(--brand-accent);
+}
+
+.font-semibold {
+    font-weight: var(--font-weight-semibold);
+}
+
+.text-sm {
+    font-size: 0.8rem;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-2 {
+    gap: var(--space-2);
+}
+
+.gap-4 {
+    gap: var(--space-4);
+}
+
+.gap-6 {
+    gap: var(--space-6);
+}
+
+.grid {
+    display: grid;
+}
+
+.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}

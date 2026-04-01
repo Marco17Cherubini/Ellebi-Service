@@ -3,13 +3,67 @@
    User dashboard with sidebar and recurring booking modal
    ============================================================================ */
 
-/* ==================== HEADER LEFT ==================== */
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-}
-
 /* ==================== SIDEBAR ==================== */
 /* Styles inherited from global styles.css */
+
+/* ── Vehicle cards ───────────────────────────────────── */
+.vehicle-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 8px 0 24px;
+}
+
+.vehicle-card {
+    text-align: center;
+}
+
+.vehicle-card .vc-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.vehicle-card .vc-label {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+/* ── Services grid ───────────────────────────────────── */
+.services-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.service-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.service-card .sc-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.service-card .sc-meta {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary, #888);
+}
+
+.services-loading {
+    text-align: center;
+    padding: 24px;
+    color: var(--color-text-secondary, #888);
+}
+
+/* ── Extra fields panel ── */
+#extra-fields-panel {
+    margin: 12px 0 16px;
+    padding: 14px 16px;
+    background: var(--color-bg-secondary, #f8f8f8);
+    border-radius: var(--radius-md, 12px);
+    border: 1px solid var(--color-border, #e0e0e0);
+}
+

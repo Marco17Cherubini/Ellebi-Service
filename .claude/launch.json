@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "LB Service (dev)",
+      "runtimeExecutable": "/c/Program Files/nodejs/node",
+      "runtimeArgs": ["node_modules/nodemon/bin/nodemon.js", "server/server.js"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "LB Service (production)",
+      "runtimeExecutable": "/c/Program Files/nodejs/node",
+      "runtimeArgs": ["server/server.js"],
+      "port": 3000
+    }
+  ]
+}

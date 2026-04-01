@@ -1,0 +1,24 @@
+/* ============================================================================
+   HAMBURGER MENU
+   ============================================================================ */
+
+.hamburger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    border-radius: var(--radius-md);
+    font-size: 1.4rem;
+    color: var(--color-text-primary);
+    line-height: 1;
+    transition: background-color var(--transition-fast);
+}
+
+.hamburger-btn:hover {
+    background-color: var(--color-bg-secondary);
+}

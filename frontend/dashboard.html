@@ -4,8 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Ellebi Service SRL</title>
+  <title>Prenota - Ellebi Service SRL</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles/pages/dashboard.css">
+  <link rel="stylesheet" href="/styles/pages/summary.css">
 </head>
 
 <body>
@@ -20,11 +22,13 @@
     </div>
     <nav class="sidebar-nav">
       <a href="/bookings" class="sidebar-item">Gestione Prenotazioni</a>
-      <a href="/subscriptions" class="sidebar-item">Prenotazioni di lungo periodo</a>
-      <button id="sidebar-logout" class="sidebar-item sidebar-logout">Logout</button>
     </nav>
+    <div class="sidebar-footer">
+      <button id="sidebar-logout" class="sidebar-item sidebar-logout">Logout</button>
+    </div>
   </div>
 
+  <!-- Header -->
   <div class="header">
     <div class="header-left">
       <button id="hamburger-btn" class="hamburger-btn" aria-label="Apri menu">☰</button>
@@ -35,21 +39,61 @@
   </div>
 
   <div class="container">
-    <div id="welcome-section" class="mb-3">
-      <h2 id="welcome-message">Bentornato</h2>
+    <!-- Welcome -->
+    <div class="mb-3">
+      <h2 id="welcome-message">Prenota un servizio</h2>
     </div>
 
+    <!-- Breadcrumb wizard -->
+    <div class="wizard-breadcrumb">
+      <span class="bc-step current" id="bc-1">Veicolo</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-step" id="bc-2">Servizio</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-step" id="bc-3">Data</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-step" id="bc-4">Riepilogo</span>
+    </div>
 
+    <!-- ══ STEP 1: Tipo Veicolo ═══════════════════════════ -->
+    <div id="step-vehicle" class="wizard-section active">
+      <h3 class="text-center mb-2">Che tipo di veicolo hai?</h3>
+      <div class="vehicle-cards">
+        <div class="vehicle-card" data-type="auto">
+          <div class="vc-icon">Automobile</div>
+        </div>
+        <div class="vehicle-card" data-type="moto">
+          <div class="vc-icon">Moto</div>
+        </div>
+      </div>
+    </div>
 
-    <!-- Sezione calendario -->
-    <div id="calendar-section">
-      <h3 class="text-center mb-2">Prenota un appuntamento</h3>
+    <!-- ══ STEP 2: Selezione Servizio ═════════════════════ -->
+    <div id="step-service" class="wizard-section">
+      <button class="wizard-back" id="back-to-step1">Cambia veicolo</button>
+      <h3 class="text-center mb-2">Seleziona il servizio</h3>
+      <div id="services-grid" class="services-grid">
+        <div class="services-loading">Caricamento servizi…</div>
+      </div>
+      <div id="extra-fields-panel" class="hidden"></div>
+      <div id="consegna-info" class="box-special hidden">
+        <strong>Consegna veicolo</strong>
+        La data definitiva verrà concordata con l'officina. Procedi per registrare il veicolo.
+      </div>
+      <button id="service-next-btn" class="btn btn-full" disabled>Continua</button>
+    </div>
+
+    <!-- ══ STEP 3: Calendario + Orari ════════════════════ -->
+    <div id="step-calendar" class="wizard-section">
+      <button type="button" class="wizard-back" id="back-to-step2">Cambia servizio</button>
+      <div id="selected-service-recap" class="text-center mb-3 font-semibold text-accent"></div>
+      <h3 class="text-center mb-2">Scegli data e orario</h3>
 
       <div class="calendar">
         <div class="calendar-header">
-          <button id="prev-month" class="btn calendar-nav-btn">←</button>
+          <button type="button" id="prev-month" class="btn calendar-nav-btn">←</button>
           <div id="current-month" class="calendar-month"></div>
-          <button id="next-month" class="btn calendar-nav-btn">→</button>
+          <button type="button" id="next-month" class="btn calendar-nav-btn">→</button>
         </div>
 
         <div id="calendar-grid" class="calendar-grid">
@@ -60,54 +104,109 @@
           <div class="calendar-day-header">Ven</div>
           <div class="calendar-day-header">Sab</div>
           <div class="calendar-day-header">Dom</div>
-          <!-- I giorni verranno aggiunti qui via JavaScript -->
         </div>
 
         <!-- Time slots -->
         <div id="time-slots-section" class="time-slots hidden">
           <div class="time-slots-title">Seleziona un orario</div>
           <div id="time-slots-grid" class="time-slots-grid"></div>
-          <button id="confirm-datetime-btn" class="btn btn-full" disabled>
-            Conferma Giorno e Orario
+          <button type="button" id="confirm-datetime-btn" class="btn btn-full" disabled>
+            Conferma e vai al riepilogo
           </button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Modal Selezione Gruppo (Quanti si presenteranno?) -->
-  <div id="group-modal" class="modal">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <h3 class="modal-title">Quanti si presenteranno all'appuntamento?</h3>
-      <div class="modal-buttons" style="flex-direction: column; gap: 16px;">
-        <button class="btn btn-full group-btn" data-group="1">1 persona</button>
-        <button class="btn btn-full group-btn" data-group="2">2 persone</button>
-        <button class="btn btn-full group-btn" data-group="3">3 persone</button>
+    <!-- ══ STEP 4: Riepilogo ════════════════════════════ -->
+    <div id="step-summary" class="wizard-section">
+      <button type="button" class="wizard-back" id="back-to-step3">Modifica data e ora</button>
+      <h3 class="text-center mb-3">Riepilogo Prenotazione</h3>
+
+      <div class="card">
+        <h3 class="mb-2">Dettagli Servizio</h3>
+        <div class="detail-row">
+          <span class="dl">Servizio</span>
+          <span class="dv" id="booking-service">—</span>
+        </div>
+        <div class="detail-row" id="row-duration">
+          <span class="dl">Durata</span>
+          <span class="dv" id="booking-duration">—</span>
+        </div>
+        <div class="detail-row" id="row-date">
+          <span class="dl">Data</span>
+          <span class="dv" id="booking-date">—</span>
+        </div>
+        <div class="detail-row" id="row-time">
+          <span class="dl">Orario</span>
+          <span class="dv" id="booking-time">—</span>
+        </div>
       </div>
+
+      <div class="card mt-2">
+        <h3 class="mb-2">Dati Cliente e Veicolo</h3>
+        <div class="detail-row">
+          <span class="dl">Nome</span>
+          <span class="dv" id="customer-name">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="dl">Email</span>
+          <span class="dv" id="customer-email">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="dl">Telefono</span>
+          <span class="dv" id="customer-phone">—</span>
+        </div>
+
+        <div id="saved-vehicles-picker" class="hidden form-group mt-6">
+          <label class="form-label">Usa un veicolo salvato</label>
+          <select id="saved-vehicles-select" class="form-input">
+            <option value="">— Scegli veicolo —</option>
+          </select>
+        </div>
+
+        <div id="targa-section" class="form-group mt-4">
+          <label class="form-label" for="input-targa">Targa *</label>
+          <input type="text" id="input-targa" class="form-input text-uppercase required" required="required" placeholder="Es. AB123CD" autocomplete="off">
+        </div>
+
+        <div id="modello-section" class="form-group">
+          <label class="form-label" for="input-modello">Modello veicolo *</label>
+          <input type="text" id="input-modello" class="form-input required" required="required" placeholder="Es. Volkswagen Golf" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-note">Note (opzionale)</label>
+          <textarea id="input-note" class="form-input" rows="3" placeholder="Descrizione del problema o dettagli aggiuntivi..." style="resize:vertical;font-family:inherit;"></textarea>
+        </div>
+      </div>
+
+      <div id="error-message" class="form-error hidden mt-2"></div>
+
+      <button type="button" id="complete-booking-btn" class="btn btn-full mt-2">
+        Conferma Prenotazione
+      </button>
     </div>
   </div>
 
-  <!-- Modal Appuntamento Ricorrente (Il Solito) -->
-  <div id="recurring-modal" class="modal hidden">
+  <!-- Modal di Conferma -->
+  <div id="confirm-modal" class="modal hidden">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <h3 class="modal-title" id="recurring-title">Il solito?</h3>
-
-      <div class="modal-details" style="text-align: center; background: none; border: none; padding: 0;">
-        <div style="font-size: 1.1rem; margin-bottom: 20px; line-height: 1.6;">
-          <div id="recurring-prev-date" style="color: var(--color-text-secondary);"></div>
-          <div style="font-weight: bold; margin: 5px 0;">↓</div>
-          <div id="recurring-next-date" style="font-weight: 600; font-size: 1.2rem;"></div>
-        </div>
-
-        <div id="recurring-service-name" style="font-weight: 500; color: var(--color-accent); margin-bottom: 10px;">
-        </div>
+      <h3 class="modal-title">Conferma</h3>
+      <p class="modal-text">
+        Stai per prenotare presso<br>
+        <strong>Ellebi Service SRL</strong>
+      </p>
+      <div class="modal-details">
+        <div><strong>Servizio:</strong> <span id="modal-service"></span></div>
+        <div id="modal-row-date"><strong>Data:</strong> <span id="modal-date"></span></div>
+        <div id="modal-row-time"><strong>Ora:</strong> <span id="modal-time"></span></div>
+        <div id="modal-row-targa"><strong>Targa:</strong> <span id="modal-targa"></span></div>
       </div>
-
+      <p class="modal-question">Confermi la prenotazione?</p>
       <div class="modal-buttons">
-        <button type="button" id="recurring-btn-no" class="btn modal-btn-cancel">No</button>
-        <button type="button" id="recurring-btn-book" class="btn modal-btn-confirm">Prenota</button>
+        <button type="button" id="modal-cancel" class="btn modal-btn-cancel">Annulla</button>
+        <button type="submit" id="modal-confirm" class="btn modal-btn-confirm">Conferma</button>
       </div>
     </div>
   </div>

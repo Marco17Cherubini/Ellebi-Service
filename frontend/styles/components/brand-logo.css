@@ -1,0 +1,30 @@
+/* ============================================================================
+   BRAND LOGO - LB SERVICE
+   ============================================================================ */
+
+.brand-logo {
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    width: 100%;
+    max-width: 340px;
+    height: 260px;
+    max-height: 40vh;
+    background-image: url("/images/LB-Service-Logo.webp");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Light Mode: multiply rende trasparente lo sfondo bianco del logo */
+html[data-theme="light"] .brand-logo {
+    mix-blend-mode: multiply;
+}
+
+/* Dark Mode: contenitore bianco arrotondato per rendere il logo leggibile */
+html[data-theme="dark"] .brand-logo {
+    background-color: #FFFFFF;
+    border-radius: var(--radius-2xl);
+    padding: 12px;
+    background-origin: content-box;
+    mix-blend-mode: normal;
+}

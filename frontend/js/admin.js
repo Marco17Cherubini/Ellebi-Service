@@ -7,6 +7,13 @@ let selectedBooking = null;
 let holidayMode = false;
 let selectedHolidaySlots = []; // Slot selezionati per aggiunta/rimozione ferie
 
+let extraWorkMode = false;
+let currentAssignDepositId = null;
+let extraWorkHoursTotal = 0;
+let selectedExtraWorkSlots = [];
+
+let calendarGranularity = 60; // minuti: 15 | 30 | 60 | 120
+
 // Modal instances (initialized in init())
 let bookingModal = null;
 let detailModal = null;
@@ -20,58 +27,47 @@ let dragMode = null; // 'add' o 'remove' - determina se stiamo aggiungendo o rim
 // Variabili per drag-and-drop prenotazioni
 let isDraggingBooking = false;
 let draggedBooking = null;
+
 let dragGhostElement = null;
 let longPressTimer = null;
 let touchStartX = 0;
 let touchStartY = 0;
 
-// Orari di lavoro - martedì-venerdì (45 min per appuntamento)
+// Orari di lavoro Ellebi Service — Lun-Ven (08:30-12:30, 14:30-18:30, 15min)
 const timeSlotsWeekday = [
-  '08:30', '09:15', '10:00', '10:45', '11:30', '12:15',
-  '14:00', '14:45', '15:30', '16:15', '17:00'
+  '08:30', '08:45', '09:00', '09:15', '09:30', '09:45',
+  '10:00', '10:15', '10:30', '10:45', '11:00', '11:15',
+  '11:30', '11:45', '12:00', '12:15',
+  '14:30', '14:45', '15:00', '15:15', '15:30', '15:45',
+  '16:00', '16:15', '16:30', '16:45', '17:00', '17:15',
+  '17:30', '17:45', '18:00', '18:15'
 ];
 
-// Orari di lavoro - sabato (45 min per appuntamento)
+// Sabato (08:30-12:00, 15min)
 const timeSlotsSaturday = [
-  '08:30', '09:15', '10:00', '10:45', '11:30', '12:15',
-  '14:00', '14:45'
+  '08:30', '08:45', '09:00', '09:15', '09:30', '09:45',
+  '10:00', '10:15', '10:30', '10:45', '11:00', '11:15',
+  '11:30', '11:45'
 ];
 
-// Slot pre-orario (08:00) disponibile per admin/VIP
-const preOpeningSlot = ['08:00'];
-
-// Slot straordinario (solo admin/VIP) - dopo orario chiusura fino a mezzanotte
-const extraSlotsWeekday = [
-  '18:00', '18:45', '19:30', '20:15', '21:00', '21:45', '22:30', '23:15'
-];
-
-const extraSlotsSaturday = [
-  '15:30', '16:15', '17:00', '17:45', '18:30', '19:15', '20:00', '20:45', '21:30', '22:15', '23:00'
-];
-
-// Funzione per ottenere gli slot per un giorno (inclusi extra per admin)
-function getTimeSlotsForDate(date, includeExtra = true) {
-  const dayOfWeek = new Date(date).getDay();
-  const normalSlots = dayOfWeek === 6 ? timeSlotsSaturday : timeSlotsWeekday;
-  if (includeExtra) {
-    const extraSlots = dayOfWeek === 6 ? extraSlotsSaturday : extraSlotsWeekday;
-    // Includi pre-orario + slot normali + straordinari
-    return [...preOpeningSlot, ...normalSlots, ...extraSlots];
-  }
-  return normalSlots;
-}
-
-// Tutti gli slot possibili (unione per visualizzazione griglia admin)
-// Include lo slot pre-orario 08:00 per admin/VIP
+// Tutti gli slot per la griglia admin (unione weekday + saturday)
 const allTimeSlots = [
-  '08:00', '08:30', '09:15', '10:00', '10:45', '11:30', '12:15',
-  '14:00', '14:45', '15:30', '16:15', '17:00',
-  '18:00', '18:45', '19:30', '20:15', '21:00', '21:45', '22:30', '23:15'
+  '08:30', '08:45', '09:00', '09:15', '09:30', '09:45',
+  '10:00', '10:15', '10:30', '10:45', '11:00', '11:15',
+  '11:30', '11:45', '12:00', '12:15',
+  '14:30', '14:45', '15:00', '15:15', '15:30', '15:45',
+  '16:00', '16:15', '16:30', '16:45', '17:00', '17:15',
+  '17:30', '17:45', '18:00', '18:15'
 ];
 
-// Slot normali (per controllo visualizzazione)
-const normalEndTimeWeekday = '17:00';
-const normalEndTimeSaturday = '14:45';
+// Servizi caricati dall'API
+let allServices = [];
+
+// Funzione per ottenere gli slot validi per un giorno
+function getTimeSlotsForDate(date) {
+  const dayOfWeek = new Date(date).getDay();
+  return dayOfWeek === 6 ? timeSlotsSaturday : timeSlotsWeekday;
+}
 
 // Giorni lavorativi (Lun-Sab = indici 0-5 nel nostro array)
 const workDays = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -94,17 +90,32 @@ async function init() {
     // Carica utenti per autocompletamento
     await loadUsers();
 
+    // Carica servizi per dropdown
+    await loadServices();
+
     // Carica ferie
     await loadHolidays();
 
     // Carica prenotazioni e renderizza
     await loadBookings();
+    calendarGranularity = parseInt(document.getElementById('granularity-select').value, 10) || 60;
     renderCalendar();
 
     // Setup event listeners per modal
     setupModalListeners();
     setupAutocomplete();
     setupHolidayMode();
+
+    // Controlla se arrivo da admin-depositi con parametri per lavoro straordinario
+    const urlParams = new URLSearchParams(window.location.search);
+    const assignDepositId = urlParams.get('assignDeposit');
+    const assignHours = parseFloat(urlParams.get('hours'));
+    if (assignDepositId && assignHours > 0) {
+      enterExtraWorkMode(assignDepositId, assignHours);
+    } else {
+      // Mostra banner se ci sono lavori straordinari in attesa
+      await checkPendingDeposits();
+    }
   } catch (error) {
     console.error('Errore inizializzazione:', error);
     window.location.href = '/login';
@@ -146,6 +157,140 @@ async function loadHolidays() {
     allHolidays = [];
   }
 }
+
+// Carica servizi dall'API e popola select
+async function loadServices() {
+  try {
+    const response = await apiRequest('/admin/services');
+    if (response.success) {
+      allServices = response.services || [];
+      buildServicePicker();
+    }
+  } catch (e) {
+    console.error('Errore caricamento servizi:', e);
+  }
+}
+
+// Costruisce il pannello custom del service picker
+function buildServicePicker() {
+  const panel = document.getElementById('svc-picker-panel');
+  if (!panel) return;
+
+  const appuntamenti = allServices.filter(function(s) { return s.tipo_servizio !== 'consegna' && (s.attivo === 1 || s.attivo === '1'); });
+  const consegna     = allServices.filter(function(s) { return s.tipo_servizio === 'consegna'  && (s.attivo === 1 || s.attivo === '1'); });
+
+  function buildItem(s) {
+    const tipoClass  = s.tipo_servizio === 'consegna' ? 'tipo-consegna' : 'tipo-appuntamento';
+    const veicoloLabel = s.tipo_veicolo === 'auto' ? 'Auto' : 'Moto';
+    const durataLabel  = s.tipo_servizio === 'consegna' ? 'Consegna' : (s.durata_minuti || '?') + 'min';
+    return `<div class="svc-option ${tipoClass}" data-svc-id="${s.id}" data-svc-nome="${s.nome}" role="option" tabindex="-1">
+      <div class="svc-option-indicator"></div>
+      <span class="svc-option-name">${s.nome}</span>
+      <span class="svc-option-meta">${veicoloLabel} · ${durataLabel}</span>
+    </div>`;
+  }
+
+  let html = '';
+  if (appuntamenti.length > 0) {
+    html += `<div class="svc-group-header appuntamenti">
+      <div class="svc-group-dot"></div>Appuntamenti
+    </div>` + appuntamenti.map(buildItem).join('');
+  }
+  if (consegna.length > 0) {
+    html += `<div class="svc-group-header consegna">
+      <div class="svc-group-dot"></div>Consegna / Lavori Speciali
+    </div>` + consegna.map(buildItem).join('');
+  }
+  panel.innerHTML = html;
+
+  // Event listener su ogni opzione
+  panel.querySelectorAll('.svc-option').forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      selectServicePicker(opt.dataset.svcId, opt.dataset.svcNome, opt.dataset.svcId && allServices.find(function(s){ return String(s.id) === String(opt.dataset.svcId); }));
+      closePicker();
+    });
+    opt.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        opt.click();
+      }
+    });
+  });
+}
+
+function selectServicePicker(svcId, svcNome, svc) {
+  document.getElementById('input-servizio').value = svcId || '';
+
+  // Campi veicolo sempre visibili e obbligatori
+  // Mostra/nasconde solo il banner "Lavoro Straordinario" in base al tipo servizio
+  const consegnaBanner = document.getElementById('consegna-banner');
+  if (consegnaBanner) {
+    const isConsegnaSvc = svc && (svc.tipo_servizio === 'consegna' ||
+      (svc.nome || '').toLowerCase().includes('consegna'));
+    consegnaBanner.classList.toggle('hidden', !isConsegnaSvc);
+  }
+
+  const label = document.getElementById('svc-picker-label');
+  if (label) {
+    if (svcNome) {
+      label.textContent = svcNome;
+      label.classList.add('has-value');
+    } else {
+      label.textContent = '— Seleziona servizio —';
+      label.classList.remove('has-value');
+    }
+  }
+  // Marca selected
+  document.querySelectorAll('#svc-picker-panel .svc-option').forEach(function(o) {
+    o.classList.toggle('selected', String(o.dataset.svcId) === String(svcId));
+  });
+}
+
+function openPicker() {
+  const picker  = document.getElementById('svc-picker');
+  const trigger = document.getElementById('svc-picker-trigger');
+  const panel   = document.getElementById('svc-picker-panel');
+  if (!picker) return;
+  picker.classList.add('open');
+  if (trigger) trigger.setAttribute('aria-expanded', 'true');
+  if (panel)   panel.setAttribute('aria-hidden', 'false');
+}
+
+function closePicker() {
+  const picker  = document.getElementById('svc-picker');
+  const trigger = document.getElementById('svc-picker-trigger');
+  const panel   = document.getElementById('svc-picker-panel');
+  if (!picker) return;
+  picker.classList.remove('open');
+  if (trigger) trigger.setAttribute('aria-expanded', 'false');
+  if (panel)   panel.setAttribute('aria-hidden', 'true');
+}
+
+// Collega eventi al trigger (eseguito una volta al DOMContentLoaded)
+document.addEventListener('DOMContentLoaded', function () {
+  const trigger = document.getElementById('svc-picker-trigger');
+  if (trigger) {
+    trigger.addEventListener('click', function () {
+      const isOpen = document.getElementById('svc-picker').classList.contains('open');
+      isOpen ? closePicker() : openPicker();
+    });
+    trigger.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        openPicker();
+        const first = document.querySelector('#svc-picker-panel .svc-option');
+        if (first) first.focus();
+      }
+      if (e.key === 'Escape') closePicker();
+    });
+  }
+  // Chiudi cliccando fuori
+  document.addEventListener('click', function(e) {
+    const picker = document.getElementById('svc-picker');
+    if (picker && !picker.contains(e.target)) closePicker();
+  });
+});
+
 
 // Carica tutte le prenotazioni
 async function loadBookings() {
@@ -191,7 +336,7 @@ function renderCalendar() {
 
   // Calcola le date della settimana (Lun-Sab)
   const weekDates = [];
-  for (let i = 0; i <= 5; i++) { // 0=Lun, 1=Mar, 2=Mer, 3=Gio, 4=Ven, 5=Sab
+  for (let i = 0; i <= 5; i++) {
     const date = new Date(currentWeekStart);
     date.setDate(date.getDate() + i);
     weekDates.push(date);
@@ -203,40 +348,117 @@ function renderCalendar() {
     header.innerHTML = `${workDays[index]}<br>${formatDateDisplay(date)}`;
   });
 
-  // Titolo settimana rimosso per maggiore spazio verticale calendario
-  // Genera righe per ogni orario (usa allTimeSlots per la griglia)
-  allTimeSlots.forEach(time => {
-    // Cella orario
+  // Griglia condensata: zoom-out temporale — ogni riga visibile rappresenta 'granularity' minuti.
+  // step = numero di slot 15-min per ogni riga visibile.
+  // visibleSlots = primo slot di ogni blocco (es: 08:30, 09:30, 10:30... a 1 ora).
+  const step = calendarGranularity / 15;
+  const visibleSlots = allTimeSlots.filter(function (_, i) { return i % step === 0; });
+
+  // Pre-calcola le righe visibili da saltare (dominio visibleSlots, non 15-min)
+  const skipCells = new Map();
+  weekDates.forEach(d => skipCells.set(formatDate(d), new Set()));
+  allBookings.forEach(function (booking) {
+    if (isExtraWorkBooking(booking)) return;
+    const dur = parseInt(booking.durata_minuti) || 60;
+    const visSpan = Math.max(1, Math.ceil(dur / calendarGranularity));
+    if (visSpan <= 1) return;
+    const slotIdx = allTimeSlots.indexOf(booking.ora);
+    if (slotIdx < 0) return;
+    const visParentIdx = Math.floor(slotIdx / step);
+    const skipSet = skipCells.get(booking.giorno);
+    if (!skipSet) return;
+    for (let i = 1; i < visSpan; i++) {
+      const skipTime = visibleSlots[visParentIdx + i];
+      if (skipTime) skipSet.add(skipTime);
+    }
+  });
+
+  // Raggruppa slot extrawork consecutivi per (giorno, deposit_id) — span in dominio visibleSlots
+  const extraworkSpans = new Map();
+  const extraworkGroups = {};
+  allBookings.filter(isExtraWorkBooking).forEach(b => {
+    const key = `${b.giorno}|${b.deposit_id || ''}`;
+    if (!extraworkGroups[key]) extraworkGroups[key] = [];
+    extraworkGroups[key].push(b);
+  });
+  Object.values(extraworkGroups).forEach(group => {
+    group.sort((a, b) => allTimeSlots.indexOf(a.ora) - allTimeSlots.indexOf(b.ora));
+    let runStart = 0;
+    for (let i = 1; i <= group.length; i++) {
+      const isEnd = i === group.length ||
+        allTimeSlots.indexOf(group[i].ora) !== allTimeSlots.indexOf(group[i - 1].ora) + 1;
+      if (isEnd) {
+        const runSlots = i - runStart;
+        const visSpan = Math.max(1, Math.ceil(runSlots * 15 / calendarGranularity));
+        const startSlotIdx = allTimeSlots.indexOf(group[runStart].ora);
+        const visParentIdx = Math.floor(startSlotIdx / step);
+        const visStartTime = visibleSlots[visParentIdx];
+        if (visStartTime) {
+          extraworkSpans.set(`${group[runStart].giorno}|${visStartTime}`, visSpan);
+          const skipSet = skipCells.get(group[runStart].giorno);
+          for (let j = 1; j < visSpan; j++) {
+            const skipTime = visibleSlots[visParentIdx + j];
+            if (skipTime && skipSet) skipSet.add(skipTime);
+          }
+        }
+        runStart = i;
+      }
+    }
+  });
+
+  let rowIndex = 2; // riga 1 = header statico nell'HTML
+
+  visibleSlots.forEach(function (time) {
+    // Cella orario — un'etichetta per ogni riga visibile con ora arrotondata alla granularità
     const timeCell = document.createElement('div');
     timeCell.className = 'admin-time-header';
-    timeCell.textContent = time;
+    timeCell.textContent = getGranularityLabel(time, calendarGranularity);
+    timeCell.style.gridColumn = '1';
+    timeCell.style.gridRow = String(rowIndex);
     grid.appendChild(timeCell);
 
     // Celle per ogni giorno
-    weekDates.forEach(date => {
+    weekDates.forEach((date, dayIdx) => {
+      const dateStr = formatDate(date);
+
+      // Salta le righe visibili coperte da un booking multi-riga
+      if (skipCells.get(dateStr) && skipCells.get(dateStr).has(time)) return;
+
       const cell = document.createElement('div');
       cell.className = 'admin-cell';
 
-      const dateStr = formatDate(date);
-      const dayOfWeek = date.getDay();
-      const daySlots = getTimeSlotsForDate(date, true); // Include extra
-      const normalSlots = dayOfWeek === 6 ? timeSlotsSaturday : timeSlotsWeekday;
-      const isValidSlot = daySlots.includes(time);
-      const isExtraSlot = isValidSlot && !normalSlots.includes(time);
-      const booking = findBooking(dateStr, time);
-      const isHoliday = findHoliday(dateStr, time);
-      const isSelectedForHoliday = selectedHolidaySlots.some(s => s.giorno === dateStr && s.ora === time);
+      const daySlots = getTimeSlotsForDate(date);
+      // Il blocco visibile copre 'step' slot 15-min: cerca booking/ferie in uno qualsiasi
+      const blockSlots = getBlockSlots(time, step);
+      const isValidSlot = blockSlots.some(t => daySlots.includes(t));
+      const booking = findBookingInBlock(dateStr, time, step);
+      const isHoliday = findHolidayInBlock(dateStr, time, step);
+      // Primo slot valido del blocco = target per apertura modal e drop
+      const actionTime = blockSlots.find(t => daySlots.includes(t)) || time;
+      const isSelectedForHoliday = blockSlots.some(t =>
+        selectedHolidaySlots.some(s => s.giorno === dateStr && s.ora === t)
+      );
+
+      // Posizionamento esplicito nella CSS Grid
+      cell.style.gridColumn = String(dayIdx + 2);
+      cell.style.gridRow = String(rowIndex);
+
+      // Span in righe visibili (proporzionale alla granularità = effetto zoom)
+      if (booking) {
+        if (isExtraWorkBooking(booking)) {
+          const vs = extraworkSpans.get(`${dateStr}|${time}`) || 1;
+          if (vs > 1) cell.style.gridRow = `${rowIndex} / span ${vs}`;
+        } else {
+          const vs = Math.max(1, Math.ceil((parseInt(booking.durata_minuti) || 60) / calendarGranularity));
+          if (vs > 1) cell.style.gridRow = `${rowIndex} / span ${vs}`;
+        }
+      }
 
       // Slot dati
       cell.dataset.date = dateStr;
-      cell.dataset.time = time;
+      cell.dataset.time = actionTime;
 
-      // Marca slot extra con classe speciale
-      if (isExtraSlot) {
-        cell.classList.add('extra-slot');
-      }
-
-      // Se lo slot non è valido per questo giorno (es. sabato dopo le 23:00)
+      // Se lo slot non è valido per questo giorno (es. sabato pomeriggio)
       if (!isValidSlot) {
         cell.classList.add('invalid-slot');
         cell.innerHTML = '<div class="no-booking">—</div>';
@@ -253,27 +475,31 @@ function renderCalendar() {
           cell.classList.add('is-holiday');
           cell.innerHTML = '<div class="holiday-label">FERIE (rimuovi)</div>';
         } else if (booking) {
-          // Prenotazione esistente - non può essere ferie
           cell.classList.add('has-booking');
-          cell.innerHTML = renderBookingItem(booking, time);
+          if (isExtraWorkBooking(booking)) cell.classList.add('has-booking-extrawork');
+          else if (isConsegnaBooking(booking)) cell.classList.add('has-booking-deposito');
+          cell.innerHTML = renderBookingItem(booking, actionTime);
         } else {
           cell.innerHTML = '<div class="no-booking">+ Ferie</div>';
         }
-
-        // Solo celle senza prenotazione possono essere selezionate per ferie
-        if (!booking) {
-          // Drag-select: mousedown inizia il drag
-          cell.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            startDrag(dateStr, time, isHoliday);
-          });
-
-          // Drag-select: mouseenter durante il drag
-          cell.addEventListener('mouseenter', () => {
-            if (isDragging) {
-              addToDragSelection(dateStr, time, isHoliday);
-            }
-          });
+      } else if (extraWorkMode) {
+        // ===== MODALITÀ LAVORO STRAORDINARIO =====
+        const isSelectedForExtraWork = blockSlots.some(t =>
+          selectedExtraWorkSlots.some(s => s.giorno === dateStr && s.ora === t)
+        );
+        if (isSelectedForExtraWork) {
+          cell.classList.add('is-extrawork-draft');
+          cell.innerHTML = '<div class="no-booking">🔧 Lavoro</div>';
+        } else if (isHoliday) {
+          cell.classList.add('is-holiday');
+          cell.innerHTML = '<div class="holiday-label">FERIE</div>';
+        } else if (booking) {
+          cell.classList.add('has-booking');
+          if (isExtraWorkBooking(booking)) cell.classList.add('has-booking-extrawork');
+          else if (isConsegnaBooking(booking)) cell.classList.add('has-booking-deposito');
+          cell.innerHTML = renderBookingItem(booking, actionTime);
+        } else {
+          cell.innerHTML = '<div class="no-booking">+ Lavoro</div>';
         }
       } else if (isHoliday) {
         // ===== MODALITÀ NORMALE - FERIE =====
@@ -281,11 +507,14 @@ function renderCalendar() {
         cell.innerHTML = '<div class="holiday-label">FERIE</div>';
       } else if (booking) {
         cell.classList.add('has-booking');
-        cell.innerHTML = renderBookingItem(booking, time);
+        if (isExtraWorkBooking(booking)) cell.classList.add('has-booking-extrawork');
+        else if (isConsegnaBooking(booking)) cell.classList.add('has-booking-deposito');
+        cell.innerHTML = renderBookingItem(booking, actionTime);
 
         // Drag-and-drop: inizia drag su mousedown sulla prenotazione
         cell.addEventListener('mousedown', (e) => {
           if (holidayMode) return;
+          if (isExtraWorkBooking(booking)) return;
           e.preventDefault();
           startBookingDrag(booking, e);
         });
@@ -293,6 +522,7 @@ function renderCalendar() {
         // Drag-and-drop: supporto TOUCH (Long Press)
         cell.addEventListener('touchstart', (e) => {
           if (holidayMode) return;
+          if (isExtraWorkBooking(booking)) return;
           if (e.touches.length !== 1) return;
 
           touchStartX = e.touches[0].clientX;
@@ -359,18 +589,30 @@ function renderCalendar() {
         // Drop: rilascia prenotazione
         cell.addEventListener('mouseup', () => {
           if (isDraggingBooking && draggedBooking) {
-            dropBooking(dateStr, time);
+            dropBooking(dateStr, actionTime);
           }
         });
 
         cell.addEventListener('click', () => {
           if (isDraggingBooking) return;
-          openBookingModal(dateStr, time);
+          if (holidayMode || extraWorkMode) {
+            const isH = !!findHolidayInBlock(dateStr, time, step);
+            if (extraWorkMode) {
+              dragMode = selectedExtraWorkSlots.some(s => s.giorno === dateStr && s.ora === actionTime) ? 'remove' : 'add';
+              addToDragSelection(dateStr, actionTime, isH);
+            } else {
+              toggleHolidaySelection(dateStr, actionTime, isH);
+            }
+            return;
+          }
+          openBookingModal(dateStr, actionTime);
         });
       }
 
       grid.appendChild(cell);
     });
+
+    rowIndex++; // avanza alla riga visibile successiva del CSS Grid
   });
 }
 
@@ -384,17 +626,137 @@ function findBooking(date, time) {
   return allBookings.find(b => b.giorno === date && b.ora === time);
 }
 
-// Render singolo appuntamento
+// Restituisce i time-slot 15-min che compongono il blocco visibile (time, step)
+function getBlockSlots(time, step) {
+  const idx = allTimeSlots.indexOf(time);
+  if (idx < 0) return [time];
+  const slots = [];
+  for (let i = 0; i < step; i++) {
+    const t = allTimeSlots[idx + i];
+    if (t) slots.push(t);
+  }
+  return slots;
+}
+
+// Trova il primo booking il cui slot di inizio ricade nel blocco (time, step)
+function findBookingInBlock(dateStr, time, step) {
+  const slots = getBlockSlots(time, step);
+  for (let i = 0; i < slots.length; i++) {
+    const b = allBookings.find(function (bk) { return bk.giorno === dateStr && bk.ora === slots[i]; });
+    if (b) return b;
+  }
+  return null;
+}
+
+// Trova la prima ferie il cui slot ricade nel blocco (time, step)
+function findHolidayInBlock(dateStr, time, step) {
+  const slots = getBlockSlots(time, step);
+  for (let i = 0; i < slots.length; i++) {
+    const h = allHolidays.find(function (hol) { return hol.giorno === dateStr && hol.ora === slots[i]; });
+    if (h) return h;
+  }
+  return null;
+}
+
+// Calcola l'etichetta temporale arrotondata alla granularità selezionata.
+// Es: "08:30" a 60min → "08:00"; "09:45" a 30min → "09:30"
+function getGranularityLabel(slotTime, granularity) {
+  const parts = slotTime.split(':');
+  const totalMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+  const rounded = Math.floor(totalMin / granularity) * granularity;
+  const h = Math.floor(rounded / 60);
+  const m = rounded % 60;
+  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+}
+
+// Helper condiviso: true se la prenotazione è di tipo consegna/lavoro speciale
+function isExtraWorkBooking(booking) {
+  return booking.service_id === 'extra_work';
+}
+
+function isConsegnaBooking(booking) {
+  if (booking.tipo === 'deposito') return true;
+  const svc = allServices.find(function(s) {
+    if (booking.service_id && String(booking.service_id) !== '') {
+      return String(s.id) === String(booking.service_id);
+    }
+    return booking.servizio && s.nome === booking.servizio;
+  });
+  return !!(svc && (svc.tipo_servizio === 'consegna' ||
+    (svc.nome || '').toLowerCase().includes('consegna')));
+}
+
+// Render singolo appuntamento (con colori per tipo)
 function renderBookingItem(booking, time) {
-  return `
-    <div class="booking-item" data-giorno="${booking.giorno}" data-ora="${booking.ora}">
-      <div class="name">${booking.nome} ${booking.cognome}</div>
-      ${booking.servizio ? `<div class="service">${booking.servizio}</div>` : ''}
-      <div class="duration">Durata: 30 min.</div>
-      <div class="contact">
-        ${booking.email}<br>
-        ${booking.telefono}
+  const typeClass = isExtraWorkBooking(booking) ? 'booking-extrawork' : (isConsegnaBooking(booking) ? 'booking-deposito' : 'booking-cliente');
+
+  // Extrawork: mostra "{nome} {cognome}", "{servizio} · {ore}h · {targa}" e "{telefono}"
+  if (isExtraWorkBooking(booking)) {
+    const ewServizio = booking.servizio || 'Lavoro Straordinario';
+    const ewOre = Number(booking.ore_stimate) > 0 ? booking.ore_stimate + 'h' : '';
+    const ewTarga = booking.targa || '';
+    const ewTipoVeicolo = booking.tipo_veicolo || '';
+    const ewBadge = ewTipoVeicolo
+      ? `<span class="booking-veicolo-badge booking-veicolo-${ewTipoVeicolo}">${ewTipoVeicolo.toUpperCase()}</span>`
+      : '';
+    const ewLabel = [ewServizio, ewOre, ewTarga].filter(Boolean).join(' · ');
+    return `
+      <div class="booking-item ${typeClass}" data-giorno="${booking.giorno}" data-ora="${booking.ora}">
+        <div class="name">${booking.nome || '—'} ${booking.cognome || ''}</div>
+        <div class="service">${ewBadge}${ewLabel}</div>
+        <div class="contact">${booking.telefono || booking.email || ''}</div>
       </div>
+    `;
+  }
+
+  // Risolvi nome servizio da allServices (prima da servizio testuale, poi da service_id)
+  let serviceName = booking.servizio || '';
+  let tipoVeicolo = booking.tipo_veicolo || '';
+  if (!tipoVeicolo && booking.service_id) {
+    const svc = allServices.find(s => String(s.id) === String(booking.service_id));
+    if (svc) {
+      if (!serviceName) serviceName = svc.nome;
+      tipoVeicolo = svc.tipo_veicolo || '';
+    }
+  } else if (booking.service_id) {
+    const svc = allServices.find(s => String(s.id) === String(booking.service_id));
+    if (svc && !serviceName) serviceName = svc.nome;
+  }
+
+  // Modifica per le caselle "Deposito" (Consegna)
+  let durataStr = booking.durata_minuti ? booking.durata_minuti + ' min' : '';
+  if (isConsegnaBooking(booking)) {
+    const depNota = booking.nota_interna || 'Lavoro Straordinario';
+    if (booking.servizio === 'Prenotazione' || serviceName === 'Prenotazione' || !serviceName) {
+      serviceName = depNota;
+    } else {
+      // Se c'è un servizio specifico ma anche una nota importante, potremmo mostrare entrambi o sostituirlo, 
+      // il prompt dice "Al posto di 'Prenotazione' ... inserisci la tipologia ... e il numero di ore"
+      if (booking.nota_interna) serviceName = booking.nota_interna;
+    }
+    const depOre = Number(booking.ore_stimate) > 0 ? booking.ore_stimate + 'h' : '';
+    if (depOre) {
+      durataStr = depOre; // Sovrascriviamo la durata "30 min" generica con le ore effettive del deposito
+    }
+  }
+
+  const targaStr = booking.targa ? ' · ' + booking.targa : '';
+
+  const veicoloBadge = tipoVeicolo
+    ? `<span class="booking-veicolo-badge booking-veicolo-${tipoVeicolo}">${tipoVeicolo.toUpperCase()}</span>`
+    : '';
+
+  // Se c'è solo la targa (senza servizio), mostrarla comunque come riga separata
+  const serviceRow = serviceName
+    ? `<div class="service">${veicoloBadge}${serviceName}${targaStr}</div>`
+    : (booking.targa ? `<div class="service">${veicoloBadge}${booking.targa}</div>` : (veicoloBadge ? `<div class="service">${veicoloBadge}</div>` : ''));
+
+  return `
+    <div class="booking-item ${typeClass}" data-giorno="${booking.giorno}" data-ora="${booking.ora}">
+      <div class="name">${booking.nome || '—'} ${booking.cognome || ''}</div>
+      ${serviceRow}
+      ${durataStr ? `<div class="duration">${durataStr}</div>` : ''}
+      <div class="contact">${booking.email || ''}</div>
     </div>
   `;
 }
@@ -591,12 +953,20 @@ document.addEventListener('touchend', (e) => {
 // ==================== MODAL INSERIMENTO ====================
 
 function openBookingModal(date, time) {
-  selectedSlot = { date, time };
+    if (holidayMode || extraWorkMode) return;
+    
 
   // Reset form
   document.getElementById('booking-form').reset();
   document.getElementById('form-error').classList.add('hidden');
   document.getElementById('suggestions-list').classList.add('hidden');
+
+  // Reset custom service picker
+  selectServicePicker('', '', null);
+  closePicker();
+
+  // Salva slot selezionato per il submit
+  selectedSlot = { date, time };
 
   // Imposta titolo e sottotitolo
   document.getElementById('modal-title').textContent = 'Nuovo Appuntamento';
@@ -619,17 +989,32 @@ function closeBookingModal() {
 // ==================== MODAL DETTAGLIO ====================
 
 function showDetailModal(booking) {
-  selectedBooking = booking;
+    if (holidayMode || extraWorkMode) return;
 
-  document.getElementById('detail-content').innerHTML = `
-    <div><strong>Nome:</strong> ${booking.nome} ${booking.cognome}</div>
-    <div><strong>Data:</strong> ${formatDateStringDisplay(booking.giorno)}</div>
-    <div><strong>Ora:</strong> ${booking.ora}</div>
-    <div><strong>Email:</strong> ${booking.email}</div>
-    <div><strong>Telefono:</strong> ${booking.telefono}</div>
-  `;
+  // Risolvi nome servizio
+  let serviceName = booking.servizio || '';
+  if (!serviceName && booking.service_id) {
+    const svc = allServices.find(s => String(s.id) === String(booking.service_id));
+    if (svc) serviceName = svc.nome;
+  }
 
-  detailModal.open();
+  const rows = [
+    `<div><strong>Nome:</strong> ${booking.nome || '—'} ${booking.cognome || ''}</div>`,
+    `<div><strong>Data:</strong> ${formatDateStringDisplay(booking.giorno)}</div>`,
+    `<div><strong>Ora:</strong> ${booking.ora}</div>`,
+    serviceName ? `<div><strong>Servizio:</strong> ${serviceName}</div>` : '',
+    booking.durata_minuti ? `<div><strong>Durata:</strong> ${booking.durata_minuti} min</div>` : '',
+    booking.targa ? `<div><strong>Targa:</strong> ${booking.targa}</div>` : '',
+    booking.modello ? `<div><strong>Modello:</strong> ${booking.modello}</div>` : '',
+    `<div><strong>Email:</strong> ${booking.email || '—'}</div>`,
+    `<div><strong>Telefono:</strong> ${booking.telefono || '—'}</div>`,
+    booking.note_cliente ? `<div><strong>Note:</strong> ${booking.note_cliente}</div>` : '',
+    booking.tipo === 'deposito' ? `<div class="badge-special mt-2">Lavoro Straordinario</div>` : ''
+  ].filter(Boolean).join('');
+
+  document.getElementById('detail-content').innerHTML = rows;
+    selectedBooking = booking;
+    detailModal.open();
 }
 
 function closeDetailModal() {
@@ -762,6 +1147,15 @@ function setupModalListeners() {
   bookingModal = new Modal('booking-modal', {
     onClose: () => {
       selectedSlot = { date: null, time: null };
+      // Assicurati che i campi veicolo restino visibili (ora sempre obbligatori)
+      const cf = document.getElementById('consegna-fields');
+      if (cf) cf.classList.remove('hidden');
+      const t = document.getElementById('input-targa-admin');
+      const m = document.getElementById('input-modello-admin');
+      const n = document.getElementById('input-note-admin');
+      if (t) t.value = '';
+      if (m) m.value = '';
+      if (n) n.value = '';
     }
   });
 
@@ -788,20 +1182,45 @@ function setupModalListeners() {
   document.getElementById('booking-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    const serviceSelectVal = document.getElementById('input-servizio').value;
+    const selectedSvc = allServices.find(s => String(s.id) === String(serviceSelectVal));
+    const isConsegnaSvc = selectedSvc && (selectedSvc.tipo_servizio === 'consegna' ||
+      (selectedSvc.nome || '').toLowerCase().includes('consegna'));
     const formData = {
-      nome: document.getElementById('input-nome').value.trim(),
-      cognome: document.getElementById('input-cognome').value.trim(),
-      email: document.getElementById('input-email').value.trim(),
-      telefono: document.getElementById('input-telefono').value.trim(),
-      servizio: document.getElementById('input-servizio').value,
-      giorno: selectedSlot.date,
-      ora: selectedSlot.time
+      nome:         document.getElementById('input-nome').value.trim(),
+      cognome:      document.getElementById('input-cognome').value.trim(),
+      email:        document.getElementById('input-email').value.trim(),
+      telefono:     document.getElementById('input-telefono').value.trim(),
+      serviceId:    serviceSelectVal || null,
+      servizio:     selectedSvc ? selectedSvc.nome : '',
+      durata_minuti: selectedSvc ? selectedSvc.durata_minuti : 60,
+      giorno:       selectedSlot.date,
+      ora:          selectedSlot.time,
+      // Campi veicolo — sempre obbligatori
+      targa:        (document.getElementById('input-targa-admin') || {}).value?.trim().toUpperCase() || '',
+      modello:      (document.getElementById('input-modello-admin') || {}).value?.trim() || '',
+      note_cliente: (document.getElementById('input-note-admin') || {}).value || ''
     };
 
-    // Validazione (solo cognome obbligatorio per admin)
+    // Validazione
+    const formError = document.getElementById('form-error');
+    formError.classList.add('hidden');
+
     if (!formData.cognome) {
-      document.getElementById('form-error').textContent = 'Il cognome è obbligatorio';
-      document.getElementById('form-error').classList.remove('hidden');
+      formError.textContent = 'Il cognome è obbligatorio';
+      formError.classList.remove('hidden');
+      return;
+    }
+    if (!formData.targa) {
+      formError.textContent = 'La targa è obbligatoria';
+      formError.classList.remove('hidden');
+      document.getElementById('input-targa-admin').focus();
+      return;
+    }
+    if (!formData.modello) {
+      formError.textContent = 'Il modello del veicolo è obbligatorio';
+      formError.classList.remove('hidden');
+      document.getElementById('input-modello-admin').focus();
       return;
     }
 
@@ -850,6 +1269,12 @@ document.getElementById('prev-week').addEventListener('click', async () => {
 document.getElementById('next-week').addEventListener('click', async () => {
   currentWeekStart.setDate(currentWeekStart.getDate() + 7);
   await loadBookings();
+  renderCalendar();
+});
+
+// Cambio granularità calendario
+document.getElementById('granularity-select').addEventListener('change', function () {
+  calendarGranularity = parseInt(this.value, 10);
   renderCalendar();
 });
 
@@ -902,7 +1327,7 @@ function setupHolidayMode() {
 
   // Toggle modalità ferie
   holidayToggle.addEventListener('click', () => {
-    if (!holidayMode) {
+    if (!holidayMode && !extraWorkMode) {
       enterHolidayMode();
     }
   });
@@ -923,34 +1348,36 @@ function enterHolidayMode() {
   document.querySelector('.admin-calendar').classList.add('holiday-mode');
 
   renderCalendar();
+  setupHolidayTouch(); // monta i listener touch sul grid (idempotente)
+  setupHolidayMouse(); // monta i listener mouse sul grid (idempotente)
 }
 
 function exitHolidayMode() {
-  holidayMode = false;
-  selectedHolidaySlots = [];
+    holidayMode = false;
+    selectedHolidaySlots = [];
 
-  document.getElementById('holiday-mode-toggle').classList.remove('active');
-  document.getElementById('holiday-mode-indicator').classList.add('hidden');
-  document.querySelector('.admin-calendar').classList.remove('holiday-mode');
+    document.getElementById('holiday-mode-toggle').classList.remove('active');
+    document.getElementById('holiday-mode-indicator').classList.add('hidden');
+    document.querySelector('.admin-calendar').classList.remove('holiday-mode');
 
-  renderCalendar();
-}
-
-function toggleHolidaySelection(date, time, isCurrentlyHoliday) {
-  const slotIndex = selectedHolidaySlots.findIndex(s => s.giorno === date && s.ora === time);
-
-  if (slotIndex >= 0) {
-    // Rimuovi dalla selezione
-    selectedHolidaySlots.splice(slotIndex, 1);
-  } else {
-    // Aggiungi alla selezione (con flag per indicare se è da rimuovere o aggiungere)
-    selectedHolidaySlots.push({ giorno: date, ora: time, isRemove: isCurrentlyHoliday });
+    renderCalendar();
   }
 
-  renderCalendar();
-}
+  function toggleHolidaySelection(date, time, isCurrentlyHoliday) {
+    const slotIndex = selectedHolidaySlots.findIndex(s => s.giorno === date && s.ora === time);
 
-async function saveHolidays() {
+    if (slotIndex >= 0) {
+      // Rimuovi dalla selezione
+      selectedHolidaySlots.splice(slotIndex, 1);
+    } else {
+      // Aggiungi alla selezione (con flag per indicare se è da rimuovere o aggiungere)
+      selectedHolidaySlots.push({ giorno: date, ora: time, isRemove: isCurrentlyHoliday });
+    }
+
+    renderCalendar();
+  }
+
+  async function saveHolidays() {
   if (selectedHolidaySlots.length === 0) {
     exitHolidayMode();
     return;
@@ -996,19 +1423,59 @@ async function saveHolidays() {
 
 // ==================== DRAG-SELECT FERIE ====================
 
-function startDrag(date, time, isHoliday) {
-  isDragging = true;
-  dragStartCell = { date, time };
+function startDrag(date, time, isHoliday, isDoubleTap = false) {
+    isDragging = true;
+    dragStartCell = { date, time };
 
-  // Determina la modalità: se clicco su ferie esistente -> rimuovo, altrimenti -> aggiungo
-  dragMode = isHoliday ? 'remove' : 'add';
+    if (extraWorkMode) {
+      const isAlreadySelected = selectedExtraWorkSlots.some(s => s.giorno === date && s.ora === time);
+      // Se è un double tap da touch, Tap #1 ha già invertito lo stato. 
+      // Quindi la direzione corretta del drag è proprio lo stato attuale!
+      dragMode = isDoubleTap ? (isAlreadySelected ? 'add' : 'remove') : (isAlreadySelected ? 'remove' : 'add');
+      addToDragSelection(date, time, isHoliday);
+      return;
+    }
+    
+    // Per le ferie stessa logica
+    dragMode = isDoubleTap ? (isHoliday ? 'add' : 'remove') : (isHoliday ? 'remove' : 'add');
 
   // Aggiungi la prima cella alla selezione
   addToDragSelection(date, time, isHoliday);
 }
 
 function addToDragSelection(date, time, isHoliday) {
-  // Verifica se lo slot è già selezionato
+  if (extraWorkMode) {
+    if (isHoliday) return;
+    
+    if (dragMode === 'add') {
+      const oreSelezionate = selectedExtraWorkSlots.length * 0.25;
+      if (oreSelezionate >= extraWorkHoursTotal) {
+        return; // Raggiunto il limite
+      }
+      if (!selectedExtraWorkSlots.some(s => s.giorno === date && s.ora === time)) {
+        selectedExtraWorkSlots.push({ giorno: date, ora: time });
+        updateExtraWorkHoursLeft();
+        updateCellVisual(date, time, true, false);
+      }
+    } else if (dragMode === 'remove') {
+      const idx = selectedExtraWorkSlots.findIndex(s => s.giorno === date && s.ora === time);
+      if (idx !== -1) {
+        selectedExtraWorkSlots.splice(idx, 1);
+        updateExtraWorkHoursLeft();
+        updateCellVisual(date, time, false, false);
+      }
+    }
+    
+    // Feedback visuale al termine/rimozione
+    if (selectedExtraWorkSlots.length * 0.25 >= extraWorkHoursTotal) {
+      document.getElementById('extrawork-hours-left').style.color = 'green';
+      document.getElementById('extrawork-mode-indicator').style.borderColor = 'green';
+    } else {
+      document.getElementById('extrawork-hours-left').style.color = '';
+      document.getElementById('extrawork-mode-indicator').style.borderColor = '#ff9999';
+    }
+    return;
+  }
   const alreadySelected = selectedHolidaySlots.some(s => s.giorno === date && s.ora === time);
 
   if (!alreadySelected) {
@@ -1016,11 +1483,11 @@ function addToDragSelection(date, time, isHoliday) {
     if (dragMode === 'add' && !isHoliday) {
       // Aggiungi nuova ferie
       selectedHolidaySlots.push({ giorno: date, ora: time, isRemove: false });
-      updateCellVisual(date, time, true);
+      updateCellVisual(date, time, true, false);
     } else if (dragMode === 'remove' && isHoliday) {
       // Rimuovi ferie esistente
       selectedHolidaySlots.push({ giorno: date, ora: time, isRemove: true });
-      updateCellVisual(date, time, true);
+      updateCellVisual(date, time, true, true);
     }
   }
 }
@@ -1031,32 +1498,418 @@ function endDrag() {
   dragMode = null;
 }
 
-function updateCellVisual(date, time, isSelected) {
-  // Trova la cella nel DOM e aggiorna visualmente
-  const cells = document.querySelectorAll('.admin-cell');
-  cells.forEach(cell => {
-    if (cell.dataset.date === date && cell.dataset.time === time) {
-      if (isSelected) {
-        cell.classList.add('holiday-selected');
-        cell.innerHTML = '<div class="no-booking">Selezionato</div>';
-      }
+function updateCellVisual(date, time, isSelected, isRemove = false) {
+  const cell = document.querySelector(`.admin-cell[data-date="${date}"][data-time="${time}"]`);
+  if (!cell) return;
+
+  if (extraWorkMode) {
+    // Modalità lavoro straordinario
+    if (isSelected) {
+      cell.classList.add('is-extrawork-draft');
+      cell.innerHTML = '<div class="no-booking text-sm">🔧 Lavoro</div>';
+    } else {
+      cell.classList.remove('is-extrawork-draft');
+      cell.innerHTML = '<div class="no-booking">+ Lavoro</div>';
     }
+    return;
+  }
+
+  // Modalità ferie (originale)
+  if (isSelected) {
+    if (isRemove) {
+      cell.classList.remove('is-holiday');
+      cell.classList.add('holiday-remove-selected');
+      cell.innerHTML = '<div class="no-booking text-sm">✕ rimosso</div>';
+    } else {
+      cell.classList.add('holiday-selected');
+      cell.innerHTML = '<div class="no-booking text-sm text-secondary">ferie</div>';
+    }
+  } else {
+    cell.classList.remove('holiday-selected', 'holiday-remove-selected');
+    if (findHoliday(date, time)) {
+      cell.classList.add('is-holiday');
+      cell.innerHTML = '<div class="holiday-label">FERIE (rimuovi)</div>';
+    } else {
+      cell.innerHTML = '<div class="no-booking">+ Ferie</div>';
+    }
+  }
+}
+
+// Previeni selezione testo durante il drag (sia mouse che touch)
+document.addEventListener('selectstart', (e) => {
+  if (isDragging) e.preventDefault();
+});
+// Nota: il cleanup mouseup del drag ferie è gestito dinamicamente da _holMouseEndDrag()
+// (window listener aggiunto/rimosso per ogni sessione di drag — stessa policy del touch)
+
+// ─── Holiday drag-scroll — costanti e formula proporzionale ─────────────────
+// Formula iOS-gallery: la posizione del dito/cursore nel container determina
+// la velocità di scroll proporzionale (non solo edge-zone fissi).
+
+const HOL_MAX_SCROLL  = 12;   // px per frame (a 60fps ≈ 720px/s max)
+const HOL_DEAD_FACTOR = 0.25; // 25% dead zone intorno al centro (±12.5%)
+
+/**
+ * Calcola il fattore di scroll (-1.0..+1.0) in base alla posizione verticale
+ * del dito/cursore all'interno del container .admin-calendar.
+ *   relY ≈ 0.0 → bordo superiore → fattore ≈ -1.0 (scroll up max)
+ *   relY = 0.5 → centro          → fattore =  0.0 (dead zone, nessuno scroll)
+ *   relY ≈ 1.0 → bordo inferiore → fattore ≈ +1.0 (scroll down max)
+ * Dito oltre il bordo del container: clamped a ±1.0.
+ */
+function _holComputeScrollFactor(clientY, calRect) {
+  if (!calRect || calRect.height === 0) return 0;
+  const relY     = (clientY - calRect.top) / calRect.height; // 0..1 (extra: <0 o >1)
+  const dist     = relY - 0.5;                                // -0.5..+0.5
+  const halfDead = HOL_DEAD_FACTOR / 2;                       // ±12.5%
+  if (Math.abs(dist) <= halfDead) return 0;                   // dead zone
+  const sign      = dist > 0 ? 1 : -1;
+  const effective = (Math.abs(dist) - halfDead) / (0.5 - halfDead); // 0..1
+  return sign * Math.min(effective, 1);                       // clamped ±1.0
+}
+
+// ─── TOUCH (mobile — primary) ── holiday drag-select ─────────────────────────
+// Gestore primario: touch events. Scroll proporzionale via _holComputeScrollFactor().
+// RAF avviato al touchstart e fermato al touchend — legge _holScrollFactor ogni frame.
+
+let _holScrollRaf    = null;
+let _holScrollFactor = 0;    // float -1.0..+1.0 (velocità+dir scroll touch)
+let _holLastTouch    = null;
+
+function _holSelectAt(clientX, clientY) {
+  const el   = document.elementFromPoint(clientX, clientY);
+  const cell = el && el.closest('.admin-cell');
+  if (cell && !cell.classList.contains('has-booking') && cell.dataset.date && cell.dataset.time) {
+    addToDragSelection(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time));
+  }
+}
+
+function _holScrollTick() {
+  if (!isDragging || (!holidayMode && !extraWorkMode)) { _holScrollRaf = null; return; }
+  const cal = document.querySelector('.admin-calendar');
+  if (cal && _holScrollFactor !== 0) {
+    cal.scrollTop += _holScrollFactor * HOL_MAX_SCROLL;
+    if (_holLastTouch) _holSelectAt(_holLastTouch.clientX, _holLastTouch.clientY);
+  }
+  _holScrollRaf = requestAnimationFrame(_holScrollTick);
+}
+
+function _holStopScroll() {
+  _holScrollFactor = 0;
+  if (_holScrollRaf) { cancelAnimationFrame(_holScrollRaf); _holScrollRaf = null; }
+}
+
+// Handler touchmove — aggiunto a window solo per la durata del drag
+function _holOnWindowTouchMove(e) {
+  if (!isDragging || (!holidayMode && !extraWorkMode)) return;
+  e.preventDefault(); // blocca scroll pagina (touch-action: none sul container fa lo stesso)
+  const t = e.touches[0];
+  _holLastTouch = t;
+  _holSelectAt(t.clientX, t.clientY);
+
+  // Aggiorna fattore proporzionale — il RAF già in esecuzione lo applicherà al prossimo frame
+  const cal = document.querySelector('.admin-calendar');
+  if (!cal) return;
+  _holScrollFactor = _holComputeScrollFactor(t.clientY, cal.getBoundingClientRect());
+}
+
+function _holEndDrag() {
+  _holStopScroll();
+  _holLastTouch = null;
+  // Rimuovi tutti e tre i listener dinamici — pattern speculare a _holMouseEndDrag()
+  window.removeEventListener('touchmove',   _holOnWindowTouchMove);
+  window.removeEventListener('touchend',    _holEndDrag);
+  window.removeEventListener('touchcancel', _holEndDrag);
+  if (isDragging) {
+    endDrag();
+    document.querySelector('.admin-calendar')?.classList.remove('is-holiday-dragging');
+  }
+}
+
+// Un solo touchstart sul grid, montato una volta (idempotente via _holReady).
+// touchmove, touchend e touchcancel aggiunti a window DINAMICAMENTE solo durante il drag
+// — speculare a setupHolidayMouse() — così il rilascio del dito è intercettato anche
+// quando il dito è uscito dal grid (es. durante auto-scroll del container).
+let _holLastTapTime = 0;
+  let _holLastTapCell = null;
+
+  function setupHolidayTouch() {
+    const grid = document.getElementById('admin-calendar-grid');
+    if (!grid || grid._holReady) return;
+    grid._holReady = true;
+
+    grid.addEventListener('touchstart', (e) => {
+      if (!holidayMode && !extraWorkMode) return;
+      const cell = e.target.closest('.admin-cell');
+      if (!cell || cell.classList.contains('has-booking')) return;
+      
+      const now = Date.now();
+      const isDoubleTap = (_holLastTapCell === cell) && (now - _holLastTapTime < 450);
+      
+      _holLastTapCell = cell;
+      _holLastTapTime = now;
+
+      if (!isDoubleTap) {
+        // Tocco singolo: non bloccare il comportamento di default,
+        // così l'utente può scorrere la pagina liberamente.
+        // Il toggle della singola cella viene gestito dall'evento click!
+        return;
+      }
+
+      // Doppio tocco (double tap and hold) -> Avvia il drag select multiplo!
+    e.preventDefault();
+    // Feedback aptico immediato — conferma all'utente che il drag è partito
+    if (navigator.vibrate) navigator.vibrate(30);
+    // Avvia RAF loop per tutta la durata del drag (fermato in _holEndDrag)
+    _holScrollFactor = 0;
+    if (!_holScrollRaf) _holScrollRaf = requestAnimationFrame(_holScrollTick);
+    // Aggiungi touchmove/touchend/touchcancel a window ORA — rimossi in _holEndDrag()
+    window.addEventListener('touchmove',   _holOnWindowTouchMove, { passive: false });
+    window.addEventListener('touchend',    _holEndDrag);
+    window.addEventListener('touchcancel', _holEndDrag);
+      startDragWithFeedback(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time), true /* isDoubleTap */);
+    }, { passive: false });
+    // touchend/touchcancel NON più sul grid — gestiti via window listener dinamici
+  }
+
+  // Feedback visivo: aggiunge classe al calendario durante il drag
+  function startDragWithFeedback(date, time, isHoliday, isDoubleTap = false) {
+    startDrag(date, time, isHoliday, isDoubleTap);
+    document.querySelector('.admin-calendar')?.classList.add('is-holiday-dragging');
+  }
+// Pattern speculare al percorso touch. Stesso RAF, stessa formula proporzionale.
+// Usa elementFromPoint() per rilevare le celle indipendentemente dallo scroll.
+
+let _holMouseLastPos     = null;  // ultima posizione cursore { x, y }
+let _holMouseScrollRaf   = null;  // handle RAF auto-scroll mouse
+let _holMouseScrollFactor = 0;    // float -1.0..+1.0 (velocità+dir scroll mouse)
+
+function _holMouseSelectAt(clientX, clientY) {
+  const el   = document.elementFromPoint(clientX, clientY);
+  const cell = el && el.closest('.admin-cell');
+  if (cell && !cell.classList.contains('has-booking') && cell.dataset.date && cell.dataset.time) {
+    addToDragSelection(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time));
+  }
+}
+
+function _holMouseScrollTick() {
+  if (!isDragging || (!holidayMode && !extraWorkMode)) { _holMouseScrollRaf = null; return; }
+  const cal = document.querySelector('.admin-calendar');
+  if (cal && _holMouseScrollFactor !== 0) {
+    cal.scrollTop += _holMouseScrollFactor * HOL_MAX_SCROLL;
+    if (_holMouseLastPos) _holMouseSelectAt(_holMouseLastPos.x, _holMouseLastPos.y);
+  }
+  _holMouseScrollRaf = requestAnimationFrame(_holMouseScrollTick);
+}
+
+function _holMouseStopScroll() {
+  _holMouseScrollFactor = 0;
+  if (_holMouseScrollRaf) { cancelAnimationFrame(_holMouseScrollRaf); _holMouseScrollRaf = null; }
+}
+
+// Handler mousemove — aggiunto a window solo per la durata del drag
+function _holOnWindowMouseMove(e) {
+  if (!isDragging || (!holidayMode && !extraWorkMode)) return;
+  _holMouseLastPos = { x: e.clientX, y: e.clientY };
+  _holMouseSelectAt(e.clientX, e.clientY);
+
+  // Aggiorna fattore proporzionale — il RAF già in esecuzione lo applicherà al prossimo frame
+  const cal = document.querySelector('.admin-calendar');
+  if (!cal) return;
+  _holMouseScrollFactor = _holComputeScrollFactor(e.clientY, cal.getBoundingClientRect());
+}
+
+function _holMouseEndDrag() {
+  _holMouseStopScroll();
+  _holMouseLastPos = null;
+  // Rimuovi i listener window immediatamente — pattern identico al touch
+  window.removeEventListener('mousemove', _holOnWindowMouseMove);
+  window.removeEventListener('mouseup',   _holMouseEndDrag);
+  if (isDragging) {
+    endDrag();
+    document.querySelector('.admin-calendar')?.classList.remove('is-holiday-dragging');
+  }
+}
+
+// Registrato una sola volta sul grid (idempotente grazie a _holMouseReady)
+function setupHolidayMouse() {
+  const grid = document.getElementById('admin-calendar-grid');
+  if (!grid || grid._holMouseReady) return;
+  grid._holMouseReady = true;
+
+  grid.addEventListener('mousedown', (e) => {
+    if (!holidayMode && !extraWorkMode) return;
+    const cell = e.target.closest('.admin-cell');
+    if (!cell || cell.classList.contains('has-booking')) return;
+    e.preventDefault(); // blocca selezione testo e comportamenti default
+    // Avvia RAF loop per tutta la durata del drag (fermato in _holMouseEndDrag)
+    _holMouseScrollFactor = 0;
+    if (!_holMouseScrollRaf) _holMouseScrollRaf = requestAnimationFrame(_holMouseScrollTick);
+    // Aggiungi mousemove/mouseup a window ORA — verranno rimossi in _holMouseEndDrag
+    window.addEventListener('mousemove', _holOnWindowMouseMove);
+    window.addEventListener('mouseup',   _holMouseEndDrag);
+    startDragWithFeedback(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time));
   });
 }
 
-// Event listener globale per mouseup (fine drag)
-document.addEventListener('mouseup', () => {
-  if (isDragging) {
-    endDrag();
-  }
-});
+// ==================== BANNER LAVORI STRAORDINARI ====================
 
-// Previeni selezione testo durante il drag
-document.addEventListener('selectstart', (e) => {
-  if (isDragging) {
-    e.preventDefault();
+async function checkPendingDeposits() {
+  try {
+    const res = await apiRequest('/admin/deposits/all');
+    if (!res.success) return;
+
+    const deposits = res.deposits || [];
+    // Conta solo i depositi in attesa (nuove consegne non ancora avviate)
+    const attesaCount = deposits.filter(function(d) {
+      return d.stato === 'in_attesa';
+    }).length;
+
+    if (attesaCount <= 0) return;
+
+    // Crea banner se non esiste già
+    let banner = document.getElementById('admin-deposit-banner');
+    if (banner) return; // già mostrato
+
+    banner = document.createElement('div');
+    banner.id = 'admin-deposit-banner';
+    banner.style.cssText = [
+      'display:flex', 'align-items:center', 'gap:12px',
+      'background:#FFF7ED', 'border:1.5px solid #FF6B00', 'border-radius:10px',
+      'padding:12px 16px', 'margin-bottom:16px',
+      'font-size:0.9rem', 'color:#92400E', 'font-weight:600',
+      'cursor:pointer', 'transition:opacity 0.2s'
+    ].join(';');
+
+    const label = attesaCount === 1
+      ? 'Hai 1 lavoro straordinario da fissare — vai a Lavori Straordinari'
+      : 'Hai ' + attesaCount + ' lavori straordinari da fissare — vai a Lavori Straordinari';
+
+    banner.innerHTML =
+      '<span style="flex:1;">' + label + '</span>' +
+      '<button id="admin-deposit-banner-close" style="background:none;border:none;cursor:pointer;color:#92400E;font-size:1.1rem;padding:2px 6px;border-radius:4px;opacity:0.7;" title="Chiudi">&times;</button>';
+
+    // Inserisci sopra il calendario
+    const container = document.querySelector('.container') || document.querySelector('.admin-calendar');
+    if (container) {
+      container.parentNode.insertBefore(banner, container);
+    } else {
+      document.body.insertBefore(banner, document.body.firstChild);
+    }
+
+    // Click sul banner → vai a Lavori Straordinari
+    banner.addEventListener('click', function(e) {
+      if (e.target.id === 'admin-deposit-banner-close') {
+        banner.style.opacity = '0';
+        setTimeout(function() { banner.remove(); }, 250);
+        return;
+      }
+      window.location.href = '/admin/depositi';
+    });
+
+    document.getElementById('admin-deposit-banner-close').addEventListener('click', function(e) {
+      e.stopPropagation();
+      banner.style.opacity = '0';
+      setTimeout(function() { banner.remove(); }, 250);
+    });
+
+  } catch (e) {
+    console.warn('Errore controllo depositi:', e);
   }
-});
+}
 
 // Avvia inizializzazione
 init();
+
+// ==================== GESTIONE EXTRA WORK ====================
+
+function enterExtraWorkMode(depositId, hours) {
+  extraWorkMode = true;
+  currentAssignDepositId = depositId;
+  extraWorkHoursTotal = hours;
+  selectedExtraWorkSlots = [];
+
+  // Mostra indicator/banner
+  const indicator = document.getElementById('extrawork-mode-indicator');
+  if (indicator) {
+    indicator.classList.remove('hidden');
+  }
+  updateExtraWorkHoursLeft();
+
+  // Aggiungi classe per styling puntatore
+  const calendarEl = document.querySelector('.admin-calendar');
+  if (calendarEl) calendarEl.classList.add('extrawork-mode');
+
+  // Inizializza i gestori drag mouse/touch
+  setupHolidayTouch();
+  setupHolidayMouse();
+
+  // Wiring pulsanti salva/annulla
+  const saveBtn = document.getElementById('save-extrawork-btn');
+  const cancelBtn = document.getElementById('cancel-extrawork-btn');
+  if (saveBtn) saveBtn.onclick = saveExtraWork;
+  if (cancelBtn) cancelBtn.onclick = exitExtraWorkMode;
+
+  // Re-render per mostrare le celle in modalità extra work
+  renderCalendar();
+
+  // Rimuovi parametri dall'URL senza ricaricare
+  window.history.replaceState({}, '', '/admin.html');
+}
+
+function updateExtraWorkHoursLeft() {
+  const hoursLeftEl = document.getElementById('extrawork-hours-left');
+  if (hoursLeftEl) {
+    const oreSelezionate = selectedExtraWorkSlots.length * 0.25; // 15 minuti = 0.25 ore
+    const rimanenti = Math.max(0, extraWorkHoursTotal - oreSelezionate);
+    hoursLeftEl.textContent = rimanenti.toFixed(2);
+  }
+}
+
+async function saveExtraWork() {
+  if (selectedExtraWorkSlots.length === 0) {
+    alert("Seleziona almeno uno slot (trascina sulle celle vuote).");
+    return;
+  }
+  try {
+    const response = await apiRequest('/admin/deposits/' + currentAssignDepositId + '/schedule', {
+      method: 'POST',
+      body: JSON.stringify({ slots: selectedExtraWorkSlots })
+    });
+    if (response.success) {
+      exitExtraWorkMode();
+      await loadBookings();
+      renderCalendar();
+      showDropFeedback('Lavoro straordinario programmato con successo.');
+    } else {
+      showDropFeedback(response.error || 'Errore durante il salvataggio', true);
+    }
+  } catch (err) {
+    console.error(err);
+    showDropFeedback('Errore durante la comunicazione col server.', true);
+  }
+}
+
+function exitExtraWorkMode() {
+  extraWorkMode = false;
+  currentAssignDepositId = null;
+  extraWorkHoursTotal = 0;
+  selectedExtraWorkSlots = [];
+
+  const indicator = document.getElementById('extrawork-mode-indicator');
+  if (indicator) {
+    indicator.classList.add('hidden');
+    indicator.style.borderColor = ''; // Resetta eventuale verde
+  }
+  const hoursLeftEl = document.getElementById('extrawork-hours-left');
+  if (hoursLeftEl) {
+    hoursLeftEl.style.color = ''; // Resetta eventuale verde
+  }
+
+  // Rimuovi classe puntatore extra work
+  const calendarEl = document.querySelector('.admin-calendar');
+  if (calendarEl) calendarEl.classList.remove('extrawork-mode');
+}
+
+
+

@@ -6,51 +6,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prenotazione Rapida - Ellebi Service SRL</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles/pages/guest-booking.css">
+  <link rel="stylesheet" href="/styles/pages/dashboard.css">
 </head>
 
 <body>
   <div class="header">
     <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo">
     <div class="header-actions">
-      <a href="/guest-home" class="btn header-btn">Indietro</a>
+      <a href="/" class="btn header-btn">Esci</a>
     </div>
   </div>
 
   <div class="guest-container">
     <div class="guest-header">
       <h1>Prenotazione Rapida</h1>
-      <p>Prenota in pochi secondi, senza creare un account</p>
+      <p>Prenota senza creare un account</p>
     </div>
 
     <!-- Step Indicator -->
     <div class="step-indicator">
       <div class="step active" id="step-ind-0">
         <span class="step-number">1</span>
-        <span class="step-label">Persone</span>
+        <span class="step-label">Veicolo</span>
       </div>
       <div class="step" id="step-ind-1">
         <span class="step-number">2</span>
-        <span class="step-label">Data e Ora</span>
+        <span class="step-label">Servizio</span>
       </div>
       <div class="step" id="step-ind-2">
         <span class="step-number">3</span>
+        <span class="step-label">Data e Ora</span>
+      </div>
+      <div class="step" id="step-ind-3">
+        <span class="step-number">4</span>
         <span class="step-label">Dati</span>
       </div>
     </div>
 
-    <!-- Step 0: Numero Persone -->
+    <!-- Step 0: Tipo Veicolo -->
     <div class="guest-section active" id="step-0">
-      <h2 class="section-title">Quanti si presenteranno all'appuntamento?</h2>
-      <div class="group-selection-buttons">
-        <button class="btn btn-full group-btn" data-group="1">1 persona</button>
-        <button class="btn btn-full group-btn" data-group="2">2 persone</button>
-        <button class="btn btn-full group-btn" data-group="3">3 persone</button>
+      <h2 class="section-title">Che tipo di veicolo hai?</h2>
+      <div class="vehicle-cards">
+        <div class="vehicle-card" data-type="auto">
+          <div class="vc-icon">Automobile</div>
+        </div>
+        <div class="vehicle-card" data-type="moto">
+          <div class="vc-icon">Moto</div>
+        </div>
       </div>
     </div>
 
-    <!-- Step 1: Data e Ora -->
+    <!-- Step 1: Selezione Servizio -->
     <div class="guest-section" id="step-1">
-      <h2 class="section-title">Scegli data e ora</h2>
+      <h2 class="section-title">Seleziona il servizio</h2>
+      <div class="services-grid" id="services-grid">
+        <div style="text-align:center;padding:20px;color:var(--color-text-secondary,#888);">Caricamento…</div>
+      </div>
+      <div id="extra-fields-panel" class="extra-fields-panel" style="display:none;"></div>
+      <div id="consegna-note" class="box-special" style="display:none;">
+        <strong>Consegna veicolo</strong><br>
+        La data verrà concordata con il laboratorio.
+      </div>
+      <div class="btn-group" style="margin-top:14px;">
+        <button type="button" class="btn btn-outline" onclick="goToStep(0)">Indietro</button>
+        <button type="button" class="btn" id="service-next-btn" disabled>Continua</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Data e Ora (solo per appuntamenti) -->
+    <div class="guest-section" id="step-2">
+      <h2 class="section-title">Scegli data e orario</h2>
+      <div id="selected-service-label"
+        style="text-align:center;margin-bottom:10px;font-weight:600;color:var(--brand-accent,#FF6B00);font-size:0.9rem;">
+      </div>
 
       <div class="calendar">
         <div class="calendar-header">
@@ -74,55 +103,73 @@
         <div class="time-slots-grid" id="time-slots-grid"></div>
       </div>
 
-      <div class="btn-group" style="margin-top: 1rem;">
-        <button class="btn btn-outline" onclick="goToStep(0)">Indietro</button>
+      <div class="btn-group" style="margin-top:1rem;">
+        <button type="button" class="btn btn-outline" onclick="goToStep(1)">Indietro</button>
       </div>
     </div>
 
-    <!-- Step 2: Dati Personali -->
-    <div class="guest-section" id="step-2">
+    <!-- Step 3: Dati Personali -->
+    <div class="guest-section" id="step-3">
       <h2 class="section-title">I tuoi dati</h2>
 
-      <div class="selection-summary">
-        <p><strong>Data:</strong> <span id="summary-date"></span></p>
-        <p><strong>Ora:</strong> <span id="summary-time"></span></p>
+      <div class="selection-summary" id="booking-summary-box">
+        <p><strong>Servizio:</strong> <span id="summary-service">—</span></p>
+        <p id="summary-date-row"><strong>Data:</strong> <span id="summary-date">—</span></p>
+        <p id="summary-time-row"><strong>Ora:</strong> <span id="summary-time">—</span></p>
       </div>
 
       <form id="guest-info-form" class="form">
         <div class="guest-form-row">
           <div class="form-group">
-            <label class="form-label" for="nome">Nome</label>
+            <label class="form-label" for="nome">Nome *</label>
             <input type="text" id="nome" name="nome" class="form-input" required placeholder="Il tuo nome">
           </div>
           <div class="form-group">
-            <label class="form-label" for="cognome">Cognome</label>
+            <label class="form-label" for="cognome">Cognome *</label>
             <input type="text" id="cognome" name="cognome" class="form-input" required placeholder="Il tuo cognome">
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="email">Email</label>
+          <label class="form-label" for="email">Email *</label>
           <input type="email" id="email" name="email" class="form-input" required placeholder="La tua email">
         </div>
+        <div class="form-group">
+          <label class="form-label" for="telefono">Telefono *</label>
+          <input type="tel" id="telefono" name="telefono" class="form-input" required placeholder="Numero di telefono">
+        </div>
+        <div class="form-group" id="targa-group">
+          <label class="form-label" for="targa">Targa *</label>
+          <input type="text" id="targa" name="targa" class="form-input text-uppercase required" required="required" placeholder="Es. AB123CD">
+        </div>
+        <div class="form-group" id="modello-group">
+          <label class="form-label" for="modello">Modello veicolo *</label>
+          <input type="text" id="modello" name="modello" class="form-input required" required="required" placeholder="Es. Volkswagen Golf">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="note_cliente">Note (opzionale)</label>
+          <textarea id="note_cliente" name="note_cliente" class="form-input" rows="3"
+            placeholder="Descrizione o dettagli aggiuntivi…" style="resize:vertical;font-family:inherit;"></textarea>
+        </div>
+
         <div id="form-error" class="form-error hidden"></div>
-        <div class="btn-group" style="gap: var(--space-3);">
-          <button type="button" class="btn btn-outline" onclick="goToStep(1)">Indietro</button>
-          <button type="submit" class="btn btn-large">Conferma Prenotazione</button>
+        <div class="btn-group" style="gap:var(--space-3);">
+          <button type="button" class="btn btn-outline" onclick="goToStep(2)">Indietro</button>
+          <button type="submit" class="btn btn-large">Conferma</button>
         </div>
       </form>
     </div>
 
-    <!-- Step 4: Conferma -->
+    <!-- Step Conferma -->
     <div class="guest-section" id="step-confirmation">
       <div class="confirmation-box">
-        <h2>Prenotazione Confermata! ✓</h2>
-        <p>Ti abbiamo inviato una email con tutti i dettagli.</p>
-
+        <h2>Prenotazione Confermata!</h2>
+        <p id="conf-message">Ti abbiamo inviato una email con tutti i dettagli.</p>
         <div class="confirmation-details">
           <p><strong>Nome:</strong> <span id="conf-nome"></span></p>
-          <p><strong>Data:</strong> <span id="conf-data"></span></p>
-          <p><strong>Ora:</strong> <span id="conf-ora"></span></p>
+          <p><strong>Servizio:</strong> <span id="conf-service"></span></p>
+          <p id="conf-date-row"><strong>Data:</strong> <span id="conf-data"></span></p>
+          <p id="conf-time-row"><strong>Ora:</strong> <span id="conf-ora"></span></p>
         </div>
-
         <a href="/" class="btn btn-large">Torna alla Home</a>
       </div>
     </div>

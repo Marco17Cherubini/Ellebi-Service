@@ -1,0 +1,520 @@
+ /* ============================================================================
+   LB SERVICE - ADMIN DEPOSITI PAGE STYLES
+      ============================================================================ */
+
+ /* ─── Layout header ─────────────────────────────────────── */
+ .depositi-header {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     margin-bottom: 20px;
+     flex-wrap: wrap;
+     gap: 12px;
+ }
+
+ .depositi-counter {
+     font-size: 0.9rem;
+     color: var(--color-text-secondary, #888);
+ }
+
+ .depositi-counter strong {
+     color: var(--brand-accent, #FF6B00);
+ }
+
+ /* ─── Banner notifica login ─────────────────────────────── */
+ .deposit-login-banner {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     background: #FFF7ED;
+     border: 1.5px solid #FF6B00;
+     border-radius: 10px;
+     padding: 12px 16px;
+     margin-bottom: 20px;
+     font-size: 0.9rem;
+     color: #92400E;
+     font-weight: 600;
+ }
+
+ .deposit-login-banner .banner-icon {
+     font-size: 1.4rem;
+     flex-shrink: 0;
+ }
+
+ .deposit-login-banner .banner-close {
+     margin-left: auto;
+     background: none;
+     border: none;
+     cursor: pointer;
+     color: #92400E;
+     font-size: 1.1rem;
+     padding: 2px 6px;
+     border-radius: 4px;
+     opacity: 0.7;
+     transition: opacity 0.15s;
+ }
+
+ .deposit-login-banner .banner-close:hover {
+     opacity: 1;
+ }
+
+ /* ─── Email sent banner ─────────────────────────────────── */
+ .deposit-email-banner {
+     position: fixed;
+     top: 24px;
+     left: 50%;
+     transform: translateX(-50%);
+     z-index: 9999;
+     background: #DCFCE7;
+     border: 1.5px solid #22C55E;
+     border-radius: 10px;
+     padding: 12px 20px;
+     font-size: 0.9rem;
+     font-weight: 600;
+     color: #166534;
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+     animation: banner-in 0.3s ease;
+ }
+
+ @keyframes banner-in {
+     from {
+         opacity: 0;
+         transform: translateX(-50%) translateY(-12px);
+     }
+
+     to {
+         opacity: 1;
+         transform: translateX(-50%) translateY(0);
+     }
+ }
+
+ /* ─── Grid cards ────────────────────────────────────────── */
+ .depositi-grid {
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+ }
+
+ /* ─── Deposit card ──────────────────────────────────────── */
+ .deposit-card.stato-in_corso {
+     border-color: #FF6B00;
+ }
+
+ .deposit-card.stato-completato {
+     border-color: #22C55E;
+     opacity: 0.7;
+ }
+
+ .deposit-card.stato-standby {
+     border-color: #94A3B8;
+ }
+
+ .deposit-card.stato-in_attesa {
+     border-color: #EF4444;
+ }
+
+ /* ─── Card header (collapsible toggle) ──────────────────── */
+ .deposit-card-header {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     padding: 12px 16px;
+     background: var(--color-bg-secondary, #f8f8f8);
+     border-bottom: 1px solid transparent;
+     cursor: pointer;
+     user-select: none;
+     transition: background 0.12s;
+ }
+
+ .deposit-card-header:hover {
+     background: #f0f0f2;
+ }
+
+ .deposit-card.expanded .deposit-card-header {
+     border-bottom-color: var(--color-border, #e0e0e0);
+ }
+
+ .dc-header-info {
+     flex: 1;
+     display: flex;
+     align-items: center;
+     flex-wrap: wrap;
+     gap: 6px;
+     min-width: 0;
+ }
+
+ .dc-name {
+     font-weight: 700;
+     font-size: 0.95rem;
+     white-space: nowrap;
+ }
+
+ .dc-sep {
+     color: var(--color-text-tertiary, #aaa);
+     font-size: 0.85rem;
+ }
+
+ .dc-targa-inline {
+     font-size: 0.82rem;
+     font-weight: 600;
+     background: #F1F5F9;
+     color: #334155;
+     padding: 1px 7px;
+     border-radius: 4px;
+     letter-spacing: 0.03em;
+ }
+
+ /* ─── Status pill sul header ────────────────────────────── */
+ .dc-stato-pill {
+     font-size: 0.72rem;
+     font-weight: 700;
+     padding: 4px 12px;
+     border-radius: 20px;
+     text-transform: uppercase;
+     letter-spacing: 0.04em;
+     white-space: nowrap;
+     border: none;
+     cursor: default;
+ }
+
+ .dc-stato-pill.in_attesa {
+     background: #EF4444;
+     color: #fff;
+ }
+
+ .dc-stato-pill.in_corso {
+     background: #94A3B8;
+     color: #fff;
+ }
+
+ .dc-stato-pill.standby {
+     background: #64748B;
+     color: #fff;
+ }
+
+ .dc-stato-pill.completato {
+     background: #22C55E;
+     color: #fff;
+ }
+
+ /* ─── Chevron ───────────────────────────────────────────── */
+ .dc-chevron {
+     font-size: 0.7rem;
+     color: var(--color-text-tertiary, #aaa);
+     transition: transform 0.2s;
+     flex-shrink: 0;
+ }
+
+ .deposit-card.expanded .dc-chevron {
+     transform: rotate(180deg);
+ }
+
+ /* ─── Card body (expanded content) ─────────────────────── */
+ .deposit-card-body {
+     display: none;
+     padding: 14px 16px;
+ }
+
+ .deposit-card.expanded .deposit-card-body {
+     display: block;
+ }
+
+ /* Dettagli booking (data, ora, durata, email, telefono) */
+ .dc-booking-details {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 8px 16px;
+     background: var(--color-bg-secondary, #f8f8f8);
+     border-radius: 8px;
+     padding: 10px 12px;
+     margin-bottom: 12px;
+     font-size: 0.83rem;
+ }
+
+ .dc-detail-item {
+     color: var(--color-text-secondary, #555);
+ }
+
+ .dc-detail-item strong {
+     color: var(--color-text-primary, #111);
+ }
+
+ /* Note labels */
+ .deposit-card-body label {
+     display: block;
+     font-size: 0.75rem;
+     font-weight: 600;
+     color: var(--color-text-secondary, #888);
+     margin-bottom: 4px;
+     margin-top: 10px;
+ }
+
+ .deposit-card-body label:first-of-type {
+     margin-top: 0;
+ }
+
+ .dc-note-cliente {
+     font-size: 0.85rem;
+     color: var(--color-text, #000);
+     background: var(--color-bg-secondary, #f8f8f8);
+     padding: 8px 10px;
+     border-radius: 6px;
+     min-height: 36px;
+ }
+
+ .dc-nota-interna {
+     width: 100%;
+     box-sizing: border-box;
+     padding: 8px 10px;
+     border: 1px solid var(--color-border, #e0e0e0);
+     border-radius: 6px;
+     font-size: 0.85rem;
+     resize: vertical;
+     font-family: inherit;
+     background: var(--color-surface, #fff);
+     color: var(--color-text, #000);
+     min-height: 60px;
+ }
+
+ .dc-nota-interna:focus {
+     outline: none;
+     border-color: var(--brand-accent, #FF6B00);
+ }
+
+ .dc-ore-row {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+ }
+
+ .dc-ore-input {
+     width: 70px;
+     padding: 6px 8px;
+     border: 1px solid var(--color-border, #e0e0e0);
+     border-radius: 6px;
+     font-size: 0.85rem;
+     text-align: center;
+     background: var(--color-surface, #fff);
+     color: var(--color-text, #000);
+ }
+
+ .dc-ore-input:focus {
+     outline: none;
+     border-color: var(--brand-accent, #FF6B00);
+ }
+
+ /* ─── Status action buttons (expanded footer) ───────────── */
+ .deposit-card-footer {
+     padding: 10px 16px;
+     border-top: 1px solid var(--color-border, #e0e0e0);
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     flex-wrap: wrap;
+ }
+
+ .dc-btn {
+     font-size: 0.78rem;
+     padding: 6px 14px;
+     border: none;
+     border-radius: 6px;
+     cursor: pointer;
+     font-weight: 700;
+     transition: opacity 0.2s, transform 0.1s;
+     text-transform: uppercase;
+     letter-spacing: 0.03em;
+ }
+
+ .dc-btn:hover {
+     opacity: 0.85;
+ }
+
+ .dc-btn:active {
+     transform: scale(0.97);
+ }
+
+ /* Attesa = rosso */
+ .dc-btn-attesa {
+     background: #EF4444;
+     color: #fff;
+ }
+
+ /* In corso = grigio */
+ .dc-btn-incorso {
+     background: #94A3B8;
+     color: #fff;
+ }
+
+/* Pianifica = giallo/arancio */
+.dc-btn-pianifica {
+    background: #F59E0B;
+    color: #fff;
+}
+ }
+
+ /* Standby = slate */
+ .dc-btn-standby {
+     background: #64748B;
+     color: #fff;
+ }
+
+ .dc-btn:disabled,
+ .dc-btn.dc-btn-saving {
+     opacity: 0.45;
+     cursor: wait;
+ }
+
+ /* ─── Storico section ───────────────────────────────────── */
+ .storico-section {
+     margin-top: 40px;
+     border-top: 2px solid var(--color-border, #e5e7eb);
+     padding-top: 24px;
+ }
+
+ .storico-header {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     margin-bottom: 16px;
+ }
+
+ .storico-section h3 {
+     font-size: 1rem;
+     font-weight: 600;
+     color: var(--color-text-secondary, #888);
+     cursor: pointer;
+     user-select: none;
+     white-space: nowrap;
+     margin: 0;
+ }
+
+ .storico-divider {
+     flex: 1;
+     height: 1px;
+     background: var(--color-border, #e5e7eb);
+ }
+
+ .storico-section h3::before {
+     content: '▶ ';
+     font-size: 0.65rem;
+ }
+
+ .storico-section.open h3::before {
+     content: '▼ ';
+ }
+
+ .storico-grid {
+     display: none;
+     flex-direction: column;
+     gap: 8px;
+ }
+
+ .storico-section.open .storico-grid {
+     display: flex;
+ }
+
+ /* ─── Storica card (read-only) ───────────────────────── */
+ .storica-card {
+     opacity: 0.82;
+ }
+
+ .storica-card .deposit-card-header {
+     cursor: pointer;
+ }
+
+ .sc-date {
+     font-size: 0.75rem;
+     color: var(--color-text-secondary, #888);
+     font-variant-numeric: tabular-nums;
+ }
+
+ .sc-detail-grid {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 6px 16px;
+     margin-bottom: 12px;
+ }
+
+ .sc-row {
+     display: flex;
+     flex-direction: column;
+     gap: 1px;
+ }
+
+ .sc-label {
+     font-size: 0.7rem;
+     font-weight: 600;
+     text-transform: uppercase;
+     letter-spacing: 0.04em;
+     color: var(--color-text-secondary, #888);
+ }
+
+ .sc-note-block {
+     margin-top: 10px;
+     padding-top: 10px;
+     border-top: 1px solid var(--color-border, #e5e7eb);
+     grid-column: 1 / -1;
+ }
+
+ .sc-note-block p {
+     margin: 4px 0 0;
+     font-size: 0.85rem;
+     color: var(--color-text-primary);
+     white-space: pre-wrap;
+     line-height: 1.5;
+ }
+
+ .sc-note-interna {
+     margin-top: 8px;
+     border-top: none;
+     padding-top: 0;
+ }
+
+ .sc-empty {
+     font-style: italic;
+     color: var(--color-text-secondary, #aaa);
+     font-size: 0.82rem;
+ }
+
+ [data-theme="dark"] .sc-note-block {
+     border-top-color: var(--color-border-dark, #3a3a3f);
+ }
+
+ /* ─── Empty state ───────────────────────────────────────── */
+ .empty-state {
+     text-align: center;
+     padding: 48px 16px;
+     color: var(--color-text-secondary, #888);
+ }
+
+ .empty-state-icon {
+     font-size: 3rem;
+     margin-bottom: 12px;
+ }
+
+ /* ─── Dark mode ─────────────────────────────────────────── */
+ [data-theme="dark"] .deposit-card-header:hover {
+     background: #2a2a2e;
+ }
+
+ [data-theme="dark"] .dc-targa-inline {
+     background: #2c3748;
+     color: #94A3B8;
+ }
+
+ [data-theme="dark"] .dc-booking-details {
+     background: #1e1e22;
+ }
+
+ [data-theme="dark"] .deposit-login-banner {
+     background: #2d1a08;
+     border-color: #FF6B00;
+     color: #FED7AA;
+ }
+
+ [data-theme="dark"] .deposit-login-banner .banner-close {
+     color: #FED7AA;
+ }

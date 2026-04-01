@@ -129,3 +129,20 @@
     margin-top: var(--space-6);
     /* Apple: 24pt sopra gruppi */
 }
+/* ============================================================================
+   GROUP SELECTION BUTTONS (Apple 16px spacing, 44pt hit area)
+   ============================================================================ */
+
+.group-selection-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Apple standard spacing between blocks */
+}
+
+.group-selection-buttons .btn,
+.group-btn {
+  min-height: 44px;
+  /* Apple minimum touch target */
+  font-size: 1rem;
+}

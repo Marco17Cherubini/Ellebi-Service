@@ -26,56 +26,7 @@
     font-size: 1rem;
 }
 
-/* ==================== STEP INDICATOR ==================== */
-
-.step-indicator {
-    display: flex;
-    justify-content: center;
-    gap: var(--space-5);
-    margin-bottom: var(--space-10);
-}
-
-.step {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    color: var(--color-text-tertiary);
-}
-
-.step.active {
-    color: var(--color-text-primary);
-}
-
-.step.completed {
-    color: var(--color-text-primary);
-}
-
-.step-number {
-    width: 28px;
-    height: 28px;
-    border: 2px solid currentColor;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.step.completed .step-number {
-    background-color: var(--color-text-primary);
-    color: var(--color-bg-primary);
-}
-
 /* ==================== SECTIONS ==================== */
-
-.guest-section {
-    display: none;
-}
-
-.guest-section.active {
-    display: block;
-}
 
 .section-title {
     color: var(--color-text-primary);
@@ -103,22 +54,7 @@
 }
 
 .service-card {
-    padding: var(--space-5);
-    border: 2px solid var(--color-border-strong);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background-color: var(--color-bg-elevated);
     color: var(--color-text-primary);
-    border-radius: var(--radius-md);
-}
-
-.service-card:hover {
-    background-color: var(--color-bg-secondary);
-}
-
-.service-card.selected {
-    background-color: var(--color-text-primary);
-    color: var(--color-bg-primary);
 }
 
 .service-card h3 {
@@ -178,6 +114,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.guest-form-row .form-group {
+    margin-bottom: 0;
 }
 
 /* ==================== RESPONSIVE ==================== */
@@ -185,13 +126,5 @@
 @media (max-width: 480px) {
     .guest-form-row {
         grid-template-columns: 1fr;
-    }
-
-    .step-indicator {
-        gap: var(--space-3);
-    }
-
-    .step-label {
-        display: none;
     }
 }

@@ -51,6 +51,12 @@
     color: var(--color-text-primary);
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
 .header-logo {
     height: 70px;
     width: auto;
@@ -86,36 +92,115 @@
     padding: var(--space-2) var(--space-4);
     font-size: var(--font-size-sm);
 }
-
 /* ============================================================================
-   HIDDEN UTILITY
+   WIZARD COMPONENT (STEPS & BREADCRUMBS)
    ============================================================================ */
 
-.hidden {
-    display: none !important;
+.wizard-breadcrumb,
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-4, 16px);
+    margin-bottom: var(--space-8, 32px);
 }
 
-/* ============================================================================
-   SIDEBAR LOGO
-   ============================================================================ */
-
-.sidebar-logo {
-    height: 52px;
-    width: auto;
-    display: block;
-    object-fit: contain;
-}
-
-.sidebar-logo-link {
+.bc-step,
+.step {
     display: flex;
     align-items: center;
-    text-decoration: none;
-    border: none;
-    background: none;
-    padding: 0;
-    transition: opacity 0.2s ease;
+    gap: var(--space-2, 8px);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text-tertiary, #888);
+    padding: 4px 10px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
 }
 
-.sidebar-logo-link:hover {
-    opacity: 0.75;
+.bc-step.active,
+.step.active {
+    color: var(--color-text-primary, #000);
 }
+
+.step.completed {
+    color: var(--color-text-primary, #000);
+}
+
+.bc-step.current {
+    background-color: var(--color-accent, #FF6B00);
+    color: var(--color-bg-primary, #fff);
+}
+
+.bc-sep {
+    color: var(--color-text-tertiary, #888);
+    font-size: 0.85rem;
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.step.completed .step-number {
+    background-color: var(--color-text-primary, #000);
+    color: var(--color-bg-primary, #fff);
+}
+
+.wizard-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary, #888);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 16px;
+}
+
+.wizard-back:hover {
+    color: var(--color-text-primary, #000);
+}
+
+.wizard-section,
+.guest-section {
+    animation: fadeIn 0.2s ease;
+    display: none;
+}
+
+.wizard-section.active,
+.guest-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .wizard-breadcrumb,
+    .step-indicator {
+        gap: var(--space-2, 8px);
+    }
+    .step-label {
+        display: none;
+    }
+}
+

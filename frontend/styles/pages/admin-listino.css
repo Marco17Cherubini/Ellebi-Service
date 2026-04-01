@@ -1,0 +1,405 @@
+    .listino-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    /* ─── Table ─────────────────────────────────────────────────── */
+    .services-table-wrap {
+        overflow-x: auto;
+    }
+
+    .services-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+    }
+
+    .services-table th {
+        text-align: left;
+        padding: 10px 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--color-text-secondary, #888);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 2px solid var(--color-border, #e0e0e0);
+        white-space: nowrap;
+    }
+
+    .services-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--color-border, #e0e0e0);
+        vertical-align: middle;
+    }
+
+    .services-table tr:hover td {
+        background: var(--color-bg-secondary, #f8f8f8);
+    }
+
+    .services-table tr.row-inactive td {
+        opacity: 0.4;
+    }
+
+    .td-center {
+        text-align: center;
+    }
+
+    .td-actions {
+        white-space: nowrap;
+    }
+
+    .td-nome {
+        max-width: 220px;
+    }
+
+    /* ─── Badges ─────────────────────────────────────────────────── */
+    .tipo-badge {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+    }
+
+    .tipo-badge.tipo-auto {
+        background: #DBEAFE;
+        color: #1E40AF;
+    }
+
+    .tipo-badge.tipo-moto {
+        background: #FEF9C3;
+        color: #854D0E;
+    }
+
+    .stagionale-badge {
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 10px;
+        background: #E0F2FE;
+        color: #0369A1;
+        vertical-align: middle;
+        margin-left: 4px;
+    }
+
+    /* ─── Toggle switch ──────────────────────────────────────────── */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 38px;
+        height: 21px;
+        cursor: pointer;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        inset: 0;
+        background: #CBD5E1;
+        border-radius: 21px;
+        transition: background 0.2s;
+    }
+
+    .toggle-slider::before {
+        content: '';
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        left: 3px;
+        top: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform 0.2s;
+    }
+
+    .toggle-switch input:checked+.toggle-slider {
+        background: #22C55E;
+    }
+
+    .toggle-switch input:checked+.toggle-slider::before {
+        transform: translateX(17px);
+    }
+
+    /* ─── Action buttons ─────────────────────────────────────────── */
+    .action-btn {
+        font-size: 0.76rem;
+        padding: 4px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-right: 4px;
+        transition: opacity 0.2s;
+    }
+
+    .action-btn:hover {
+        opacity: 0.8;
+    }
+
+    .btn-edit {
+        background: #3B82F6;
+        color: #fff;
+    }
+
+    .btn-delete {
+        background: #EF4444;
+        color: #fff;
+    }
+
+    /* ─── New service button ─────────────────────────────────────── */
+    .btn-nuovo {
+        background: var(--brand-accent, #FF6B00);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 18px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .btn-nuovo:hover {
+        opacity: 0.85;
+    }
+
+    /* ─── Modal ──────────────────────────────────────────────────── */
+    .ls-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ls-modal-overlay.open {
+        display: flex;
+    }
+
+    .ls-modal {
+        background: var(--color-surface, #fff);
+        border-radius: 12px;
+        padding: 24px;
+        width: 520px;
+        max-width: 95vw;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .ls-modal h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 20px;
+    }
+
+    .ls-form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .ls-form-row.full {
+        grid-template-columns: 1fr;
+    }
+
+    .ls-form-group label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--color-text-secondary, #888);
+        margin-bottom: 4px;
+    }
+
+    .ls-form-group input[type="text"],
+    .ls-form-group input[type="number"],
+    .ls-form-group select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 7px 10px;
+        border: 1px solid var(--color-border, #e0e0e0);
+        border-radius: 6px;
+        font-size: 0.88rem;
+        font-family: inherit;
+        background: var(--color-surface, #fff);
+        color: var(--color-text, #000);
+    }
+
+    .ls-form-group input:focus,
+    .ls-form-group select:focus {
+        outline: none;
+        border-color: var(--brand-accent, #FF6B00);
+    }
+
+    .ls-form-group input:disabled {
+        background: var(--color-bg-secondary, #f8f8f8);
+        color: var(--color-text-secondary, #888);
+        cursor: not-allowed;
+    }
+
+    .ls-checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        font-size: 0.88rem;
+        cursor: pointer;
+    }
+
+    .ls-checkbox-row input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .stagionale-dates {
+        display: none;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .stagionale-dates.visible {
+        display: grid;
+    }
+
+    .ls-form-hint {
+        font-size: 0.72rem;
+        color: var(--color-text-secondary, #888);
+        margin-top: 3px;
+    }
+
+    .ls-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--color-border, #e0e0e0);
+    }
+
+    .btn-modal-cancel {
+        background: var(--color-bg-secondary, #f8f8f8);
+        color: var(--color-text, #000);
+        border: 1px solid var(--color-border, #e0e0e0);
+        border-radius: 6px;
+        padding: 7px 16px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-modal-save {
+        background: var(--brand-accent, #FF6B00);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 7px 16px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .btn-modal-save:hover {
+        opacity: 0.85;
+    }
+
+    .btn-modal-save:disabled {
+        opacity: 0.5;
+        cursor: wait;
+    }
+
+    /* ─── Confirm delete ─────────────────────────────────────────── */
+    .ls-confirm-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1100;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ls-confirm-overlay.open {
+        display: flex;
+    }
+
+    .ls-confirm-box {
+        background: var(--color-surface, #fff);
+        border-radius: 12px;
+        padding: 24px;
+        width: 360px;
+        max-width: 95vw;
+        text-align: center;
+    }
+
+    .ls-confirm-box p {
+        margin: 0 0 12px;
+    }
+
+    .confirm-name {
+        font-weight: 700;
+    }
+
+    .ls-confirm-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .btn-confirm-no {
+        background: var(--color-bg-secondary, #f8f8f8);
+        border: 1px solid var(--color-border, #e0e0e0);
+        color: var(--color-text, #000);
+    }
+
+    .btn-confirm-yes {
+        background: #EF4444;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-confirm-no,
+    .btn-confirm-yes {
+        border-radius: 6px;
+        padding: 8px 20px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .btn-confirm-no:hover,
+    .btn-confirm-yes:hover {
+        opacity: 0.8;
+    }
+    
+    .ls-confirm-subtitle {
+    font-size: 0.82rem;
+    color: var(--color-text-secondary, #888);
+    margin-top: -4px;
+}
+
+    /* ─── Empty state ────────────────────────────────────────────── */
+    .empty-state {
+        text-align: center;
+        padding: 48px 16px;
+        color: var(--color-text-secondary, #888);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+    }

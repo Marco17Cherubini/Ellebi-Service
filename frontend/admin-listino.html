@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listino Servizi - Ellebi Service SRL</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles/pages/admin-listino.css">
+</head>
+
+<body>
+  <!-- Sidebar Overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <a href="/admin" class="sidebar-logo-link">
+        <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="sidebar-logo">
+      </a>
+      <button type="button" id="close-sidebar" class="sidebar-close">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin" class="sidebar-item">
+        <span>Calendario Appuntamenti</span>
+      </a>
+      <a href="/admin/reports" class="sidebar-item">
+        <span>Resoconto Clientela</span>
+      </a>
+      <a href="/admin/clienti" class="sidebar-item">
+        <span>Gestione Clienti</span>
+      </a>
+      <a href="/admin/depositi" class="sidebar-item">
+        <span>Lavori Straordinari</span>
+      </a>
+      <a href="/admin/listino" class="sidebar-item active">
+        <span>Listino Servizi</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button type="button" id="sidebar-logout" class="sidebar-item sidebar-logout">
+        <span>Logout</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="header-left">
+      <button type="button" id="hamburger-btn" class="hamburger-btn">☰</button>
+      <a href="/admin" class="header-logo-link">
+        <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo">
+      </a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="listino-header">
+      <h2>Listino Servizi</h2>
+      <button type="button" class="btn-nuovo" id="btn-nuovo-servizio">+ Nuovo Servizio</button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading-state" class="depositi-loading">
+      Caricamento servizi…
+    </div>
+
+    <!-- Table -->
+    <div class="services-table-wrap hidden" id="table-wrap">
+      <table class="services-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Tipo Veicolo</th>
+            <th>Tipo Servizio</th>
+            <th class="td-center">Durata</th>
+            <th class="td-center">Prezzo</th>
+            <th class="td-center">Attivo</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="services-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="empty-state hidden">
+      <div class="empty-state-icon"></div>
+      <p>Nessun servizio nel catalogo.<br>Crea il primo servizio con il pulsante qui sopra.</p>
+    </div>
+  </div>
+
+  <!-- Modal Crea / Modifica Servizio -->
+  <div class="ls-modal-overlay" id="service-modal">
+    <div class="ls-modal">
+      <h3 id="modal-title">Nuovo Servizio</h3>
+
+      <div class="ls-form-row full">
+        <div class="ls-form-group">
+          <label>Nome servizio *</label>
+          <input type="text" id="f-nome" placeholder="Es. Tagliando auto">
+        </div>
+      </div>
+
+      <div class="ls-form-row">
+        <div class="ls-form-group">
+          <label>Tipo veicolo *</label>
+          <select id="f-tipo-veicolo">
+            <option value="auto">Automobile</option>
+            <option value="moto">Moto</option>
+          </select>
+        </div>
+        <div class="ls-form-group">
+          <label>Tipo servizio *</label>
+          <select id="f-tipo-servizio">
+            <option value="appuntamento">Appuntamento</option>
+            <option value="consegna">Consegna veicolo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ls-form-row">
+        <div class="ls-form-group">
+          <label>Durata (minuti)</label>
+          <input type="number" id="f-durata" min="15" step="15" value="60">
+        </div>
+        <div class="ls-form-group">
+          <label>Prezzo interno (€)</label>
+          <input type="number" id="f-prezzo" min="0" step="0.01" placeholder="0.00">
+        </div>
+      </div>
+
+      <div class="ls-form-row full">
+        <div class="ls-form-group">
+          <label>Campi extra richiesti (separati da virgola)</label>
+          <input type="text" id="f-campi-extra" placeholder="targa, modello, misura">
+          <div class="ls-form-hint">Questi campi verranno richiesti al cliente durante la prenotazione</div>
+        </div>
+      </div>
+
+      <div class="ls-checkbox-row">
+        <input type="checkbox" id="f-attivo" checked>
+        <label for="f-attivo">Servizio attivo (visibile ai clienti)</label>
+      </div>
+
+      <div class="ls-checkbox-row">
+        <input type="checkbox" id="f-stagionale">
+        <label for="f-stagionale">Servizio stagionale (disponibile solo in certi mesi)</label>
+      </div>
+
+      <div class="stagionale-dates" id="stagionale-dates">
+        <div class="ls-form-group">
+          <label>Inizio stagione (MM-GG)</label>
+          <input type="text" id="f-data-inizio" placeholder="11-15" maxlength="5">
+          <div class="ls-form-hint">Formato MM-GG, es. 11-15 = 15 novembre</div>
+        </div>
+        <div class="ls-form-group">
+          <label>Fine stagione (MM-GG)</label>
+          <input type="text" id="f-data-fine" placeholder="04-15" maxlength="5">
+          <div class="ls-form-hint">Formato MM-GG, es. 04-15 = 15 aprile</div>
+        </div>
+      </div>
+
+      <div class="ls-modal-footer">
+        <button type="button" class="btn-modal-cancel" id="modal-cancel">Annulla</button>
+        <button type="button" class="btn-modal-save" id="modal-save">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm delete -->
+  <div class="ls-confirm-overlay" id="confirm-overlay">
+    <div class="ls-confirm-box">
+      <p>Eliminare il servizio<br><span class="confirm-name" id="confirm-service-name"></span>?</p>
+      <p class="ls-confirm-subtitle">Questa azione non può essere annullata.</p>
+      <div class="ls-confirm-actions">
+        <button type="button" class="btn-confirm-no" id="confirm-no">Annulla</button>
+        <button type="button" class="btn-confirm-yes" id="confirm-yes">Elimina</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/admin-listino.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,182 @@
+        .vip-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #000;
+            font-size: 1rem;
+        }
+
+        .users-list {
+            border: 2px solid #000;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            transition: background-color 0.2s;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-item.pending-add {
+            background-color: #e6ffe6;
+            border-left: 4px solid #00aa00;
+        }
+
+        .user-item.pending-remove {
+            background-color: #ffe6e6;
+            border-left: 4px solid #cc0000;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .vip-badge {
+            color: gold;
+            font-size: 1.2rem;
+        }
+
+        .vip-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #000;
+        }
+
+        .vip-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .no-users {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #000;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .users-count {
+            text-align: right;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Barra conferma modifiche */
+        .confirm-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #000;
+            color: #fff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .confirm-bar.visible {
+            transform: translateY(0);
+        }
+
+        .confirm-bar .changes-info {
+            font-size: 0.95rem;
+        }
+
+        .confirm-bar .btn-confirm {
+            background-color: #00aa00;
+            color: #fff;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .confirm-bar .btn-confirm:hover {
+            background-color: #008800;
+        }
+
+        .confirm-bar .btn-cancel {
+            background-color: transparent;
+            color: #fff;
+            border: 1px solid #fff;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .confirm-bar .btn-cancel:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .pending-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+
+        .pending-badge.add {
+            background-color: #00aa00;
+            color: #fff;
+        }
+
+        .pending-badge.remove {
+            background-color: #cc0000;
+            color: #fff;
+        }

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lavori Straordinari - Ellebi Service SRL</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles/pages/admin-depositi.css">
+</head>
+
+<body>
+  <!-- Sidebar Overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <a href="/admin" class="sidebar-logo-link">
+        <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="sidebar-logo">
+      </a>
+      <button type="button" id="close-sidebar" class="sidebar-close">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin" class="sidebar-item">
+        <span>Calendario Appuntamenti</span>
+      </a>
+      <a href="/admin/reports" class="sidebar-item">
+        <span>Resoconto Clientela</span>
+      </a>
+      <a href="/admin/clienti" class="sidebar-item">
+        <span>Gestione Clienti</span>
+      </a>
+      <a href="/admin/depositi" class="sidebar-item active">
+        <span>Lavori Straordinari</span>
+      </a>
+      <a href="/admin/listino" class="sidebar-item">
+        <span>Listino Servizi</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button type="button" id="sidebar-logout" class="sidebar-item sidebar-logout">
+        <span>Logout</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="header-left">
+      <button type="button" id="hamburger-btn" class="hamburger-btn">☰</button>
+      <a href="/admin" class="header-logo-link">
+        <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo">
+      </a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Banner login notifica nuovi depositi -->
+    <div id="login-banner" class="deposit-login-banner hidden">
+      <span id="login-banner-text">Hai lavori straordinari in attesa</span>
+      <button type="button" class="banner-close" id="login-banner-close">&times;</button>
+    </div>
+
+    <div class="depositi-header">
+      <h2>Lavori Straordinari</h2>
+        <div class="depositi-counter" style="display:flex; align-items:center; gap:0.5rem;">
+          Depositi attivi: <strong id="counter-active">0</strong> / 
+          <input type="number" id="input-counter-max" min="1" value="5" style="width: 50px; text-align:center; padding: 0.2rem;" aria-label="Massimo depositi">
+          <button type="button" id="save-max-btn" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Salva</button>
+    </div>
+
+    <!-- Loading --> 
+     <div id="loading-state" class="depositi-loading">
+      Caricamento depositi…
+      </div>
+
+    <!-- Cards attivi -->
+    <div id="depositi-grid" class="depositi-grid hidden" ></div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="empty-state hidden">
+      <p>Nessun lavoro straordinario attivo.</p>
+    </div>
+
+    <!-- Storico (completati) -->
+    <div class="storico-section hidden" id="storico-section">
+      <div class="storico-header">
+        <h3 id="storico-toggle">Storico lavori completati</h3>
+        <span class="storico-divider"></span>
+      </div>
+      <div class="storico-grid" id="storico-grid"></div>
+    </div>
+  </div>
+
+<!-- Modal Conferma Lavoro Finito -->
+  <div id="finish-confirm-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 class="modal-title">Conferma Chiusura Lavoro</h3>
+      <p class="modal-text">
+        Il lavoro è stato concluso?
+      </p>
+      <p class="modal-question" style="font-size: 0.9em; margin-top: 10px;">Le ore straordinarie sul calendario verranno rimosse e sarà inviata una mail automatica al cliente per il ritiro.</p>
+      <div class="modal-buttons">
+        <button type="button" id="finish-cancel" class="btn modal-btn-cancel">Annulla</button>
+        <button type="button" id="finish-confirm" class="btn modal-btn-confirm">Conferma</button>
+      </div>
+    </div>
+  </div>
+
+<div id="attesa-confirm-modal" class="modal hidden"><div class="modal-overlay"></div><div class="modal-content"><h3 class="modal-title">Sospensione Lavoro</h3><p class="modal-text">Desideri cancellare la pianificazione del seguente lavoro straordinario?</p><div class="modal-buttons"><button type="button" id="attesa-cancel" class="btn modal-btn-cancel">Annulla</button><button type="button" id="attesa-confirm" class="btn modal-btn-confirm">Conferma</button></div></div></div>  <script src="/js/theme.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/components/Modal.js"></script>
+  <script src="/js/admin-depositi.js"></script>
+</body>
+
+</html>

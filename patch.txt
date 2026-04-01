@@ -1,0 +1,7 @@
+  
+          cell.addEventListener('click', () => {
+            if (isDraggingBooking) return;
+>           openBookingModal(dateStr, time);
+          });
+        }
+  

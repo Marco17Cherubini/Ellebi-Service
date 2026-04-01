@@ -35,6 +35,17 @@ h4 {
     margin-bottom: var(--space-3);
 }
 
+h5 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-2);
+}
+
+h6 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-2);
+}
+
 p {
     margin-bottom: var(--space-4);
     color: var(--color-text-secondary);
