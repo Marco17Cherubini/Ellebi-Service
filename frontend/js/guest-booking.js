@@ -4,6 +4,17 @@
 (function () {
     'use strict';
 
+    // 🛡️ XSS Prevention: sanitizza input prima di iniettarlo nel DOM
+    function escapeHTML(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     // State
     const guestData = {
         nome: '',
@@ -180,10 +191,10 @@
                 const isConsegna = svc.tipo_servizio === 'consegna' || (svc.nome || '').toLowerCase().includes('consegna');
 
                 card.innerHTML =
-                    '<div class="service-card-name">' + (svc.nome || 'Servizio') + '</div>' +
-                    (durataLabel ? '<div class="service-card-detail">' + durataLabel + '</div>' : '') +
-                    (prezzoLabel ? '<div class="service-card-detail">' + prezzoLabel + '</div>' : '') +
-                    (svc.descrizione ? '<div class="service-card-desc">' + svc.descrizione + '</div>' : '');
+                    '<div class="service-card-name">' + escapeHTML(svc.nome || 'Servizio') + '</div>' +
+                    (durataLabel ? '<div class="service-card-detail">' + escapeHTML(durataLabel) + '</div>' : '') +
+                    (prezzoLabel ? '<div class="service-card-detail">' + escapeHTML(prezzoLabel) + '</div>' : '') +
+                    (svc.descrizione ? '<div class="service-card-desc">' + escapeHTML(svc.descrizione) + '</div>' : '');
 
                 card.addEventListener('click', () => {
                     document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
@@ -294,9 +305,9 @@
         const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
         if (title) title.textContent = 'Orari disponibili - ' + dayNames[dateObj.getDay()] + ' ' + dateObj.getDate();
 
-        // Calculate slots needed (1 slot = 30min default, or dynamic based on duration)
+        // Calculate slots needed (1 slot = 15min default, or dynamic based on duration)
         const duration = selectedService ? (selectedService.durata_minuti || 60) : 60;
-        const slotsNeeded = Math.ceil(duration / 30);
+        const slotsNeeded = Math.ceil(duration / 15);
 
         try {
             const response = await fetch('/api/slots/' + dateStr);
@@ -347,7 +358,7 @@
                 validSlots.forEach(slotTime => {
                     const slotEl = document.createElement('div');
                     slotEl.className = 'time-slot';
-                    slotEl.innerHTML = slotTime;
+                    slotEl.textContent = slotTime;
                     slotEl.dataset.time = slotTime;
                     slotEl.addEventListener('click', () => selectTimeSlot(slotTime));
                     grid.appendChild(slotEl);
@@ -394,6 +405,21 @@
         // Validation
         if (!nome || !cognome || !email || !targa || !modello) {
             showError('Compila tutti i campi obbligatori');
+            return;
+        }
+
+        if (targa.length < 4 || targa.length > 10) {
+            showError('La targa deve avere tra 4 e 10 caratteri.');
+            return;
+        }
+        
+        if (modello.length < 2 || modello.length > 15) {
+            showError('Il modello deve avere tra 2 e 15 caratteri.');
+            return;
+        }
+
+        if (note_cliente.length > 30) {
+            showError('Le note non possono superare i 30 caratteri.');
             return;
         }
 
@@ -471,8 +497,8 @@
         const confMsg = document.getElementById('conf-message');
         if (confMsg) {
             confMsg.innerHTML = 'La prenotazione per <strong>' + 
-            (selectedService ? selectedService.nome : 'Servizio') + 
-            '</strong> il <strong>' + formatDateDisplay(selectedDate) + '</strong> alle <strong>' + selectedTime + '</strong> è stata confermata.<br><br>' +
+            escapeHTML(selectedService ? selectedService.nome : 'Servizio') + 
+            '</strong> il <strong>' + escapeHTML(formatDateDisplay(selectedDate)) + '</strong> alle <strong>' + escapeHTML(selectedTime) + '</strong> è stata confermata.<br><br>' +
             'Riceverai a breve una email di riepilogo.';
         }
 

@@ -202,7 +202,7 @@ export function showDeleteConfirmModal() {
 
   document.getElementById('delete-booking-details').innerHTML = `
     <div><strong>Data:</strong> ${formatDateStringDisplay(selectedBooking.giorno)}</div>
-    <div><strong>Ora:</strong> ${selectedBooking.ora}</div>
+    <div><strong>Ora:</strong> ${escapeHTML(selectedBooking.ora)}</div>
   `;
 
   // Chiudi modal dettaglio e apri conferma

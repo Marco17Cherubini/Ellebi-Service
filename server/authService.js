@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
 const { usersDB, adminDB } = require('./database');
 const config = require('../config/config');
@@ -19,12 +20,29 @@ async function verifyAdminPassword(email, password) {
   const admin = adminDB.findOne(a => a.email === email.trim().toLowerCase());
   if (!admin) return false;
 
-  // Confronta password (hash bcrypt)
   try {
-    return await bcrypt.compare(password, admin.password);
-  } catch {
-    // Se la password nel file non è hashata, confronta direttamente
-    return admin.password === password;
+    // 🛡️ FASE 3 Sicurezza: Graceful Upgrade per l'Admin
+    if (admin.password.startsWith('$argon2')) {
+      return await argon2.verify(admin.password, password);
+    } 
+    // Fallback locale per vecchi DB basati su bcryptjs (necessario per non lockare fuori gli utenti)
+    else if (admin.password.startsWith('$2')) {
+      const isValid = await bcrypt.compare(password, admin.password);
+      if (isValid) {
+        // Upgrade password has in-place ad Argon2id appena si logga
+        const newHash = await argon2.hash(password, { type: argon2.argon2id });
+        adminDB.update(a => a.email === admin.email, { password: newHash });
+      }
+      return isValid;
+    }
+    // Se la password nel file non è hashata, rifiuta il login e logga il warning
+    else {
+      console.error('⚠️ Password admin non hashata rilevata per:', admin.email, '— login rifiutato.');
+      return false;
+    }
+  } catch (err) {
+    console.error("Errore verifica admin:", err);
+    return false;
   }
 }
 
@@ -47,8 +65,13 @@ async function registerUser(userData) {
     throw new Error('Email già registrata');
   }
 
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 10);
+  // 🛡️ FASE 3 Sicurezza: Argon2id (OWASP 2025 Standard)
+  const hashedPassword = await argon2.hash(password, {
+    type: argon2.argon2id,
+    memoryCost: 15360,     // 15 MiB mem
+    timeCost: 2,           // 2 iterations
+    parallelism: 1         // 1 thread
+  });
 
   // Crea utente (solo campi: nome, cognome, email, telefono, password)
   const user = {
@@ -56,7 +79,10 @@ async function registerUser(userData) {
     cognome: cognome.trim(),
     email: email.trim().toLowerCase(),
     telefono: telefono.trim(),
-    password: hashedPassword
+    password: hashedPassword,
+    vip: 0,
+    banned: 0,
+    isGuest: 0
   };
 
   usersDB.insert(user);
@@ -102,7 +128,25 @@ async function loginUser(email, password) {
     throw new Error('Account sospeso');
   }
 
-  const isValid = await bcrypt.compare(password, user.password);
+  // 🛡️ FASE 3 Sicurezza: Graceful Upgrade Utenti (Argon2id)
+  let isValid = false;
+  try {
+    if (user.password.startsWith('$argon2')) {
+      isValid = await argon2.verify(user.password, password);
+    } 
+    else if (user.password.startsWith('$2')) {
+      isValid = await bcrypt.compare(password, user.password);
+      if (isValid) {
+        // Rihasha la password da bcrypt ad Argon2id transparentemente
+        const newHash = await argon2.hash(password, { type: argon2.argon2id });
+        usersDB.update(u => u.email === user.email, { password: newHash });
+      }
+    }
+  } catch (err) {
+    console.error("Errore verifica password utente:", err);
+    throw new Error('Credenziali non valide');
+  }
+
   if (!isValid) {
     throw new Error('Credenziali non valide');
   }
@@ -240,8 +284,13 @@ async function resetPassword(token, newPassword) {
     throw new Error('Utente non trovato');
   }
 
-  // Hash nuova password
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  // 🛡️ FASE 3 Sicurezza: Argon2id per i Reset Passwords (OWASP 2025)
+  const hashedPassword = await argon2.hash(newPassword, {
+    type: argon2.argon2id,
+    memoryCost: 15360,
+    timeCost: 2,
+    parallelism: 1
+  });
 
   // Aggiorna password
   usersDB.update(u => u.email === decoded.email, { password: hashedPassword });

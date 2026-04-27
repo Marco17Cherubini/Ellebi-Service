@@ -9,7 +9,7 @@ export function startBookingDrag(booking, event) {
   dragGhostElement = document.createElement('div');
   dragGhostElement.className = 'booking-drag-ghost';
   dragGhostElement.innerHTML = `
-    <div class="name">${booking.nome} ${booking.cognome}</div>
+    <div class="name">${escapeHTML(booking.nome)} ${escapeHTML(booking.cognome)}</div>
   `;
   document.body.appendChild(dragGhostElement);
 

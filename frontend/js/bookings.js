@@ -27,12 +27,10 @@ async function loadBookings() {
     const bookingsList = document.getElementById('bookings-list');
     const noBookings = document.getElementById('no-bookings');
 
-    // Filtra solo prenotazioni future
-    const now = new Date();
+    // Filtra solo prenotazioni di oggi o future (per giorno, non per ora)
+    const today = new Date().toISOString().split('T')[0];
     const activeBookings = response.bookings.filter(booking => {
-      // Costruisci data appuntamento (es. "2023-10-25T14:30:00")
-      const bookingDate = new Date(`${booking.giorno}T${booking.ora}:00`);
-      return bookingDate >= now;
+      return booking.giorno >= today;
     }).sort((a, b) => {
       // Ordina per data crescente (più vicini prima)
       return new Date(`${a.giorno}T${a.ora}:00`) - new Date(`${b.giorno}T${b.ora}:00`);
@@ -44,21 +42,25 @@ async function loadBookings() {
       return;
     }
 
-    bookingsList.innerHTML = activeBookings.map(booking => {
+    window.currentActiveBookings = activeBookings;
+
+    bookingsList.innerHTML = activeBookings.map((booking, index) => {
+      var sid = booking.service_id || '';
+      var durata = booking.durata_minuti ? (booking.durata_minuti + ' min') : '';
       return `
       <div class="card booking-card" data-giorno="${booking.giorno}" data-ora="${booking.ora}">
         <div class="booking-info">
-          <div class="card-title">${booking.servizio}</div>
+          <div class="card-title">${escapeHTML(booking.servizio)}</div>
           <div class="booking-details">
-            <div><strong>Data:</strong> ${formatDate(booking.giorno)}</div>
-            <div><strong>Orario:</strong> ${booking.ora}</div>
+            <div><strong>Data:</strong> ${escapeHTML(formatDate(booking.giorno))}</div>
+            <div><strong>Orario:</strong> ${escapeHTML(booking.ora)}${durata ? ' (' + durata + ')' : ''}</div>
           </div>
         </div>
         <div class="booking-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn btn-edit" onclick="editBooking('${booking.giorno}', '${booking.ora}', '${booking.servizio}')">
+          <button class="btn btn-edit" onclick="editBooking(${index})">
             Modifica
           </button>
-          <button class="btn btn-cancel" onclick="showDeleteConfirm('${booking.giorno}', '${booking.ora}', '${booking.servizio}')">
+          <button class="btn btn-cancel" onclick="showDeleteConfirm('${booking.giorno}', '${booking.ora}', '${escapeHTML(booking.servizio)}')">
             Cancella
           </button>
         </div>
@@ -73,9 +75,17 @@ async function loadBookings() {
 }
 
 // Funzione per modificare una prenotazione
-function editBooking(giorno, ora, servizio) {
-  // Salva la prenotazione da modificare in sessionStorage
-  sessionStorage.setItem('editingBooking', JSON.stringify({ giorno, ora, servizio }));
+function editBooking(index) {
+  var b = window.currentActiveBookings[index];
+  sessionStorage.setItem('editingBooking', JSON.stringify({ 
+    giorno: b.giorno, 
+    ora: b.ora, 
+    servizio: b.servizio, 
+    serviceId: b.service_id || '',
+    targa: b.targa || '',
+    modello: b.modello || '',
+    note_cliente: b.note_cliente || ''
+  }));
 
   // Reindirizza al calendario per selezionare nuovo appuntamento
   window.location.href = '/dashboard';
@@ -90,9 +100,9 @@ function showDeleteConfirm(giorno, ora, servizio) {
 
   // Popola i dettagli
   document.getElementById('delete-booking-details').innerHTML = `
-    <div><strong>Servizio:</strong> ${servizio}</div>
-    <div><strong>Data:</strong> ${formatDate(giorno)}</div>
-    <div><strong>Orario:</strong> ${ora}</div>
+    <div><strong>Servizio:</strong> ${escapeHTML(servizio)}</div>
+    <div><strong>Data:</strong> ${escapeHTML(formatDate(giorno))}</div>
+    <div><strong>Orario:</strong> ${escapeHTML(ora)}</div>
   `;
 
   // Mostra modal

@@ -248,12 +248,24 @@ async function loadTimeSlots(date) {
     timeSlotsSection.classList.remove('hidden');
     timeSlotsGrid.innerHTML = '<div class="loading">Caricamento orari...</div>';
 
+    // Se stiamo modificando una prenotazione, passa i parametri per escludere lo slot originale
+    var excludeParams = '';
+    var editingBookingStr = sessionStorage.getItem('editingBooking');
+    if (editingBookingStr) {
+      try {
+        var editingB = JSON.parse(editingBookingStr);
+        if (editingB.giorno && editingB.ora) {
+          excludeParams = '?excludeGiorno=' + encodeURIComponent(editingB.giorno) + '&excludeOra=' + encodeURIComponent(editingB.ora);
+        }
+      } catch (e) {}
+    }
+
     // Usa endpoint duration-aware se c'è un servizio selezionato
     var response;
     if (selectedService && selectedService.id) {
-      response = await apiRequest('/slots/' + date + '/' + selectedService.id);
+      response = await apiRequest('/slots/' + date + '/' + selectedService.id + excludeParams);
     } else {
-      response = await apiRequest('/slots/' + date);
+      response = await apiRequest('/slots/' + date + excludeParams);
     }
 
     var availableSlots = response.slots.filter(function (slot) {
@@ -343,6 +355,24 @@ function populateSummary() {
   var modelloInput = document.getElementById('input-modello');
   if (targaInput) targaInput.required = true;
   if (modelloInput) modelloInput.required = true;
+
+  // Prefill in caso di modifica
+  var editingBookingStr = sessionStorage.getItem('editingBooking');
+  if (editingBookingStr) {
+    try {
+      var editingB = JSON.parse(editingBookingStr);
+      if (targaInput && !targaInput.value && editingB.targa) {
+        targaInput.value = editingB.targa;
+      }
+      if (modelloInput && !modelloInput.value && editingB.modello) {
+        modelloInput.value = editingB.modello;
+      }
+      var noteInput = document.getElementById('input-note');
+      if (noteInput && !noteInput.value && editingB.note_cliente) {
+        noteInput.value = editingB.note_cliente;
+      }
+    } catch(e) {}
+  }
 }
 
 function formatDateDisplay(dateStr) {
@@ -364,6 +394,25 @@ document.getElementById('complete-booking-btn').addEventListener('click', functi
     errorEl.classList.remove('hidden');
     return;
   }
+  
+  if (targa.length < 4 || targa.length > 10) {
+    errorEl.textContent = 'La targa deve avere tra 4 e 10 caratteri.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  if (modello.length < 2 || modello.length > 15) {
+    errorEl.textContent = 'Il modello deve avere tra 2 e 15 caratteri.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  if (note.length > 30) {
+    errorEl.textContent = 'Le note non possono superare i 30 caratteri.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
   errorEl.classList.add('hidden');
 
   // Popola modal di conferma
@@ -410,6 +459,15 @@ document.getElementById('modal-confirm').addEventListener('click', async functio
     note_cliente: note
   };
 
+  var editingBookingStr = sessionStorage.getItem('editingBooking');
+  if (editingBookingStr) {
+    try {
+      var oldB = JSON.parse(editingBookingStr);
+      payload.old_giorno = oldB.giorno;
+      payload.old_ora = oldB.ora;
+    } catch (e) {}
+  }
+
   try {
     var response = await apiRequest('/bookings', {
       method: 'POST',
@@ -417,6 +475,9 @@ document.getElementById('modal-confirm').addEventListener('click', async functio
     });
 
     if (response.success) {
+      // Se stavamo modificando una prenotazione, il backend l'ha sostituita
+      sessionStorage.removeItem('editingBooking');
+
       // Mostra successo nel modal
       var modalContent = document.querySelector('#confirm-modal .modal-content');
       modalContent.innerHTML =

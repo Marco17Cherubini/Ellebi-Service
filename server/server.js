@@ -41,16 +41,40 @@ initializeEmailService();
 
 // Middleware
 app.use(helmet({
-  contentSecurityPolicy: false // Disabilita per permettere inline scripts
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"]
+    }
+  }
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '16kb' }));
+app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 app.use(cookieParser());
 
 // Rate limiter per route di autenticazione (protezione brute-force)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minuti
   max: 10,                     // Max 10 tentativi per finestra
+  message: { success: false, error: 'Troppi tentativi. Riprova tra 15 minuti.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: function (req) {
+    return req.headers['x-forwarded-for'] || req.ip;
+  }
+});
+
+// Rate limiter per guest checkout (protezione flood prenotazioni)
+const guestLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minuti
+  max: 5,                      // Max 5 prenotazioni guest per finestra
   message: { success: false, error: 'Troppi tentativi. Riprova tra 15 minuti.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -83,6 +107,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: config.server.env === 'production',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 giorni
     });
 
@@ -133,7 +158,7 @@ app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
 });
 
 // POST /api/auth/reset-password - Reimposta password con token
-app.post('/api/auth/reset-password', async (req, res) => {
+app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
   try {
     const { token, password } = req.body;
 
@@ -156,32 +181,32 @@ app.get('/api/slots/:date', (req, res) => {
     // Prova a verificare l'autenticazione (opzionale per questa route)
     let includeExtraSlots = false;
 
-    const authHeader = req.headers.cookie;
-    if (authHeader) {
-      const cookies = authHeader.split(';').reduce((acc, cookie) => {
-        const [key, value] = cookie.trim().split('=');
-        acc[key] = value;
-        return acc;
-      }, {});
+    const token = req.cookies.token;
+    if (token) {
+      try {
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, config.jwt.secret);
 
-      if (cookies.token) {
-        try {
-          const jwt = require('jsonwebtoken');
-          const decoded = jwt.verify(cookies.token, config.jwt.secret);
-
-          // Admin o VIP possono vedere orari extra
-          if (decoded.isAdmin) {
-            includeExtraSlots = true;
-          } else if (decoded.email) {
-            includeExtraSlots = isVip(decoded.email);
-          }
-        } catch (e) {
-          // Token invalido, ignora
+        // Admin o VIP possono vedere orari extra
+        if (decoded.isAdmin) {
+          includeExtraSlots = true;
+        } else if (decoded.email) {
+          includeExtraSlots = isVip(decoded.email);
         }
+      } catch (e) {
+        // Token invalido, ignora
       }
     }
 
-    const slots = getAvailableSlots(req.params.date, includeExtraSlots);
+    // Supporto esclusione slot in modifica prenotazione
+    let excludeBooking = null;
+    if (req.query.excludeGiorno && req.query.excludeOra &&
+        /^\d{4}-\d{2}-\d{2}$/.test(req.query.excludeGiorno) &&
+        /^([01]\d|2[0-3]):[0-5]\d$/.test(req.query.excludeOra)) {
+      excludeBooking = { giorno: req.query.excludeGiorno, ora: req.query.excludeOra };
+    }
+
+    const slots = getAvailableSlots(req.params.date, includeExtraSlots, excludeBooking);
 
     // Prevent caching of availability
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
@@ -208,24 +233,25 @@ app.get('/api/slots/:date/:serviceId', (req, res) => {
 
     // Verifica VIP/admin per slot extra
     let includeExtraSlots = false;
-    const authHeader = req.headers.cookie;
-    if (authHeader) {
-      const cookies = authHeader.split(';').reduce(function (acc, cookie) {
-        const parts = cookie.trim().split('=');
-        acc[parts[0]] = parts[1];
-        return acc;
-      }, {});
-      if (cookies.token) {
-        try {
-          const jwt = require('jsonwebtoken');
-          const decoded = jwt.verify(cookies.token, config.jwt.secret);
-          if (decoded.isAdmin) includeExtraSlots = true;
-          else if (decoded.email) includeExtraSlots = isVip(decoded.email);
-        } catch (e) { /* ignora token invalido */ }
-      }
+    const token = req.cookies.token;
+    if (token) {
+      try {
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, config.jwt.secret);
+        if (decoded.isAdmin) includeExtraSlots = true;
+        else if (decoded.email) includeExtraSlots = isVip(decoded.email);
+      } catch (e) { /* ignora token invalido */ }
     }
 
-    const slots = getAvailableSlotsForService(date, durata, includeExtraSlots);
+    // Supporto esclusione slot in modifica prenotazione
+    let excludeBooking = null;
+    if (req.query.excludeGiorno && req.query.excludeOra &&
+        /^\d{4}-\d{2}-\d{2}$/.test(req.query.excludeGiorno) &&
+        /^([01]\d|2[0-3]):[0-5]\d$/.test(req.query.excludeOra)) {
+      excludeBooking = { giorno: req.query.excludeGiorno, ora: req.query.excludeOra };
+    }
+
+    const slots = getAvailableSlotsForService(date, durata, includeExtraSlots, excludeBooking);
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.json({ success: true, slots, durata_minuti: durata });
   } catch (error) {
@@ -288,10 +314,26 @@ app.get('/api/services', (req, res) => {
 app.post('/api/bookings', authenticateToken, (req, res) => {
   try {
     const { servicesDB } = require('./database');
-    const { serviceId } = req.body;
+    const { serviceId, old_giorno, old_ora } = req.body;
 
-    // Determina se il servizio è di tipo 'consegna' (per tipo o per nome)
-    let isConsegna = false;
+    let oldBooking = null;
+    let oldDeposit = null;
+    if (old_giorno && old_ora) {
+      const { getUserBookings } = require('./bookingService');
+      const userBookings = getUserBookings(req.user.email);
+      oldBooking = userBookings.find(b => b.giorno === old_giorno && b.ora === old_ora);
+      
+      if (oldBooking) {
+        const { bookingsDB, depositsDB } = require('./database');
+        oldDeposit = depositsDB.findOne(d => String(d.booking_id) === String(oldBooking.id));
+        // Sposta temporaneamente la vecchia prenotazione per liberare lo slot
+        bookingsDB.update(b => b.id === oldBooking.id, { giorno: '1970-01-01' });
+      }
+    }
+
+    try {
+      // Determina se il servizio è di tipo 'consegna' (per tipo o per nome)
+      let isConsegna = false;
     if (serviceId) {
       const service = servicesDB.findOne(function (s) { return String(s.id) === String(serviceId); });
       if (service && (service.tipo_servizio === 'consegna' ||
@@ -335,6 +377,14 @@ app.post('/api/bookings', authenticateToken, (req, res) => {
           bookingResult.deposit_id = deposit.id;
         }
 
+      if (oldBooking) {
+        const { bookingsDB, depositsDB } = require('./database');
+        const { cleanDepositOnCancellation } = require('./bookingService');
+        cleanDepositOnCancellation(oldBooking);
+        bookingsDB.delete(b => b.id === oldBooking.id);
+        if (oldDeposit) depositsDB.delete(d => d.id === oldDeposit.id);
+      }
+
       res.status(201).json({
         success: true,
         booking: bookingResult,
@@ -357,11 +407,26 @@ app.post('/api/bookings', authenticateToken, (req, res) => {
         console.error('Errore invio email:', err.message);
       });
 
+    if (oldBooking) {
+      const { bookingsDB, depositsDB } = require('./database');
+      bookingsDB.delete(b => b.id === oldBooking.id);
+      if (oldDeposit) depositsDB.delete(d => d.id === oldDeposit.id);
+    }
+
     res.status(201).json({
       success: true,
       booking,
       emailSent: 'pending'
     });
+    
+    } catch (err) {
+      if (oldBooking) {
+        const { bookingsDB } = require('./database');
+        bookingsDB.update(b => b.id === oldBooking.id, { giorno: oldBooking.giorno });
+      }
+      throw err;
+    }
+
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -371,16 +436,57 @@ app.post('/api/bookings', authenticateToken, (req, res) => {
 app.get('/api/bookings', authenticateToken, (req, res) => {
   try {
     const bookings = getUserBookings(req.user.email);
-      const { servicesDB } = require('./database');
-      const enrichedBookings = bookings.map(b => {
-        let servizioNome = b.servizio || 'Prenotazione';
-        if (b.service_id) {
-          const svc = servicesDB.findOne(s => String(s.id) === String(b.service_id));
-          if (svc) servizioNome = svc.nome;
-        }
-        return Object.assign({}, b, { servizio: servizioNome });
-      });
-      res.json({ success: true, bookings: enrichedBookings });
+    const { servicesDB } = require('./database');
+
+    // Raggruppa per token: booking con stesso token = unica prenotazione multi-slot
+    const tokenMap = {};
+    const standalone = [];
+
+    bookings.forEach(b => {
+      if (b.token) {
+        if (!tokenMap[b.token]) tokenMap[b.token] = [];
+        tokenMap[b.token].push(b);
+      } else {
+        standalone.push(b);
+      }
+    });
+
+    const grouped = [];
+
+    Object.values(tokenMap).forEach(group => {
+      // Ordina per ora crescente per prendere il primo slot come orario di inizio
+      group.sort((a, b) => (a.ora < b.ora ? -1 : 1));
+      const first = group[0];
+
+      // Durata: usa durata_minuti se presente (nuovo sistema), altrimenti calcola da slot count
+      const durata = first.durata_minuti
+        ? parseInt(first.durata_minuti, 10)
+        : group.length * 15;
+
+      // Risolvi nome servizio
+      let servizioNome = first.servizio || 'Prenotazione';
+      if (first.service_id) {
+        const svc = servicesDB.findOne(s => String(s.id) === String(first.service_id));
+        if (svc) servizioNome = svc.nome;
+      }
+
+      grouped.push(Object.assign({}, first, {
+        servizio: servizioNome,
+        durata_minuti: durata
+      }));
+    });
+
+    // Aggiungi standalone (senza token)
+    standalone.forEach(b => {
+      let servizioNome = b.servizio || 'Prenotazione';
+      if (b.service_id) {
+        const svc = servicesDB.findOne(s => String(s.id) === String(b.service_id));
+        if (svc) servizioNome = svc.nome;
+      }
+      grouped.push(Object.assign({}, b, { servizio: servizioNome }));
+    });
+
+    res.json({ success: true, bookings: grouped });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -403,7 +509,7 @@ const { usersDB } = require('./database');
 
 // POST /api/bookings/guest - Prenotazione rapida senza account
 // Richiede solo: nome, cognome, email (niente password)
-app.post('/api/bookings/guest', (req, res) => {
+app.post('/api/bookings/guest', guestLimiter, (req, res) => {
   try {
     const { nome, cognome, email, giorno, ora, numPersone } = req.body;
 
@@ -439,8 +545,8 @@ app.post('/api/bookings/guest', (req, res) => {
     if (!existingUser) {
       // Crea profilo Guest silente (senza password)
       usersDB.insert({
-        nome: nome.trim(),
-        cognome: cognome.trim(),
+        nome: nome.trim().slice(0, 100),
+        cognome: cognome.trim().slice(0, 100),
         email: emailLower,
         telefono: '',
         password: '',
@@ -1290,7 +1396,8 @@ app.post('/api/admin/deposits/:id/schedule', authenticateToken, (req, res) => {
         service_id: 'extra_work',
         deposit_id: deposit.id,
         user_id: deposit.user_id || null,
-        ore_stimate: ore_stimate
+        ore_stimate: ore_stimate,
+        durata_minuti: 15
       };
       bookingsDB.insert(booking);
     }
@@ -1394,7 +1501,8 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Errore interno del server' });
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({ error: status < 500 ? err.message : 'Errore interno del server' });
 });
 
 // ==================== START SERVER ====================

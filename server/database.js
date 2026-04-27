@@ -172,7 +172,7 @@ async function initDatabase() {
         "ALTER TABLE bookings ADD COLUMN note_cliente TEXT DEFAULT ''",
         "ALTER TABLE bookings ADD COLUMN nota_interna TEXT DEFAULT ''",
         "ALTER TABLE bookings ADD COLUMN deposit_id INTEGER",
-        "ALTER TABLE bookings ADD COLUMN durata_minuti INTEGER DEFAULT 60"
+        "ALTER TABLE bookings ADD COLUMN durata_minuti INTEGER DEFAULT 15"
     ];
     bookingsMigrazioni.forEach(function(sql) {
         try { db.run(sql); } catch (e) { /* colonna già presente */ }
@@ -326,9 +326,17 @@ class SQLiteTable {
     // Inserisci un record
     insert(record) {
         if (!db) return null;
-        const cols = this.columns.filter(c => record[c] !== undefined);
+        
+        // FASE 1 Sicurezza: Prevenzione SQLi / Prototype Pollution
+        // Filtra rigidamente solo le chiavi note nello schema della tabella
+        const cols = this.columns.filter(c => record[c] !== undefined && record[c] !== null);
+        if (cols.length === 0) return null;
+
         const placeholders = cols.map(() => '?').join(', ');
-        const values = cols.map(c => record[c]);
+        // Sanitizzazione base per SQLite: forza i tipi complessi a stringa
+        const values = cols.map(c => 
+            typeof record[c] === 'object' ? JSON.stringify(record[c]) : record[c]
+        );
 
         db.run(
             `INSERT INTO ${this.tableName} (${cols.join(', ')}) VALUES (${placeholders})`,
@@ -346,8 +354,15 @@ class SQLiteTable {
 
         allData.forEach(row => {
             if (filterFn(row)) {
-                const setClauses = Object.keys(updates).map(k => `${k} = ?`).join(', ');
-                const values = Object.values(updates);
+                // FASE 1 Sicurezza: Eliminazione vulnerabilità SQLi su Object.keys
+                // Accetta esclusivamente le chiavi dichiarate in this.columns
+                const validKeys = Object.keys(updates).filter(k => this.columns.includes(k));
+                if (validKeys.length === 0) return; // Se update usa payload malevolo o chiavi invalide, interrompi
+
+                const setClauses = validKeys.map(k => `${k} = ?`).join(', ');
+                const values = validKeys.map(k => 
+                    typeof updates[k] === 'object' ? JSON.stringify(updates[k]) : updates[k]
+                );
 
                 let whereClause, whereValues;
                 if (this.idField) {

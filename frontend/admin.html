@@ -178,19 +178,19 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Targa *</label>
-              <input type="text" id="input-targa-admin" class="form-input text-uppercase required" placeholder="Es. AB123CD" required="required" autocomplete="off">
+              <input type="text" id="input-targa-admin" class="form-input text-uppercase required" placeholder="Es. AB123CD" required="required" autocomplete="off" minlength="4" maxlength="10">
             </div>
             <div class="col-modello">
               <label class="form-label">Modello veicolo *</label>
               <input type="text" id="input-modello-admin" class="form-input required" placeholder="Es. Volkswagen Golf" required="required"
-                autocomplete="off">
+                autocomplete="off" minlength="2" maxlength="15">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Note cliente</label>
               <input type="text" id="input-note-admin" class="form-input"
-                placeholder="Problema riscontrato, richieste..." autocomplete="off">
+                placeholder="Problema riscontrato, richieste..." autocomplete="off" maxlength="30">
             </div>
           </div>
           <div id="consegna-banner" class="hidden box-special">

@@ -166,17 +166,17 @@
 
         <div id="targa-section" class="form-group mt-4">
           <label class="form-label" for="input-targa">Targa *</label>
-          <input type="text" id="input-targa" class="form-input text-uppercase required" required="required" placeholder="Es. AB123CD" autocomplete="off">
+          <input type="text" id="input-targa" class="form-input text-uppercase required" required="required" placeholder="Es. AB123CD" autocomplete="off" minlength="4" maxlength="10">
         </div>
 
-        <div id="modello-section" class="form-group">
-          <label class="form-label" for="input-modello">Modello veicolo *</label>
-          <input type="text" id="input-modello" class="form-input required" required="required" placeholder="Es. Volkswagen Golf" autocomplete="off">
+        <div id="modello-section" class="form-group mt-3">
+          <label class="form-label" for="input-modello">Modello Auto/Moto *</label>
+          <input type="text" id="input-modello" class="form-input required" required="required" placeholder="Es. Volkswagen Golf" autocomplete="off" minlength="2" maxlength="15">
         </div>
 
         <div class="form-group">
           <label class="form-label" for="input-note">Note (opzionale)</label>
-          <textarea id="input-note" class="form-input" rows="3" placeholder="Descrizione del problema o dettagli aggiuntivi..." style="resize:vertical;font-family:inherit;"></textarea>
+          <textarea id="input-note" class="form-input" rows="3" placeholder="Descrizione del problema o dettagli aggiuntivi..." style="resize:vertical;font-family:inherit;" maxlength="30"></textarea>
         </div>
       </div>
 

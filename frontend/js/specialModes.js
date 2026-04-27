@@ -303,6 +303,11 @@ function _holOnWindowTouchMove(e) {
 function _holEndDrag() {
   _holStopScroll();
   _holLastTouch = null;
+
+  // Ripristina touchAction
+  const container = document.querySelector('.container') || document.querySelector('.admin-calendar');
+  if (container) container.style.touchAction = '';
+
   // Rimuovi tutti e tre i listener dinamici — pattern speculare a _holMouseEndDrag()
   window.removeEventListener('touchmove',   _holOnWindowTouchMove);
   window.removeEventListener('touchend',    _holEndDrag);
@@ -318,7 +323,7 @@ function _holEndDrag() {
 // — speculare a setupHolidayMouse() — così il rilascio del dito è intercettato anche
 // quando il dito è uscito dal grid (es. durante auto-scroll del container).
 let _holLastTapTime = 0;
-  let _holLastTapCell = null;
+  let _holLastTapTargetId = null;
 
   function setupHolidayTouch() {
     const grid = document.getElementById('admin-calendar-grid');
@@ -328,33 +333,27 @@ let _holLastTapTime = 0;
     grid.addEventListener('touchstart', (e) => {
       if (!STATE.holidayMode && !STATE.extraWorkMode) return;
       const cell = e.target.closest('.admin-cell');
-      if (!cell || cell.classList.contains('has-booking')) return;
-      
-      const now = Date.now();
-      const isDoubleTap = (_holLastTapCell === cell) && (now - _holLastTapTime < 450);
-      
-      _holLastTapCell = cell;
-      _holLastTapTime = now;
+      if (!cell || cell.classList.contains('has-booking') || !cell.dataset.date || !cell.dataset.time) return;
 
-      if (!isDoubleTap) {
-        // Tocco singolo: non bloccare il comportamento di default,
-        // così l'utente può scorrere la pagina liberamente.
-        // Il toggle della singola cella viene gestito dall'evento click!
-        return;
-      }
+      // Avvia immediatamente il drag al primo tocco, esattamene come il mousedown
+      e.preventDefault();
+      
+      // Blocca scroll/pull-to-refresh aggiungendo touchAction al container parent
+      const container = document.querySelector('.container') || document.querySelector('.admin-calendar');
+      if (container) container.style.touchAction = 'none';
 
-      // Doppio tocco (double tap and hold) -> Avvia il drag select multiplo!
-    e.preventDefault();
-    // Feedback aptico immediato — conferma all'utente che il drag è partito
-    if (navigator.vibrate) navigator.vibrate(30);
-    // Avvia RAF loop per tutta la durata del drag (fermato in _holEndDrag)
-    _holScrollFactor = 0;
-    if (!_holScrollRaf) _holScrollRaf = requestAnimationFrame(_holScrollTick);
-    // Aggiungi touchmove/touchend/touchcancel a window ORA — rimossi in _holEndDrag()
-    window.addEventListener('touchmove',   _holOnWindowTouchMove, { passive: false });
-    window.addEventListener('touchend',    _holEndDrag);
-    window.addEventListener('touchcancel', _holEndDrag);
-      startDragWithFeedback(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time), true /* isDoubleTap */);
+      // Feedback aptico immediato
+      if (navigator.vibrate) navigator.vibrate(30);
+
+      // Avvia RAF loop
+      _holScrollFactor = 0;
+      if (!_holScrollRaf) _holScrollRaf = requestAnimationFrame(_holScrollTick);
+
+      window.addEventListener('touchmove',   _holOnWindowTouchMove, { passive: false });
+      window.addEventListener('touchend',    _holEndDrag);
+      window.addEventListener('touchcancel', _holEndDrag);
+
+      startDragWithFeedback(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time));
     }, { passive: false });
     // touchend/touchcancel NON più sul grid — gestiti via window listener dinamici
   }
@@ -464,7 +463,7 @@ export function enterExtraWorkMode(depositId, hours) {
   const saveBtn = document.getElementById('save-extrawork-btn');
   const cancelBtn = document.getElementById('cancel-extrawork-btn');
   if (saveBtn) saveBtn.onclick = saveExtraWork;
-  if (cancelBtn) cancelBtn.onclick = exitExtraWorkMode;
+  if (cancelBtn) cancelBtn.onclick = cancelExtraWork;
 
   // Re-render per mostrare le celle in modalità extra work
   renderCalendar();
@@ -505,6 +504,19 @@ export async function saveExtraWork() {
   }
 }
 
+export function cancelExtraWork() {
+  if (STATE.selectedExtraWorkSlots.length > 0) {
+    // Azzera selezioni per poter ripartire
+    STATE.selectedExtraWorkSlots = [];
+    updateExtraWorkHoursLeft();
+    renderCalendar(); // Ricarica la griglia per spazzar via le celle "in attesa"
+  } else {
+    // Se non ha selezionato niente, esce dalla modalità rimbalzando ai depositi
+    exitExtraWorkMode();
+    window.location.href = '/admin-depositi.html'; // Invia di nuovo alla sezione da cui si regola l'orario
+  }
+}
+
 export function exitExtraWorkMode() {
   STATE.extraWorkMode = false;
   STATE.currentAssignDepositId = null;
@@ -524,4 +536,7 @@ export function exitExtraWorkMode() {
   // Rimuovi classe puntatore extra work
   const calendarEl = document.querySelector('.admin-calendar');
   if (calendarEl) calendarEl.classList.remove('extrawork-mode');
+
+  // Triggera un renderCalendar() pulito per azzerare tutta la griglia fittizia
+  renderCalendar();
 }

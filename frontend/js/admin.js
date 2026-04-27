@@ -12,7 +12,7 @@ let currentAssignDepositId = null;
 let extraWorkHoursTotal = 0;
 let selectedExtraWorkSlots = [];
 
-let calendarGranularity = 60; // minuti: 15 | 30 | 60 | 120
+let calendarGranularity = 15; // minuti: 15 | 30 | 60 | 120
 
 // Modal instances (initialized in init())
 let bookingModal = null;
@@ -79,8 +79,8 @@ async function init() {
     const response = await apiRequest('/auth/me');
 
     if (!response.success || !response.user.isAdmin) {
-      // Non è admin, redirect a home cliente
-      window.location.href = '/home';
+      // Non è admin, redirect a login
+      window.location.href = '/login';
       return;
     }
 
@@ -98,7 +98,7 @@ async function init() {
 
     // Carica prenotazioni e renderizza
     await loadBookings();
-    calendarGranularity = parseInt(document.getElementById('granularity-select').value, 10) || 60;
+    calendarGranularity = 15;
     renderCalendar();
 
     // Setup event listeners per modal
@@ -412,7 +412,7 @@ function renderCalendar() {
     // Cella orario — un'etichetta per ogni riga visibile con ora arrotondata alla granularità
     const timeCell = document.createElement('div');
     timeCell.className = 'admin-time-header';
-    timeCell.textContent = getGranularityLabel(time, calendarGranularity);
+    timeCell.textContent = time;
     timeCell.style.gridColumn = '1';
     timeCell.style.gridRow = String(rowIndex);
     grid.appendChild(timeCell);
@@ -771,7 +771,7 @@ function startBookingDrag(booking, event) {
   dragGhostElement = document.createElement('div');
   dragGhostElement.className = 'booking-drag-ghost';
   dragGhostElement.innerHTML = `
-    <div class="name">${booking.nome} ${booking.cognome}</div>
+    <div class="name">${escapeHTML(booking.nome)} ${escapeHTML(booking.cognome)}</div>
   `;
   document.body.appendChild(dragGhostElement);
 
@@ -999,16 +999,16 @@ function showDetailModal(booking) {
   }
 
   const rows = [
-    `<div><strong>Nome:</strong> ${booking.nome || '—'} ${booking.cognome || ''}</div>`,
+    `<div><strong>Nome:</strong> ${escapeHTML(booking.nome || '—')} ${escapeHTML(booking.cognome || '')}</div>`,
     `<div><strong>Data:</strong> ${formatDateStringDisplay(booking.giorno)}</div>`,
-    `<div><strong>Ora:</strong> ${booking.ora}</div>`,
-    serviceName ? `<div><strong>Servizio:</strong> ${serviceName}</div>` : '',
-    booking.durata_minuti ? `<div><strong>Durata:</strong> ${booking.durata_minuti} min</div>` : '',
-    booking.targa ? `<div><strong>Targa:</strong> ${booking.targa}</div>` : '',
-    booking.modello ? `<div><strong>Modello:</strong> ${booking.modello}</div>` : '',
-    `<div><strong>Email:</strong> ${booking.email || '—'}</div>`,
-    `<div><strong>Telefono:</strong> ${booking.telefono || '—'}</div>`,
-    booking.note_cliente ? `<div><strong>Note:</strong> ${booking.note_cliente}</div>` : '',
+    `<div><strong>Ora:</strong> ${escapeHTML(booking.ora)}</div>`,
+    serviceName ? `<div><strong>Servizio:</strong> ${escapeHTML(serviceName)}</div>` : '',
+    booking.durata_minuti ? `<div><strong>Durata:</strong> ${escapeHTML(String(booking.durata_minuti))} min</div>` : '',
+    booking.targa ? `<div><strong>Targa:</strong> ${escapeHTML(booking.targa)}</div>` : '',
+    booking.modello ? `<div><strong>Modello:</strong> ${escapeHTML(booking.modello)}</div>` : '',
+    `<div><strong>Email:</strong> ${escapeHTML(booking.email || '—')}</div>`,
+    `<div><strong>Telefono:</strong> ${escapeHTML(booking.telefono || '—')}</div>`,
+    booking.note_cliente ? `<div><strong>Note:</strong> ${escapeHTML(booking.note_cliente)}</div>` : '',
     booking.tipo === 'deposito' ? `<div class="badge-special mt-2">Lavoro Straordinario</div>` : ''
   ].filter(Boolean).join('');
 
@@ -1033,7 +1033,7 @@ function showDeleteConfirmModal() {
 
   document.getElementById('delete-booking-details').innerHTML = `
     <div><strong>Data:</strong> ${formatDateStringDisplay(selectedBooking.giorno)}</div>
-    <div><strong>Ora:</strong> ${selectedBooking.ora}</div>
+    <div><strong>Ora:</strong> ${escapeHTML(selectedBooking.ora)}</div>
   `;
 
   // Chiudi modal dettaglio e apri conferma
@@ -1217,10 +1217,28 @@ function setupModalListeners() {
       document.getElementById('input-targa-admin').focus();
       return;
     }
+    if (formData.targa.length < 4 || formData.targa.length > 10) {
+      formError.textContent = 'La targa deve avere tra 4 e 10 caratteri.';
+      formError.classList.remove('hidden');
+      document.getElementById('input-targa-admin').focus();
+      return;
+    }
     if (!formData.modello) {
       formError.textContent = 'Il modello del veicolo è obbligatorio';
       formError.classList.remove('hidden');
       document.getElementById('input-modello-admin').focus();
+      return;
+    }
+    if (formData.modello.length < 2 || formData.modello.length > 15) {
+      formError.textContent = 'Il modello deve avere tra 2 e 15 caratteri.';
+      formError.classList.remove('hidden');
+      document.getElementById('input-modello-admin').focus();
+      return;
+    }
+    if (formData.note_cliente && formData.note_cliente.length > 30) {
+      formError.textContent = 'Le note non possono superare i 30 caratteri.';
+      formError.classList.remove('hidden');
+      document.getElementById('input-note-admin').focus();
       return;
     }
 
@@ -1273,7 +1291,7 @@ document.getElementById('next-week').addEventListener('click', async () => {
 });
 
 // Cambio granularità calendario
-document.getElementById('granularity-select').addEventListener('change', function () {
+document.getElementById('granularity-select').addEventListener('change', function () { calendarGranularity = 15; return; // 
   calendarGranularity = parseInt(this.value, 10);
   renderCalendar();
 });
@@ -1616,6 +1634,11 @@ function _holOnWindowTouchMove(e) {
 function _holEndDrag() {
   _holStopScroll();
   _holLastTouch = null;
+  
+  // Ripristina touchAction
+  const container = document.querySelector('.container') || document.querySelector('.admin-calendar');
+  if (container) container.style.touchAction = '';
+
   // Rimuovi tutti e tre i listener dinamici — pattern speculare a _holMouseEndDrag()
   window.removeEventListener('touchmove',   _holOnWindowTouchMove);
   window.removeEventListener('touchend',    _holEndDrag);
@@ -1626,12 +1649,13 @@ function _holEndDrag() {
   }
 }
 
+
 // Un solo touchstart sul grid, montato una volta (idempotente via _holReady).
 // touchmove, touchend e touchcancel aggiunti a window DINAMICAMENTE solo durante il drag
 // — speculare a setupHolidayMouse() — così il rilascio del dito è intercettato anche
 // quando il dito è uscito dal grid (es. durante auto-scroll del container).
 let _holLastTapTime = 0;
-  let _holLastTapCell = null;
+  let _holLastTapTargetId = null;
 
   function setupHolidayTouch() {
     const grid = document.getElementById('admin-calendar-grid');
@@ -1641,33 +1665,27 @@ let _holLastTapTime = 0;
     grid.addEventListener('touchstart', (e) => {
       if (!holidayMode && !extraWorkMode) return;
       const cell = e.target.closest('.admin-cell');
-      if (!cell || cell.classList.contains('has-booking')) return;
-      
-      const now = Date.now();
-      const isDoubleTap = (_holLastTapCell === cell) && (now - _holLastTapTime < 450);
-      
-      _holLastTapCell = cell;
-      _holLastTapTime = now;
+      if (!cell || cell.classList.contains('has-booking') || !cell.dataset.date || !cell.dataset.time) return;
 
-      if (!isDoubleTap) {
-        // Tocco singolo: non bloccare il comportamento di default,
-        // così l'utente può scorrere la pagina liberamente.
-        // Il toggle della singola cella viene gestito dall'evento click!
-        return;
-      }
+      // Avvia immediatamente il drag al primo tocco, esattamene come il mousedown
+      e.preventDefault();
+      
+      // Blocca scroll/pull-to-refresh aggiungendo touchAction al container parent
+      const container = document.querySelector('.container') || document.querySelector('.admin-calendar');
+      if (container) container.style.touchAction = 'none';
 
-      // Doppio tocco (double tap and hold) -> Avvia il drag select multiplo!
-    e.preventDefault();
-    // Feedback aptico immediato — conferma all'utente che il drag è partito
-    if (navigator.vibrate) navigator.vibrate(30);
-    // Avvia RAF loop per tutta la durata del drag (fermato in _holEndDrag)
-    _holScrollFactor = 0;
-    if (!_holScrollRaf) _holScrollRaf = requestAnimationFrame(_holScrollTick);
-    // Aggiungi touchmove/touchend/touchcancel a window ORA — rimossi in _holEndDrag()
-    window.addEventListener('touchmove',   _holOnWindowTouchMove, { passive: false });
-    window.addEventListener('touchend',    _holEndDrag);
-    window.addEventListener('touchcancel', _holEndDrag);
-      startDragWithFeedback(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time), true /* isDoubleTap */);
+      // Feedback aptico immediato
+      if (navigator.vibrate) navigator.vibrate(30);
+
+      // Avvia RAF loop
+      _holScrollFactor = 0;
+      if (!_holScrollRaf) _holScrollRaf = requestAnimationFrame(_holScrollTick);
+
+      window.addEventListener('touchmove',   _holOnWindowTouchMove, { passive: false });
+      window.addEventListener('touchend',    _holEndDrag);
+      window.addEventListener('touchcancel', _holEndDrag);
+
+      startDragWithFeedback(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time));
     }, { passive: false });
     // touchend/touchcancel NON più sul grid — gestiti via window listener dinamici
   }
@@ -1848,13 +1866,26 @@ function enterExtraWorkMode(depositId, hours) {
   const saveBtn = document.getElementById('save-extrawork-btn');
   const cancelBtn = document.getElementById('cancel-extrawork-btn');
   if (saveBtn) saveBtn.onclick = saveExtraWork;
-  if (cancelBtn) cancelBtn.onclick = exitExtraWorkMode;
+  if (cancelBtn) cancelBtn.onclick = cancelExtraWork;
 
   // Re-render per mostrare le celle in modalità extra work
   renderCalendar();
 
   // Rimuovi parametri dall'URL senza ricaricare
   window.history.replaceState({}, '', '/admin.html');
+}
+
+function cancelExtraWork() {
+  if (selectedExtraWorkSlots.length > 0) {
+    // Azzera selezioni per poter ripartire
+    selectedExtraWorkSlots = [];
+    updateExtraWorkHoursLeft();
+    renderCalendar(); // Ricarica la griglia per spazzar via le celle "in attesa"
+  } else {
+    // Se non ha selezionato niente, esce dalla modalità e rimbalza ai depositi
+    exitExtraWorkMode();
+    window.location.href = '/admin-depositi.html'; 
+  }
 }
 
 function updateExtraWorkHoursLeft() {
@@ -1909,7 +1940,12 @@ function exitExtraWorkMode() {
   // Rimuovi classe puntatore extra work
   const calendarEl = document.querySelector('.admin-calendar');
   if (calendarEl) calendarEl.classList.remove('extrawork-mode');
+
+  // Triggera un renderCalendar() pulito per azzerare tutta la griglia fittizia
+  renderCalendar();
 }
+
+
 
 
 

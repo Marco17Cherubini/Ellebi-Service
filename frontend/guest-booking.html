@@ -139,16 +139,16 @@
         </div>
         <div class="form-group" id="targa-group">
           <label class="form-label" for="targa">Targa *</label>
-          <input type="text" id="targa" name="targa" class="form-input text-uppercase required" required="required" placeholder="Es. AB123CD">
+          <input type="text" id="targa" name="targa" class="form-input text-uppercase required" required="required" placeholder="Es. AB123CD" minlength="4" maxlength="10">
         </div>
         <div class="form-group" id="modello-group">
-          <label class="form-label" for="modello">Modello veicolo *</label>
-          <input type="text" id="modello" name="modello" class="form-input required" required="required" placeholder="Es. Volkswagen Golf">
+          <label class="form-label" for="modello">Modello *</label>
+          <input type="text" id="modello" name="modello" class="form-input required" required="required" placeholder="Es. Volkswagen Golf" minlength="2" maxlength="15">
         </div>
         <div class="form-group">
           <label class="form-label" for="note_cliente">Note (opzionale)</label>
           <textarea id="note_cliente" name="note_cliente" class="form-input" rows="3"
-            placeholder="Descrizione o dettagli aggiuntivi…" style="resize:vertical;font-family:inherit;"></textarea>
+            placeholder="Descrizione o dettagli aggiuntivi…" style="resize:vertical;font-family:inherit;" maxlength="30"></textarea>
         </div>
 
         <div id="form-error" class="form-error hidden"></div>

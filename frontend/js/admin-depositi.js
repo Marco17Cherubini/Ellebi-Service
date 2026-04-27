@@ -12,7 +12,7 @@ var finishConfirmModal = null;
 async function init() {
   try {
     var res = await apiRequest('/auth/me');
-    if (!res.success || !res.user.isAdmin) { window.location.href = '/home'; return; }
+    if (!res.success || !res.user.isAdmin) { window.location.href = '/login'; return; }
     await loadDeposits();
     showLoginBanner();
     

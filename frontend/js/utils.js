@@ -1,6 +1,18 @@
 // Utility functions
 const API_BASE = '/api';
 
+// 🛡️ FASE 4 Sicurezza: XSS Prevention Helper
+// Sanitizza l'input dell'utente prima di iniettarlo nel DOM
+function escapeHTML(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 async function apiRequest(endpoint, options = {}) {
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, {

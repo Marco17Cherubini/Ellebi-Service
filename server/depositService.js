@@ -1,6 +1,12 @@
 const { depositsDB, getSetting } = require('./database');
 const config = require('../config/config');
 
+// 🛡️ Validazione lunghezza input: tronca campi di testo a lunghezze sicure
+function sanitizeText(value, maxLen) {
+  if (!value) return '';
+  return String(value).trim().slice(0, maxLen);
+}
+
 // ─── Query ────────────────────────────────────────────────────────────────────
 
 function getActiveDepositCount() {
@@ -55,17 +61,17 @@ function createDeposit(bookingId, depositData) {
 
   var record = {
     booking_id:   String(bookingId),
-    nome:         depositData.nome         || '',
-    cognome:      depositData.cognome      || '',
-    email:        depositData.email        || '',
-    telefono:     depositData.telefono     || '',
-    targa:        depositData.targa.toString().trim().toUpperCase(),
-    modello:      depositData.modello.toString().trim(),
-    servizio:     depositData.servizio     || '',
+    nome:         sanitizeText(depositData.nome, 100),
+    cognome:      sanitizeText(depositData.cognome, 100),
+    email:        sanitizeText(depositData.email, 254),
+    telefono:     sanitizeText(depositData.telefono, 20),
+    targa:        sanitizeText(depositData.targa, 10).toUpperCase(),
+    modello:      sanitizeText(depositData.modello, 100),
+    servizio:     sanitizeText(depositData.servizio, 200),
     ore_stimate:  depositData.ore_stimate  || 0,
     ore_residue:  depositData.ore_stimate  || 0,
     stato:        'in_attesa',
-    note_cliente: depositData.note_cliente || '',
+    note_cliente: sanitizeText(depositData.note_cliente, 1000),
     nota_lorenzo: ''
   };
 
@@ -84,8 +90,8 @@ function updateDeposit(id, updates) {
   if (!deposit) return null;
 
   var changes = {};
-  if (updates.stato !== undefined)       changes.stato        = updates.stato;
-  if (updates.nota_lorenzo !== undefined) changes.nota_lorenzo = updates.nota_lorenzo;
+  if (updates.stato !== undefined)       changes.stato        = sanitizeText(updates.stato, 50);
+  if (updates.nota_lorenzo !== undefined) changes.nota_lorenzo = sanitizeText(updates.nota_lorenzo, 1000);
   if (updates.ore_residue !== undefined)  changes.ore_residue  = updates.ore_residue;
   if (updates.ore_stimate !== undefined)  changes.ore_stimate  = updates.ore_stimate;
 
