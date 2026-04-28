@@ -44,12 +44,19 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        "https://cdn.jsdelivr.net",
+        "https://cdn.iubenda.com",
+        "https://www.iubenda.com"
+      ],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.iubenda.com"],
+      imgSrc: ["'self'", "data:", "https://cdn.iubenda.com", "https://www.iubenda.com"],
+      connectSrc: ["'self'", "https://www.iubenda.com", "https://cdn.iubenda.com"],
+      fontSrc: ["'self'", "https://cdn.iubenda.com"],
+      frameSrc: ["'self'", "https://www.iubenda.com"],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"]
     }
