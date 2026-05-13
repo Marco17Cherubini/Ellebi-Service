@@ -38,10 +38,9 @@
   footer.id = 'legal-footer';
 
   var year = new Date().getFullYear();
-  // TODO: aggiungere "P.IVA / C.F. XXXXXXXXXX" sotto la ragione sociale
-  // appena disponibile dal commercialista.
   footer.innerHTML =
     '<div>&copy; ' + year + ' Ellebi Service SRL</div>' +
+    '<div style="margin-top:4px;">P.IVA 02686660065 &middot; PEC: ellebi_service@legalmail.it</div>' +
     '<div style="margin-top:4px;">' +
       'Via Zerbi 21, San Giuliano Vecchio, Alessandria &middot; ' +
       '<a href="mailto:ellebi_service@libero.it">ellebi_service@libero.it</a>' +
