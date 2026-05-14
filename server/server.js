@@ -17,9 +17,10 @@ const {
   adminCancelBooking,
   moveBooking
 } = require('./bookingService');
-const { getAllUsers, toggleVip, isVip, toggleBanned, generateResetToken, resetPassword } = require('./authService');
+const { getAllUsers, toggleVip, isVip, toggleBanned, generateResetToken, resetPassword, touchUserActivity } = require('./authService');
 const { initializeEmailService, sendBookingConfirmation, sendPasswordResetEmail, sendDepositCompletionEmail } = require('./emailService');
 const { initDatabase } = require('./database');
+const { startRetentionScheduler } = require('./retentionService');
 const depositService = require('./depositService');
 
 // ==================== VALIDAZIONE SICUREZZA ====================
@@ -399,11 +400,13 @@ app.post('/api/bookings', authenticateToken, (req, res) => {
         slotAssigned: { date: bookingResult.giorno, time: bookingResult.ora },
         message: 'Veicolo registrato per la consegna il ' + bookingResult.giorno + ' alle ' + bookingResult.ora + '.'
       });
+      touchUserActivity(req.user.email);
       return;
     }
 
     // Prenotazione normale (appuntamento)
     const booking = createBooking(req.user.email, req.body);
+    touchUserActivity(req.user.email);
 
     // Invia email di conferma in background (fire-and-forget)
     sendBookingConfirmation(booking)
@@ -559,10 +562,12 @@ app.post('/api/bookings/guest', guestLimiter, (req, res) => {
         password: '',
         vip: '0',
         banned: '0',
-        isGuest: '1'
+        isGuest: '1',
+        last_active_at: new Date().toISOString()
       });
       console.log(`[Guest Checkout] Nuovo profilo guest creato: ${emailLower}`);
     } else {
+      usersDB.update(function (u) { return u.email === emailLower; }, { last_active_at: new Date().toISOString() });
       console.log(`[Guest Checkout] Email esistente, associo prenotazione: ${emailLower}`);
     }
 
@@ -611,6 +616,8 @@ app.post('/api/bookings/guest', guestLimiter, (req, res) => {
     } else {
       booking = createBooking(emailLower, bookingPayload);
     }
+
+    usersDB.update(function (u) { return u.email === emailLower; }, { last_active_at: new Date().toISOString() });
 
     // Invia email di conferma (fire-and-forget)
     sendBookingConfirmation(booking)
@@ -1442,6 +1449,7 @@ app.post('/api/vehicles', authenticateToken, (req, res) => {
     if (!user) return res.status(404).json({ success: false, error: 'Utente non trovato' });
     const { targa, modello, anno } = req.body;
     if (!targa) return res.status(400).json({ success: false, error: 'Targa obbligatoria' });
+    touchUserActivity(req.user.email);
     // Evita duplicati per stessa targa
     const existing = vehiclesDB.findOne(function (v) {
       return String(v.user_id) === String(user.id) && v.targa === targa.toUpperCase().trim();
@@ -1520,6 +1528,7 @@ const PORT = config.server.port;
 async function startServer() {
   try {
     await initDatabase();
+    startRetentionScheduler();
 
     app.listen(PORT, () => {
       console.log(`🚀 Server avviato su http://localhost:${PORT}`);

@@ -46,6 +46,19 @@ async function verifyAdminPassword(email, password) {
   }
 }
 
+function touchUserActivity(email) {
+  if (!email) return;
+
+  const emailLower = email.trim().toLowerCase();
+  const user = usersDB.findOne(u => u.email === emailLower);
+  if (!user) return;
+
+  usersDB.update(
+    u => u.email === emailLower,
+    { last_active_at: new Date().toISOString() }
+  );
+}
+
 // Registrazione utente
 async function registerUser(userData) {
   const { nome, cognome, email, telefono, password } = userData;
@@ -82,7 +95,8 @@ async function registerUser(userData) {
     password: hashedPassword,
     vip: 0,
     banned: 0,
-    isGuest: 0
+    isGuest: 0,
+    last_active_at: new Date().toISOString()
   };
 
   usersDB.insert(user);
@@ -133,8 +147,7 @@ async function loginUser(email, password) {
   try {
     if (user.password.startsWith('$argon2')) {
       isValid = await argon2.verify(user.password, password);
-    } 
-    else if (user.password.startsWith('$2')) {
+    } else if (user.password.startsWith('$2')) {
       isValid = await bcrypt.compare(password, user.password);
       if (isValid) {
         // Rihasha la password da bcrypt ad Argon2id transparentemente
@@ -150,6 +163,8 @@ async function loginUser(email, password) {
   if (!isValid) {
     throw new Error('Credenziali non valide');
   }
+
+  touchUserActivity(user.email);
 
   // Genera JWT token (utente normale)
   const token = jwt.sign(
@@ -311,5 +326,6 @@ module.exports = {
   toggleBanned,
   isBanned,
   generateResetToken,
-  resetPassword
+  resetPassword,
+  touchUserActivity
 };

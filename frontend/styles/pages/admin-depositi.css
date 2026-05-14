@@ -22,6 +22,8 @@
  }
 
  /* ─── Banner notifica login ─────────────────────────────── */
+ .deposit-login-banner.hidden { display: none; }
+
  .deposit-login-banner {
      display: flex;
      align-items: center;

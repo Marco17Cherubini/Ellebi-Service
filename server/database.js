@@ -18,6 +18,13 @@ if (!fs.existsSync(dbDir)) {
 // Database instance (sarà inizializzato in modo asincrono)
 let db = null;
 
+function getRawDatabase() {
+    if (!db) {
+        throw new Error('Database non inizializzato');
+    }
+    return db;
+}
+
 // Funzione per salvare il database su disco
 function saveDatabase() {
     if (db) {
@@ -51,6 +58,7 @@ async function initDatabase() {
       telefono TEXT NOT NULL,
       password TEXT NOT NULL,
       vip INTEGER DEFAULT 0,
+            last_active_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -142,6 +150,7 @@ async function initDatabase() {
       ore_stimate REAL DEFAULT 0,
       ore_residue REAL DEFAULT 0,
       stato TEXT DEFAULT 'in_attesa',
+            completed_at DATETIME DEFAULT NULL,
       note_cliente TEXT DEFAULT '',
       nota_lorenzo TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -201,6 +210,18 @@ async function initDatabase() {
         // Colonna gia esiste
     }
 
+    // Aggiungi colonna last_active_at se non esiste (migrazione per retention account)
+    try {
+        db.run(`ALTER TABLE users ADD COLUMN last_active_at TEXT DEFAULT ''`);
+    } catch (e) {
+        // Colonna già esiste
+    }
+    try {
+        db.run(`UPDATE users SET last_active_at = COALESCE(NULLIF(last_active_at, ''), created_at, CURRENT_TIMESTAMP)`);
+    } catch (e) {
+        // Best effort
+    }
+
     // Aggiungi colonna token a bookings se non esiste (migrazione per Smart Rescheduling)
     try {
         db.run(`ALTER TABLE bookings ADD COLUMN token TEXT`);
@@ -211,6 +232,13 @@ async function initDatabase() {
     // Migrazione deposits: aggiunge colonna 'servizio' per mostrare il tipo di lavoro nelle card
     try {
         db.run(`ALTER TABLE deposits ADD COLUMN servizio TEXT DEFAULT ''`);
+    } catch (e) {
+        // Colonna già presente
+    }
+
+    // Migrazione deposits: aggiunge completed_at per retention dalla chiusura pratica
+    try {
+        db.run(`ALTER TABLE deposits ADD COLUMN completed_at DATETIME DEFAULT NULL`);
     } catch (e) {
         // Colonna già presente
     }
@@ -436,7 +464,7 @@ class SQLiteTable {
 
 // ==================== INIZIALIZZA TABELLE ====================
 
-const userColumns = ['nome', 'cognome', 'email', 'telefono', 'password', 'vip', 'banned', 'isGuest'];
+const userColumns = ['nome', 'cognome', 'email', 'telefono', 'password', 'vip', 'banned', 'isGuest', 'last_active_at'];
 const bookingColumns = [
     'nome', 'cognome', 'email', 'telefono', 'giorno', 'ora', 'token',
     'user_id', 'vehicle_id', 'service_id', 'targa', 'modello',
@@ -452,7 +480,7 @@ const serviceColumns = [
 ];
 const depositColumns = [
     'booking_id', 'nome', 'cognome', 'email', 'telefono', 'targa', 'modello',
-    'ore_stimate', 'ore_residue', 'stato', 'note_cliente', 'nota_lorenzo', 'servizio'
+    'ore_stimate', 'ore_residue', 'stato', 'completed_at', 'note_cliente', 'nota_lorenzo', 'servizio'
 ];
 const settingColumns = ['key', 'value'];
 
@@ -633,5 +661,6 @@ module.exports = {
     getSetting,
     setSetting,
     initDatabase,
-    saveDatabase
+    saveDatabase,
+    getRawDatabase
 };

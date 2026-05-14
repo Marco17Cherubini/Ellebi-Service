@@ -151,6 +151,16 @@
             placeholder="Descrizione o dettagli aggiuntivi…" style="resize:vertical;font-family:inherit;" maxlength="30"></textarea>
         </div>
 
+        <div class="form-group" style="display:flex;align-items:flex-start;gap:8px;font-size:0.875rem;line-height:1.45;">
+          <input type="checkbox" id="privacy-consent" name="privacy-consent" required
+            style="margin-top:3px;flex-shrink:0;width:16px;height:16px;cursor:pointer;">
+          <label for="privacy-consent" class="form-label" style="margin:0;cursor:pointer;font-weight:normal;">
+            Ho letto e accetto la
+            <a href="/privacy-policy.html" class="link" title="Privacy Policy">Privacy Policy</a>
+            di Ellebi Service SRL.
+          </label>
+        </div>
+
         <div id="form-error" class="form-error hidden"></div>
         <div class="btn-group" style="gap:var(--space-3);">
           <button type="button" class="btn btn-outline" onclick="goToStep(2)">Indietro</button>

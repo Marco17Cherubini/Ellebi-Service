@@ -1,0 +1,39 @@
+.legal-page-main {
+    max-width: 920px;
+}
+
+.legal-page-intro {
+    margin-top: var(--space-6);
+}
+
+.legal-page-title {
+    font-size: 2rem;
+    margin-bottom: var(--space-4);
+}
+
+.legal-page-lead,
+.legal-page-body {
+    line-height: 1.7;
+    color: var(--color-text-primary);
+}
+
+.legal-page-lead {
+    font-size: 1rem;
+}
+
+.legal-page-last {
+    margin-bottom: var(--space-8);
+}
+
+.legal-page-list {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.legal-page-list-intro {
+    margin-bottom: var(--space-3);
+}
+
+.legal-page-list li + li {
+    margin-top: var(--space-2);
+}

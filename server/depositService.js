@@ -71,6 +71,7 @@ function createDeposit(bookingId, depositData) {
     ore_stimate:  depositData.ore_stimate  || 0,
     ore_residue:  depositData.ore_stimate  || 0,
     stato:        'in_attesa',
+    completed_at: '',
     note_cliente: sanitizeText(depositData.note_cliente, 1000),
     nota_lorenzo: ''
   };
@@ -90,7 +91,10 @@ function updateDeposit(id, updates) {
   if (!deposit) return null;
 
   var changes = {};
-  if (updates.stato !== undefined)       changes.stato        = sanitizeText(updates.stato, 50);
+  if (updates.stato !== undefined) {
+    changes.stato = sanitizeText(updates.stato, 50);
+    changes.completed_at = changes.stato === 'completato' ? new Date().toISOString() : '';
+  }
   if (updates.nota_lorenzo !== undefined) changes.nota_lorenzo = sanitizeText(updates.nota_lorenzo, 1000);
   if (updates.ore_residue !== undefined)  changes.ore_residue  = updates.ore_residue;
   if (updates.ore_stimate !== undefined)  changes.ore_stimate  = updates.ore_stimate;
