@@ -195,13 +195,10 @@ module.exports = {
   canAcceptDeposit,
   depositLimitMessage,
   getActiveDeposits,
-  getAllDeposits,
   getAllDepositsWithBookings,
-  getDepositById,
   createDeposit,
   updateDeposit,
   updateDepositFromAdmin,
   requireDeposit,
-  removeExtraWork,
   deleteDeposit
 };

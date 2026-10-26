@@ -370,11 +370,6 @@ function cancelBooking(giorno, ora, userEmail) {
   return true;
 }
 
-// Ottieni tutte le prenotazioni (per admin)
-function getAllBookings() {
-  return bookingsDB.readAll();
-}
-
 // Crea prenotazione da admin (senza verifica utente)
 function createAdminBooking(bookingData) {
   const {
@@ -825,23 +820,15 @@ function getAdminBookings() {
 }
 
 module.exports = {
+  getAvailableSlots,
+  getAvailableSlotsForService,
   createCustomerBooking,
   createGuestBooking,
   createAdminBookingWithDeposit,
   scheduleExtraWork,
   getUserBookingList,
   getAdminBookings,
-  isDayAvailable,
-  getAvailableSlots,
-  getAvailableSlotsForService,
-  createBooking,
-  createConsegnaBooking,
-  getUserBookings,
   cancelBooking,
-  getAllBookings,
-  createAdminBooking,
   adminCancelBooking,
-  moveBooking,
-  generateBookingToken,
-  cleanDepositOnCancellation
+  moveBooking
 };
