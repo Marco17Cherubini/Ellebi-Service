@@ -1064,34 +1064,14 @@ app.get('/bookings', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/bookings.html'));
 });
 
-// Service selection page
-app.get('/services', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/services.html'));
-});
-
-// Booking summary page
-app.get('/summary', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/summary.html'));
-});
-
 // Admin page
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/admin.html'));
 });
 
-// Admin VIP page (legacy)
-app.get('/admin/vip', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/admin-vip.html'));
-});
-
 // Admin Reports page
 app.get('/admin/reports', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/admin-reports.html'));
-});
-
-// Admin Banned Users page (legacy)
-app.get('/admin/banned', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/admin-banned.html'));
 });
 
 // Admin Unified Client Management page
