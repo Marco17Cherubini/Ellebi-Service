@@ -13,7 +13,9 @@
     "status": "pm2 status",
     "backup": "node server/backup.js",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "node --test \"test/**/*.test.js\"",
+    "format:check": "prettier --check ."
   },
   "keywords": [
     "workshop",
