@@ -70,8 +70,8 @@ function getSlotsForDay(date, includeExtraSlots = false) {
       '23:00'
     ];
     const extraSlots = weekday === 6 ? extraSlotsSaturday : extraSlotsWeekday;
-    // Aggiungi pre-orario all'inizio, poi slot normali, poi straordinari
-    slots = [...preOpeningSlot, ...slots, ...extraSlots];
+    // Pre-orario, slot normali, poi serali (senza duplicati: 18:00 è anche uno slot normale)
+    slots = [...new Set([...preOpeningSlot, ...slots, ...extraSlots])];
   }
 
   return slots;

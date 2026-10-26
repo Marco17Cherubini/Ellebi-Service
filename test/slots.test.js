@@ -122,6 +122,7 @@ test('VIP e admin vedono gli orari estesi (08:00 e serali), i clienti no', async
   const forAdmin = (await slots(day, { cookie: admin })).map(s => s.time);
   assert.ok(!normal.includes('08:00') && !normal.includes('21:00'));
   for (const list of [forVip, forAdmin]) {
+    assert.equal(new Set(list).size, list.length, 'nessun orario duplicato');
     assert.ok(list.includes('08:00'));
     assert.ok(list.includes('21:00'));
     assert.equal(list.at(-1), '23:15');
