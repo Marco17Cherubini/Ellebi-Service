@@ -50,19 +50,19 @@ async function loadBookings() {
         var sid = booking.service_id || '';
         var durata = booking.durata_minuti ? booking.durata_minuti + ' min' : '';
         return `
-      <div class="card booking-card" data-giorno="${booking.giorno}" data-ora="${booking.ora}">
+      <div class="card booking-card" data-giorno="${escapeHTML(booking.giorno)}" data-ora="${escapeHTML(booking.ora)}">
         <div class="booking-info">
           <div class="card-title">${escapeHTML(booking.servizio)}</div>
           <div class="booking-details">
             <div><strong>Data:</strong> ${escapeHTML(formatDate(booking.giorno))}</div>
-            <div><strong>Orario:</strong> ${escapeHTML(booking.ora)}${durata ? ' (' + durata + ')' : ''}</div>
+            <div><strong>Orario:</strong> ${escapeHTML(booking.ora)}${durata ? ' (' + escapeHTML(durata) + ')' : ''}</div>
           </div>
         </div>
         <div class="booking-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn btn-edit" onclick="editBooking(${index})">
+          <button class="btn btn-edit" data-index="${index}">
             Modifica
           </button>
-          <button class="btn btn-cancel" onclick="showDeleteConfirm('${booking.giorno}', '${booking.ora}', '${escapeHTML(booking.servizio)}')">
+          <button class="btn btn-cancel" data-index="${index}">
             Cancella
           </button>
         </div>
@@ -70,6 +70,16 @@ async function loadBookings() {
     `;
       })
       .join('');
+
+    bookingsList.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', () => editBooking(Number(btn.dataset.index)));
+    });
+    bookingsList.querySelectorAll('.btn-cancel').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const booking = activeBookings[Number(btn.dataset.index)];
+        showDeleteConfirm(booking.giorno, booking.ora, booking.servizio);
+      });
+    });
   } catch (error) {
     console.error('Errore caricamento prenotazioni:', error);
     document.getElementById('bookings-list').innerHTML =

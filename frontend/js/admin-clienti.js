@@ -107,9 +107,9 @@ function renderUsers(users) {
       if (current.banned) currentBadges += '<span class="badge badge-banned">BAN</span>';
 
       return `
-                    <div class="user-item${pendingClass}" data-email="${user.email}">
+                    <div class="user-item${pendingClass}" data-email="${escapeHTML(user.email)}">
                         <div class="user-info">
-                            <span class="user-name">${user.cognome} ${user.nome}</span>
+                            <span class="user-name">${escapeHTML(user.cognome)} ${escapeHTML(user.nome)}</span>
                             <div class="user-badges">${currentBadges}</div>
                             ${pendingBadges}
                         </div>
@@ -117,19 +117,19 @@ function renderUsers(users) {
                             <div class="action-group">
                                 <span class="action-label vip">VIP</span>
                                 <input type="checkbox" class="action-checkbox vip"
-                                       data-email="${user.email}" data-type="vip"
+                                       data-email="${escapeHTML(user.email)}" data-type="vip"
                                        ${current.vip ? 'checked' : ''}>
                             </div>
                             <div class="action-group">
                                 <span class="action-label ban">BAN</span>
                                 <input type="checkbox" class="action-checkbox ban"
-                                       data-email="${user.email}" data-type="banned"
+                                       data-email="${escapeHTML(user.email)}" data-type="banned"
                                        ${current.banned ? 'checked' : ''}>
                             </div>
-                            <button class="btn-vehicles-toggle" data-email="${user.email}" title="Storico veicoli">Veicoli</button>
+                            <button class="btn-vehicles-toggle" data-email="${escapeHTML(user.email)}" title="Storico veicoli">Veicoli</button>
                         </div>
                     </div>
-                    <div class="vehicles-history hidden" id="vh-${user.email.replace(/[@.]/g, '_')}"></div>
+                    <div class="vehicles-history hidden" id="vh-${escapeHTML(user.email.replace(/[@.]/g, '_'))}"></div>
                 `;
     })
     .join('');
@@ -180,21 +180,25 @@ async function toggleVehiclesHistory(email) {
           v => `
                         <div class="vh-card">
                             <div class="vh-card-main">
-                                <strong class="vh-targa">${v.targa || '—'}</strong>
-                                <span class="vh-modello">${v.modello || ''}</span>
-                                ${v.anno ? '<span class="vh-anno">' + v.anno + '</span>' : ''}
+                                <strong class="vh-targa">${escapeHTML(v.targa) || '—'}</strong>
+                                <span class="vh-modello">${escapeHTML(v.modello)}</span>
+                                ${v.anno ? '<span class="vh-anno">' + escapeHTML(v.anno) + '</span>' : ''}
                             </div>
                             <div class="vh-card-meta">
-                                <span class="vh-count">${v.booking_count || 0} prenotazioni</span>
-                                <button class="vh-storico-btn" data-targa="${v.targa}" onclick="loadTargaStorico('${v.targa}', this)">Storico</button>
+                                <span class="vh-count">${escapeHTML(v.booking_count || 0)} prenotazioni</span>
+                                <button class="vh-storico-btn" data-targa="${escapeHTML(v.targa)}">Storico</button>
                             </div>
                         </div>
                     `
         )
         .join('') +
       '<div id="storico-detail-' +
-      email.replace(/[@.]/g, '_') +
+      escapeHTML(email.replace(/[@.]/g, '_')) +
       '" class="vh-storico-detail hidden"></div>';
+
+    panel.querySelectorAll('.vh-storico-btn').forEach(btn => {
+      btn.addEventListener('click', () => loadTargaStorico(btn.dataset.targa, btn));
+    });
   } catch (e) {
     panel.innerHTML = '<div class="vh-empty">Errore caricamento veicoli.</div>';
   }
@@ -214,7 +218,7 @@ async function loadTargaStorico(targa, btn) {
   btn.disabled = true;
   btn.textContent = '…';
   detail.classList.remove('hidden');
-  detail.innerHTML = '<div class="vh-loading">Caricamento storico ' + targa + '…</div>';
+  detail.innerHTML = '<div class="vh-loading">Caricamento storico ' + escapeHTML(targa) + '…</div>';
 
   try {
     const res = await fetch('/api/admin/vehicles/targa/' + encodeURIComponent(targa), {
@@ -231,21 +235,21 @@ async function loadTargaStorico(targa, btn) {
 
     if (bookings.length === 0) {
       detail.innerHTML =
-        '<div class="vh-empty">Nessuna prenotazione trovata per ' + targa + '.</div>';
+        '<div class="vh-empty">Nessuna prenotazione trovata per ' + escapeHTML(targa) + '.</div>';
       return;
     }
 
     detail.innerHTML =
       '<div class="vh-storico-title">Storico targa ' +
-      targa +
+      escapeHTML(targa) +
       '</div>' +
       bookings
         .map(
           b => `
                         <div class="vh-storico-row ${b.stato === 'annullato' ? 'stato-annullato' : ''}">
-                            <span class="vhsr-date">${b.giorno} ${b.ora}</span>
-                            <span class="vhsr-service">${b.servizio || '—'}</span>
-                            <span class="vhsr-stato">${b.stato || 'confermato'}</span>
+                            <span class="vhsr-date">${escapeHTML(b.giorno)} ${escapeHTML(b.ora)}</span>
+                            <span class="vhsr-service">${escapeHTML(b.servizio) || '—'}</span>
+                            <span class="vhsr-stato">${escapeHTML(b.stato) || 'confermato'}</span>
                         </div>
                     `
         )

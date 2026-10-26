@@ -131,11 +131,17 @@ async function loadServices() {
 
       card.innerHTML =
         '<div class="service-card-name">' +
-        (svc.nome || 'Servizio') +
+        escapeHTML(svc.nome || 'Servizio') +
         '</div>' +
-        (durataLabel ? '<div class="service-card-detail">' + durataLabel + '</div>' : '') +
-        (prezzoLabel ? '<div class="service-card-detail">' + prezzoLabel + '</div>' : '') +
-        (svc.descrizione ? '<div class="service-card-desc">' + svc.descrizione + '</div>' : '');
+        (durataLabel
+          ? '<div class="service-card-detail">' + escapeHTML(durataLabel) + '</div>'
+          : '') +
+        (prezzoLabel
+          ? '<div class="service-card-detail">' + escapeHTML(prezzoLabel) + '</div>'
+          : '') +
+        (svc.descrizione
+          ? '<div class="service-card-desc">' + escapeHTML(svc.descrizione) + '</div>'
+          : '');
 
       card.addEventListener('click', function () {
         document.querySelectorAll('.service-card').forEach(function (c) {

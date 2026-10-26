@@ -157,6 +157,7 @@ function statoLabel(stato) {
 // ── Build card HTML ───────────────────────────────────────────
 
 function buildDepositCard(deposit) {
+  deposit = escapeFields(deposit);
   var stato = deposit.stato || 'in_attesa';
   var id = deposit.id;
   var nome = ((deposit.nome || '') + ' ' + (deposit.cognome || '')).trim();
@@ -499,7 +500,7 @@ function showEmailBanner(email) {
   banner.innerHTML =
     '<span>✅</span>' +
     '<span>Lavoro completato — notifica ritiro inviata' +
-    (email ? ' a <strong>' + email + '</strong>' : '') +
+    (email ? ' a <strong>' + escapeHTML(email) + '</strong>' : '') +
     '</span>';
   document.body.appendChild(banner);
 
@@ -543,7 +544,17 @@ document.getElementById('storico-toggle').addEventListener('click', function () 
 
 // ── Build storico card HTML (read-only) ───────────────────────
 
+// Copia del deposito con tutti i campi pronti per l'HTML (dati inseriti da clienti e admin)
+function escapeFields(record) {
+  var out = {};
+  Object.keys(record).forEach(function (key) {
+    out[key] = escapeHTML(record[key]);
+  });
+  return out;
+}
+
 function buildStoricaCard(deposit) {
+  deposit = escapeFields(deposit);
   var id = deposit.id;
   var nome = ((deposit.nome || '') + ' ' + (deposit.cognome || '')).trim() || '—';
   var targa = deposit.targa || '';

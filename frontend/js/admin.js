@@ -251,10 +251,10 @@ function buildServicePicker() {
     const veicoloLabel = s.tipo_veicolo === 'auto' ? 'Auto' : 'Moto';
     const durataLabel =
       s.tipo_servizio === 'consegna' ? 'Consegna' : (s.durata_minuti || '?') + 'min';
-    return `<div class="svc-option ${tipoClass}" data-svc-id="${s.id}" data-svc-nome="${s.nome}" role="option" tabindex="-1">
+    return `<div class="svc-option ${tipoClass}" data-svc-id="${escapeHTML(s.id)}" data-svc-nome="${escapeHTML(s.nome)}" role="option" tabindex="-1">
       <div class="svc-option-indicator"></div>
-      <span class="svc-option-name">${s.nome}</span>
-      <span class="svc-option-meta">${veicoloLabel} · ${durataLabel}</span>
+      <span class="svc-option-name">${escapeHTML(s.nome)}</span>
+      <span class="svc-option-meta">${veicoloLabel} · ${escapeHTML(durataLabel)}</span>
     </div>`;
   }
 
@@ -802,14 +802,14 @@ function renderBookingItem(booking, time) {
     const ewTarga = booking.targa || '';
     const ewTipoVeicolo = booking.tipo_veicolo || '';
     const ewBadge = ewTipoVeicolo
-      ? `<span class="booking-veicolo-badge booking-veicolo-${ewTipoVeicolo}">${ewTipoVeicolo.toUpperCase()}</span>`
+      ? `<span class="booking-veicolo-badge booking-veicolo-${escapeHTML(ewTipoVeicolo)}">${escapeHTML(ewTipoVeicolo.toUpperCase())}</span>`
       : '';
     const ewLabel = [ewServizio, ewOre, ewTarga].filter(Boolean).join(' · ');
     return `
-      <div class="booking-item ${typeClass}" data-giorno="${booking.giorno}" data-ora="${booking.ora}">
-        <div class="name">${booking.nome || '—'} ${booking.cognome || ''}</div>
-        <div class="service">${ewBadge}${ewLabel}</div>
-        <div class="contact">${booking.telefono || booking.email || ''}</div>
+      <div class="booking-item ${typeClass}" data-giorno="${escapeHTML(booking.giorno)}" data-ora="${escapeHTML(booking.ora)}">
+        <div class="name">${escapeHTML(booking.nome) || '—'} ${escapeHTML(booking.cognome)}</div>
+        <div class="service">${ewBadge}${escapeHTML(ewLabel)}</div>
+        <div class="contact">${escapeHTML(booking.telefono || booking.email)}</div>
       </div>
     `;
   }
@@ -848,24 +848,24 @@ function renderBookingItem(booking, time) {
   const targaStr = booking.targa ? ' · ' + booking.targa : '';
 
   const veicoloBadge = tipoVeicolo
-    ? `<span class="booking-veicolo-badge booking-veicolo-${tipoVeicolo}">${tipoVeicolo.toUpperCase()}</span>`
+    ? `<span class="booking-veicolo-badge booking-veicolo-${escapeHTML(tipoVeicolo)}">${escapeHTML(tipoVeicolo.toUpperCase())}</span>`
     : '';
 
   // Se c'è solo la targa (senza servizio), mostrarla comunque come riga separata
   const serviceRow = serviceName
-    ? `<div class="service">${veicoloBadge}${serviceName}${targaStr}</div>`
+    ? `<div class="service">${veicoloBadge}${escapeHTML(serviceName)}${escapeHTML(targaStr)}</div>`
     : booking.targa
-      ? `<div class="service">${veicoloBadge}${booking.targa}</div>`
+      ? `<div class="service">${veicoloBadge}${escapeHTML(booking.targa)}</div>`
       : veicoloBadge
         ? `<div class="service">${veicoloBadge}</div>`
         : '';
 
   return `
-    <div class="booking-item ${typeClass}" data-giorno="${booking.giorno}" data-ora="${booking.ora}">
-      <div class="name">${booking.nome || '—'} ${booking.cognome || ''}</div>
+    <div class="booking-item ${typeClass}" data-giorno="${escapeHTML(booking.giorno)}" data-ora="${escapeHTML(booking.ora)}">
+      <div class="name">${escapeHTML(booking.nome) || '—'} ${escapeHTML(booking.cognome)}</div>
       ${serviceRow}
-      ${durataStr ? `<div class="duration">${durataStr}</div>` : ''}
-      <div class="contact">${booking.email || ''}</div>
+      ${durataStr ? `<div class="duration">${escapeHTML(durataStr)}</div>` : ''}
+      <div class="contact">${escapeHTML(booking.email)}</div>
     </div>
   `;
 }
@@ -1229,10 +1229,10 @@ function setupAutocomplete() {
     // Mostra suggerimenti
     suggestionsList.innerHTML = matches
       .map(
-        user => `
-      <div class="suggestion-item" data-user='${JSON.stringify(user).replace(/'/g, "\\'")}'>
-        <div class="suggestion-name">${user.cognome} ${user.nome}</div>
-        <div class="suggestion-details">${user.email} | ${user.telefono}</div>
+        (user, index) => `
+      <div class="suggestion-item" data-index="${index}">
+        <div class="suggestion-name">${escapeHTML(user.cognome)} ${escapeHTML(user.nome)}</div>
+        <div class="suggestion-details">${escapeHTML(user.email)} | ${escapeHTML(user.telefono)}</div>
       </div>
     `
       )
@@ -1243,8 +1243,7 @@ function setupAutocomplete() {
     // Click su suggerimento
     suggestionsList.querySelectorAll('.suggestion-item').forEach(item => {
       item.addEventListener('click', () => {
-        const user = JSON.parse(item.dataset.user.replace(/\\'/g, "'"));
-        fillUserData(user);
+        fillUserData(matches[Number(item.dataset.index)]);
         suggestionsList.classList.add('hidden');
       });
     });
