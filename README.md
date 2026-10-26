@@ -205,7 +205,7 @@ Before pushing, run `npm run lint`, `npm run format:check` and `npm test` — th
 - **VIP extended hours** are inherited from the barbershop version (early 08:00 slot, evening starts every 45 minutes up to 23:15) and the admin weekly calendar only shows the regular opening hours, so an evening VIP booking does not appear in the weekly grid. To be reviewed with the workshop.
 - **Admin calendar keyboard access** is limited: the booking wizards work with the keyboard, the drag & drop calendar is designed for mouse and touch.
 - **Sessions** are not revoked on logout or password change (they expire after 7 days); a password-reset link can be reused within its hour.
-- **Guest emails are not verified**, and a guest cannot later register with the same email.
+- **Guest emails are not verified**: a guest booking made with the email of a registered customer is attached to that customer's account, and a guest cannot later register with the same email.
 - **Saved vehicles**: the API can store a customer's vehicles, but the booking page does not offer it yet (its saved-vehicle picker is hidden), so the per-vehicle history in the client list only covers vehicles saved through the API or the demo seed.
 - **Notifications**: a `notifications` table exists in the schema for planned service reminders, but no reminder is sent yet.
 - **No cancellation deadline**: customers can cancel or move a booking at any time.
