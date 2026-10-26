@@ -407,10 +407,6 @@ function populateSummary() {
   if (savedPicker) savedPicker.classList.add('hidden');
 
   // Determina se è consegna per rendere targa/modello obbligatori visivamente
-  var isConsegna =
-    selectedService &&
-    (selectedService.tipo_servizio === 'consegna' ||
-      (selectedService.nome || '').toLowerCase().includes('consegna'));
 
   var targaInput = document.getElementById('input-targa');
   var modelloInput = document.getElementById('input-modello');

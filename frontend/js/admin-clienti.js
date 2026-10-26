@@ -206,11 +206,6 @@ async function toggleVehiclesHistory(email) {
 
 // ── Storico prenotazioni per targa ───────────────────────────
 async function loadTargaStorico(targa, btn) {
-  const email = btn
-    .closest('.vehicles-history')
-    .id.replace('vh-', '')
-    .replace(/_/g, '@')
-    .replace(/_/g, '.');
   const detailId = 'storico-detail-' + btn.closest('.vehicles-history').id.replace('vh-', '');
   const detail = document.getElementById(detailId);
   if (!detail) return;

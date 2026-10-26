@@ -57,7 +57,6 @@
 
   // Fallback animation per browser senza View Transitions
   function toggleThemeFallback(nextTheme, updateCallback) {
-    const root = document.documentElement;
     const overlay = document.createElement('div');
     overlay.className = 'theme-wipe is-on ' + (nextTheme === THEMES.DARK ? 'ltr' : 'rtl');
 

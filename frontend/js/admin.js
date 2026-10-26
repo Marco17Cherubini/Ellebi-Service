@@ -788,7 +788,7 @@ function isConsegnaBooking(booking) {
 }
 
 // Render singolo appuntamento (con colori per tipo)
-function renderBookingItem(booking, time) {
+function renderBookingItem(booking) {
   const typeClass = isExtraWorkBooking(booking)
     ? 'booking-extrawork'
     : isConsegnaBooking(booking)
@@ -1310,10 +1310,6 @@ function setupModalListeners() {
 
     const serviceSelectVal = document.getElementById('input-servizio').value;
     const selectedSvc = allServices.find(s => String(s.id) === String(serviceSelectVal));
-    const isConsegnaSvc =
-      selectedSvc &&
-      (selectedSvc.tipo_servizio === 'consegna' ||
-        (selectedSvc.nome || '').toLowerCase().includes('consegna'));
     const formData = {
       nome: document.getElementById('input-nome').value.trim(),
       cognome: document.getElementById('input-cognome').value.trim(),
@@ -1462,10 +1458,8 @@ setupSidebar();
 
 function setupHolidayMode() {
   const holidayToggle = document.getElementById('holiday-mode-toggle');
-  const holidayIndicator = document.getElementById('holiday-mode-indicator');
   const saveBtn = document.getElementById('save-holidays-btn');
   const cancelBtn = document.getElementById('cancel-holidays-btn');
-  const calendarContainer = document.querySelector('.admin-calendar');
 
   // Toggle modalità ferie
   holidayToggle.addEventListener('click', () => {

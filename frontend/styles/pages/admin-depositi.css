@@ -40,11 +40,6 @@
   font-weight: 600;
 }
 
-.deposit-login-banner .banner-icon {
-  font-size: 1.4rem;
-  flex-shrink: 0;
-}
-
 .deposit-login-banner .banner-close {
   margin-left: auto;
   background: none;
@@ -361,10 +356,6 @@
 }
 
 /* Standby = slate */
-.dc-btn-standby {
-  background: #64748b;
-  color: #fff;
-}
 
 .dc-btn:disabled,
 .dc-btn.dc-btn-saving {

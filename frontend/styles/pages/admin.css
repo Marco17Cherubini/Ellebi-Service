@@ -70,12 +70,6 @@
   min-height: 50px;
 }
 
-.admin-time-header--minor {
-  opacity: 0.25;
-  border-bottom: none;
-  min-height: 50px;
-}
-
 /* ==================== ADMIN CELLS ==================== */
 
 .admin-cell {
@@ -167,28 +161,6 @@
   display: none;
 }
 
-.booking-delete-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: var(--admin-btn-delete-bg);
-  color: #fff;
-  border: none;
-  width: 20px;
-  height: 20px;
-  font-size: 14px;
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  border-radius: var(--radius-xs);
-}
-
-.booking-item:hover .booking-delete-btn {
-  display: flex;
-}
-
 .no-booking {
   color: var(--admin-no-booking-text);
   text-align: center;
@@ -218,23 +190,6 @@
 }
 
 .admin-calendar__nav-btn:hover {
-  background-color: var(--admin-nav-btn-hover-bg);
-}
-
-.admin-granularity-select {
-  padding: var(--space-1) var(--space-3);
-  font-size: 0.85rem;
-  border: 1px solid var(--color-border-secondary);
-  background-color: transparent;
-  color: var(--admin-nav-btn-text);
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: background-color var(--transition-fast);
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.admin-granularity-select:hover {
   background-color: var(--admin-nav-btn-hover-bg);
 }
 
@@ -439,22 +394,6 @@
   background-color: #a30000;
 }
 
-.admin-calendar__btn--extrawork-cancel {
-  background-color: var(--admin-btn-cancel-bg);
-  color: var(--admin-btn-cancel-text);
-  border: 1px solid var(--admin-btn-cancel-text);
-  padding: 5px 15px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  border-radius: var(--radius-xs);
-  font-weight: 600;
-}
-
-.admin-calendar__btn--extrawork-cancel:hover {
-  background-color: var(--admin-btn-cancel-text);
-  color: var(--admin-btn-cancel-bg);
-}
-
 .admin-cell.is-extrawork-draft {
   background-color: #ffcccc !important;
 }
@@ -491,12 +430,6 @@
 
 .modal-btn-delete:hover {
   opacity: 0.9;
-}
-
-.delete-icon {
-  font-size: 3rem;
-  text-align: center;
-  margin-bottom: var(--space-4);
 }
 
 .modal-question {
@@ -738,39 +671,6 @@ body.is-dragging-booking * {
 }
 
 /* ==================== DEPOSIT SELECTOR MODAL ==================== */
-
-.deposit-selector-list {
-  max-height: 18.75rem;
-  overflow-y: auto;
-  margin-bottom: 1rem;
-}
-
-.deposit-selector-item {
-  padding: 0.75rem 1rem;
-  border: 0.0625rem solid var(--admin-cell-border);
-  border-radius: 0.375rem;
-  margin-bottom: 0.5rem;
-  cursor: pointer;
-  transition:
-    background-color 0.15s,
-    border-color 0.15s;
-}
-
-.deposit-selector-item:hover {
-  background-color: var(--admin-cell-hover-bg);
-  border-color: #cc0000;
-}
-
-.deposit-selector-nome {
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  color: var(--color-text-primary);
-}
-
-.deposit-selector-details {
-  font-size: 0.8rem;
-  color: var(--admin-modal-subtitle-text);
-}
 
 /* ─── Holiday selection: Apple photo-gallery style ───────────────── */
 

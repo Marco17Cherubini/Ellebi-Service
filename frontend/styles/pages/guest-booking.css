@@ -47,12 +47,6 @@
 
 /* ==================== SERVICE CARDS ==================== */
 
-.service-cards {
-  display: grid;
-  gap: var(--space-4);
-  margin-bottom: var(--space-8);
-}
-
 .service-card {
   color: var(--color-text-primary);
 }
@@ -95,18 +89,6 @@
 }
 
 /* ==================== LINKS ==================== */
-
-.back-link {
-  display: inline-block;
-  margin-top: var(--space-5);
-  color: var(--color-text-primary);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.back-link:hover {
-  text-decoration: none;
-}
 
 /* ==================== FORM LAYOUT ==================== */
 

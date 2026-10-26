@@ -47,7 +47,6 @@ async function loadBookings() {
 
     bookingsList.innerHTML = activeBookings
       .map((booking, index) => {
-        var sid = booking.service_id || '';
         var durata = booking.durata_minuti ? booking.durata_minuti + ' min' : '';
         return `
       <div class="card booking-card" data-giorno="${escapeHTML(booking.giorno)}" data-ora="${escapeHTML(booking.ora)}">

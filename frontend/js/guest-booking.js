@@ -5,17 +5,6 @@
   'use strict';
 
   // State
-  const guestData = {
-    nome: '',
-    cognome: '',
-    email: '',
-    telefono: '',
-    targa: '',
-    modello: '',
-    note_cliente: ''
-  };
-
-  let currentStep = 0;
   let selectedVehicleType = null;
   let selectedService = null;
   let selectedDate = null;
@@ -129,7 +118,6 @@
     if (sections[step]) {
       sections[step].classList.add('active');
     }
-    currentStep = step;
 
     updateSummary();
   };

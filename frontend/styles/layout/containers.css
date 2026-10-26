@@ -45,12 +45,6 @@
   -webkit-backdrop-filter: blur(20px);
 }
 
-.header-title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
 .header-left {
   display: flex;
   align-items: center;

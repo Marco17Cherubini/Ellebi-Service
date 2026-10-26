@@ -170,7 +170,6 @@ function buildDepositCard(deposit) {
   var bOra = deposit.booking_ora || '';
   var bDurata = deposit.booking_durata || '';
 
-  var veicolo = [targa, modello].filter(Boolean).join(' · ') || '—';
   var noteCliente = deposit.note_cliente || '';
   var notaInterna = deposit.nota_lorenzo || '';
   var calcOreResidue =

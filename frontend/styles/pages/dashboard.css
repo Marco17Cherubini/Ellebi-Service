@@ -23,11 +23,6 @@
   margin-bottom: 10px;
 }
 
-.vehicle-card .vc-label {
-  font-weight: 700;
-  font-size: 1rem;
-}
-
 /* ── Services grid ───────────────────────────────────── */
 .services-grid {
   display: grid;
@@ -40,16 +35,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.service-card .sc-name {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.service-card .sc-meta {
-  font-size: 0.8rem;
-  color: var(--color-text-secondary, #888);
 }
 
 .services-loading {
