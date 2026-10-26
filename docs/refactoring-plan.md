@@ -36,36 +36,36 @@ Legenda: ✅ completato · 🔄 in corso · ⏳ da fare · ⛔ bloccato · ⏭�
 |---|---|---|---|---|
 | 1 | T00 | Branch, `npm ci`, baseline (lint, format, audit, avvio) | LOW | ✅ |
 | 1 | T01 | Rimuovere DB e file WAL tracciati; `.gitignore` | LOW | ✅ |
-| 1 | T27 | Normalizzazione LF, ESLint/Prettier coerenti | MEDIUM | ⏳ |
-| 2 | T03 | Separare `app.js` e `server.js` | HIGH | ⏳ |
-| 2 | T08 | Flag di retention (D-1) | MAX | ⏳ |
-| 2 | T02/T04 | Harness `node:test` + test di caratterizzazione | HIGH | ⏳ |
-| 3 | T17 | Escape XSS (pannello admin, pagine cliente, email) | HIGH | ⏳ |
-| 4 | T05 | Scrittura atomica + `withTransaction` | MAX | ⏳ |
-| 4 | T06 | Transazioni nei flussi multi-record | MAX | ⏳ |
+| 1 | T27 | Normalizzazione LF, ESLint/Prettier coerenti | MEDIUM | ✅ |
+| 2 | T03 | Separare `app.js` e `server.js` | HIGH | ✅ |
+| 2 | T08 | Flag di retention (D-1) | MAX | ✅ |
+| 2 | T02/T04 | Harness `node:test` + test di caratterizzazione | HIGH | ✅ |
+| 3 | T17 | Escape XSS (pannello admin, pagine cliente, email) | HIGH | ✅ |
+| 4 | T05 | Scrittura atomica + `withTransaction` | MAX | ✅ |
+| 4 | T06 | Transazioni nei flussi multi-record | MAX | ✅ |
 | 4 | T07 | `backup.js` usa `DATABASE_PATH` | MEDIUM | ⏳ |
-| 5 | T09 | Durata ricavata dal servizio sul server | XHIGH | ⏳ |
-| 5 | T10 | Regole orarie per ruolo (D-2) | XHIGH | ⏳ |
-| 5 | T11 | Spostamento admin basato sulla durata, id preservato | XHIGH | ⏳ |
-| 5 | T12 | Cancellazione del cliente pulisce il deposito | XHIGH | ⏳ |
-| 5 | T13 | Depositi: enum degli stati, `schedule` validato | XHIGH | ⏳ |
-| 5 | T14 | Salvare `servizio` nelle prenotazioni admin | MEDIUM | ⏳ |
-| 6 | T21a | `errors.js`, `requireAdmin`, sessione opzionale | HIGH | ⏳ |
-| 6 | T18 | Rate limit: `trust proxy`, limiti da env | MEDIUM | ⏳ |
-| 6 | T21b–e | Route estratte per dominio, logica nei servizi | HIGH | ⏳ |
-| 6 | T15 | `dates.js`, date locali nei report (D-4) | XHIGH | ⏳ |
-| 6 | T16 | Rimuovere le funzioni token morte | LOW | ⏳ |
-| 6 | T20a/b | Segnaposto JWT, registrazione case-insensitive | LOW/MED | ⏳ |
-| 6 | T22 | Rimuovere i moduli legacy e gli script di riparazione | MEDIUM | ⏳ |
+| 5 | T09 | Durata ricavata dal servizio sul server | XHIGH | ✅ |
+| 5 | T10 | Regole orarie per ruolo (D-2) | XHIGH | ✅ |
+| 5 | T11 | Spostamento admin basato sulla durata, id preservato | XHIGH | ✅ |
+| 5 | T12 | Cancellazione del cliente pulisce il deposito | XHIGH | ✅ |
+| 5 | T13 | Depositi: enum degli stati, `schedule` validato | XHIGH | ✅ |
+| 5 | T14 | Salvare `servizio` nelle prenotazioni admin | MEDIUM | ✅ |
+| 6 | T21a | `errors.js`, `requireAdmin`, sessione opzionale | HIGH | ✅ |
+| 6 | T18 | Rate limit: `trust proxy`, limiti da env | MEDIUM | ✅ |
+| 6 | T21b–e | Route estratte per dominio, logica nei servizi | HIGH | ✅ |
+| 6 | T15 | `dates.js`, date locali nei report (D-4) | XHIGH | ✅ |
+| 6 | T16 | Rimuovere le funzioni token morte | LOW | ✅ |
+| 6 | T20a/b | Segnaposto JWT, registrazione case-insensitive | LOW/MED | ✅ |
+| 6 | T22 | Rimuovere i moduli legacy e gli script di riparazione | MEDIUM | ✅ |
 | 6 | T23 | Dipendenze: via `xlsx`, `nodemailer`, `cors` | MEDIUM | ⏳ |
-| 7 | T33a | Screenshot "prima" nel browser | HIGH | ⏳ |
-| 7 | T24 | Rimuovere il frontend morto | MEDIUM | ⏳ |
+| 7 | T33a | Screenshot "prima" nel browser | HIGH | ✅ |
+| 7 | T24 | Rimuovere il frontend morto | MEDIUM | ✅ |
 | 7 | T19 | CSP senza inline, Chart.js da npm | HIGH | ⏳ |
 | 7 | T26 | Audit CSS | MEDIUM | ⏳ |
 | 7 | T25 | Valutare la duplicazione delle sidebar admin | HIGH | ⏳ |
 | 8 | T30 | Seed con dati sintetici | HIGH | ⏳ |
 | 8 | T29 | Metadati di `package.json` | LOW | ⏳ |
-| 8 | T28 | Riordino della radice (D-6) | MEDIUM | ⏳ |
+| 8 | T28 | Riordino della radice (D-6) | MEDIUM | 🔄 artefatti e documenti storici rimossi; resta la guida utente |
 | 8 | T32 | README (EN), CLAUDE.md, `.env.example`, LICENSE | MEDIUM | ⏳ |
 | 8 | T31 | CI GitHub Actions | MEDIUM | ⏳ |
 | 9 | T33b | Verifica finale nel browser | HIGH | ⏳ |
@@ -170,6 +170,23 @@ Valutazione: **combinazione per area**.
 - `.gitignore`: ignora tutto `database/` tranne `.gitkeep`, più `*.sqlite`, `*.sqlite-*`, `*.sqlite.bak` e `.fuse_hidden*` ovunque.
 - Verifica: `git check-ignore` sui percorsi tipici (DB, WAL, CSV legacy, file fuse, impostazioni locali). Avvio con il percorso di default: `database/database.sqlite` viene creato, risulta ignorato e il server risponde `200`. Il DB sintetico di prova è stato eliminato.
 
+## Avanzamento
+
+Ordine effettivo, con motivazioni:
+- T24 (rimozione del frontend morto) e la rimozione degli artefatti della radice (T28, prima parte) sono stati anticipati a prima della formattazione: gli screenshot "prima" (T33a) erano già stati acquisiti, e così non si formattano file destinati a sparire.
+- T21 (route per dominio) è stato eseguito prima delle correzioni T09–T15: le correzioni toccano la logica che era inline nelle route. T06 (transazioni) è nello stesso commit di T21, perché i flussi multi-record sono stati riscritti direttamente con `withTransaction` invece di trasportare il workaround "1970".
+
+Problemi emersi durante il lavoro, non presenti nell'analisi iniziale:
+- **P28**: `SQLiteTable.insert()` restituiva sempre l'id 0 (`db.export()` azzera `last_insert_rowid`). Conseguenze: `deposit_id` salvato come "0" e risposte di creazione di veicoli e servizi senza l'oggetto creato. Corretto in T05.
+- **P29**: la migrazione dallo schema iniziale (NOT NULL su `bookings.servizio`) eliminava le colonne v2 appena aggiunte, fino al riavvio successivo. Corretto in T05.
+- Markup: in `admin-depositi.html` mancava la chiusura del `div` del contatore, e la griglia dei depositi finiva dentro l'header. In `admin-depositi.css` una `}` in più faceva scartare la regola successiva.
+- Gli slot serali VIP (D-2) non hanno una riga nel calendario admin, che mostra solo l'orario di lavoro: una prenotazione VIP serale non è visibile nella vista settimanale. Da segnalare al titolare insieme alla revisione degli orari VIP.
+
+Verifiche:
+- XSS riprodotta nel browser sul commit `f1dc01b` (payload eseguiti su `/admin`, `/admin/clienti` e `/admin/depositi`, inseriti da un ospite non autenticato); dopo T17 nessun payload viene eseguito.
+- Screenshot di 13 pagine × 2 temi × 2 dispositivi confrontati pixel per pixel dopo ogni gruppo: nessuna differenza, salvo la correzione voluta della pagina depositi.
+- Suite: 92 test, 0 `todo` (dopo T15).
+
 ## Prossimo passo
 
-T27: normalizzare le terminazioni di riga in LF (`.gitattributes`, un commit meccanico registrato in `.git-blame-ignore-revs`) e rendere coerenti ESLint e Prettier (env node/browser, CommonJS, globali condivisi del frontend).
+T19 (CSP senza inline, Chart.js da npm), T26 (CSS), T25 (valutazione delle sidebar), poi T07 (backup), T30 (seed), T29 e T23 (package e dipendenze), T32 (documentazione), T31 (CI), T33b e T34 (verifica finale).
