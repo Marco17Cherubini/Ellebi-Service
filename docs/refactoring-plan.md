@@ -1,192 +1,167 @@
-# Refactoring plan: stato e decisioni
+# Refactoring plan: stato finale e decisioni
 
-Documento di lavoro per il refactoring di Ellebi Service: rendere il progetto ordinato, affidabile e presentabile nel portfolio.
-Va aggiornato a ogni gruppo di task. L'analisi completa (problemi P01–P27 con evidenze) è riassunta in fondo.
+Documento di lavoro del refactoring di Ellebi Service: rendere il progetto ordinato, affidabile e presentabile nel portfolio. Riporta decisioni, stato dei task, problemi trovati, verifiche eseguite e passi aperti.
 
 ## Riferimenti
 
 | Voce | Valore |
 |---|---|
-| Branch di lavoro | `refactor/portfolio-cleanup` |
+| Branch di lavoro | `refactor/portfolio-cleanup` (solo locale: nessun push, merge o deploy) |
 | Commit di partenza | `f1dc01b` (`main`) |
 | Riferimento di qualità | Lev Space @ `eaa0bf4`, solo lettura |
 | Ambiente di verifica | Node 22.22.0, npm 10.9.4, Linux; Chromium + Playwright preinstallati |
 
+## Valutazione iniziale
+
+Combinazione per area:
+- **Integrità dei dati**: refactoring circoscritto ma critico.
+- **Regole di prenotazione**: correzioni mirate (il motore a intervalli `computeAvailableSlots` è stato conservato).
+- **`server.js`**: suddivisione in route ed errori.
+- **Frontend**: pulizia del codice morto e messa in sicurezza.
+- **CSS**: architettura conservata.
+
+Conservati: il calcolo a intervalli, la whitelist delle colonne di `SQLiteTable`, le query parametrizzate, la migrazione bcrypt→argon2id, i cookie httpOnly, i design token, i temi e l'identità visiva.
+
 ## Decisioni approvate
 
-| ID | Decisione |
-|---|---|
-| D-1 | Retention: resta automatica in produzione; flag `RETENTION_ENABLED` (default `true` solo con `NODE_ENV=production`). Soglie e query invariate |
-| D-2 | Regole orarie per ruolo applicate sul server (cliente e ospite: orario di lavoro; VIP e admin: insieme esteso). Gli slot extra VIP attuali restano invariati e vanno segnalati al titolare |
-| D-3 | Nessuna regola delle 24 ore: si corregge solo la documentazione |
-| D-4 | I report contano gli appuntamenti escludendo i blocchi `extra_work` |
-| D-5 | Il codice legacy e non raggiungibile viene rimosso (resta nella cronologia Git), dopo aver verificato che VIP e ban sono gestiti in `admin-clienti` |
-| D-6 | I documenti storici in radice vengono tolti dall'albero; restano il manuale aggiornato e questo piano |
-| D-7 | Il backup DB viene rimosso solo dall'albero. La riscrittura della cronologia è una decisione separata, da autorizzare |
-| D-8 | LICENSE MIT intestata a Marco Cherubini |
-| D-9 | Ospite che poi si registra con la stessa email: limite noto, non corretto in questo refactoring |
+| ID | Decisione | Esito |
+|---|---|---|
+| D-1 | Retention automatica solo in produzione, `RETENTION_ENABLED` per forzarla | Applicata; soglie e query invariate |
+| D-2 | Regole orarie per ruolo applicate sul server; orari VIP invariati e da segnalare al titolare | Applicata; segnalata in README e checklist |
+| D-3 | Nessuna regola delle 24 ore; correggere la documentazione | Applicata |
+| D-4 | I report escludono i blocchi `extra_work` | Applicata |
+| D-5 | Rimozione del codice legacy e non raggiungibile | Applicata (resta nella cronologia Git) |
+| D-6 | Documenti storici tolti dall'albero | Applicata |
+| D-7 | Backup DB rimosso dall'albero; cronologia da decidere a parte | Albero pulito; **riscrittura della cronologia non eseguita** |
+| D-8 | LICENSE MIT, Marco Cherubini | Applicata |
+| D-9 | Ospite che poi si registra: limite noto | Documentato |
 
-Comportamenti ambigui mantenuti e documentati: filtro stagionale basato sulla data odierna; consegna riconosciuta anche dal nome del servizio; logout senza revoca del JWT (7 giorni); token di reset riutilizzabile entro un'ora; stato `standby` contato come attivo.
+Comportamenti ambigui mantenuti e documentati: filtro stagionale sulla data odierna; consegna riconosciuta anche dal nome del servizio; logout senza revoca del JWT; token di reset riutilizzabile entro un'ora; prenotazione ospite con email di un cliente registrato agganciata a quell'account.
 
 ## Stato dei task
 
-Legenda: ✅ completato · 🔄 in corso · ⏳ da fare · ⛔ bloccato · ⏭️ rinviato
+Legenda: ✅ completato · ⛔ bloccato · ⏭️ rinviato
 
-| # | ID | Task | Effort | Stato |
-|---|---|---|---|---|
-| 1 | T00 | Branch, `npm ci`, baseline (lint, format, audit, avvio) | LOW | ✅ |
-| 1 | T01 | Rimuovere DB e file WAL tracciati; `.gitignore` | LOW | ✅ |
-| 1 | T27 | Normalizzazione LF, ESLint/Prettier coerenti | MEDIUM | ✅ |
-| 2 | T03 | Separare `app.js` e `server.js` | HIGH | ✅ |
-| 2 | T08 | Flag di retention (D-1) | MAX | ✅ |
-| 2 | T02/T04 | Harness `node:test` + test di caratterizzazione | HIGH | ✅ |
-| 3 | T17 | Escape XSS (pannello admin, pagine cliente, email) | HIGH | ✅ |
-| 4 | T05 | Scrittura atomica + `withTransaction` | MAX | ✅ |
-| 4 | T06 | Transazioni nei flussi multi-record | MAX | ✅ |
-| 4 | T07 | `backup.js` usa `DATABASE_PATH` | MEDIUM | ⏳ |
-| 5 | T09 | Durata ricavata dal servizio sul server | XHIGH | ✅ |
-| 5 | T10 | Regole orarie per ruolo (D-2) | XHIGH | ✅ |
-| 5 | T11 | Spostamento admin basato sulla durata, id preservato | XHIGH | ✅ |
-| 5 | T12 | Cancellazione del cliente pulisce il deposito | XHIGH | ✅ |
-| 5 | T13 | Depositi: enum degli stati, `schedule` validato | XHIGH | ✅ |
-| 5 | T14 | Salvare `servizio` nelle prenotazioni admin | MEDIUM | ✅ |
-| 6 | T21a | `errors.js`, `requireAdmin`, sessione opzionale | HIGH | ✅ |
-| 6 | T18 | Rate limit: `trust proxy`, limiti da env | MEDIUM | ✅ |
-| 6 | T21b–e | Route estratte per dominio, logica nei servizi | HIGH | ✅ |
-| 6 | T15 | `dates.js`, date locali nei report (D-4) | XHIGH | ✅ |
-| 6 | T16 | Rimuovere le funzioni token morte | LOW | ✅ |
-| 6 | T20a/b | Segnaposto JWT, registrazione case-insensitive | LOW/MED | ✅ |
-| 6 | T22 | Rimuovere i moduli legacy e gli script di riparazione | MEDIUM | ✅ |
-| 6 | T23 | Dipendenze: via `xlsx`, `nodemailer`, `cors` | MEDIUM | ⏳ |
-| 7 | T33a | Screenshot "prima" nel browser | HIGH | ✅ |
-| 7 | T24 | Rimuovere il frontend morto | MEDIUM | ✅ |
-| 7 | T19 | CSP senza inline, Chart.js da npm | HIGH | ⏳ |
-| 7 | T26 | Audit CSS | MEDIUM | ⏳ |
-| 7 | T25 | Valutare la duplicazione delle sidebar admin | HIGH | ⏳ |
-| 8 | T30 | Seed con dati sintetici | HIGH | ⏳ |
-| 8 | T29 | Metadati di `package.json` | LOW | ⏳ |
-| 8 | T28 | Riordino della radice (D-6) | MEDIUM | 🔄 artefatti e documenti storici rimossi; resta la guida utente |
-| 8 | T32 | README (EN), CLAUDE.md, `.env.example`, LICENSE | MEDIUM | ⏳ |
-| 8 | T31 | CI GitHub Actions | MEDIUM | ⏳ |
-| 9 | T33b | Verifica finale nel browser | HIGH | ⏳ |
-| 9 | T34 | Revisione finale | MAX | ⏳ |
-
-## Baseline (T00)
-
-Rilevata sul commit `f1dc01b` prima di qualsiasi modifica.
-
-### Installazione
-
-- `npm ci` completato. I moduli nativi (`argon2`) e `sql.js` si caricano senza errori.
-- `npm audit`: **17 vulnerabilità** (1 critical, 11 high, 5 moderate).
-  - Dirette: `express` (high, risolvibile senza major), `nodemailer` (high, fix solo con major 10.x: la dipendenza è inutilizzata e va rimossa, T23), `xlsx` (high, **nessun fix disponibile**: usata solo da codice legacy, da rimuovere, T22/T23), `resend` (moderate, risolvibile).
-  - Transitive: `proxy-addr` (critical), `body-parser`, `path-to-regexp`, `jws`, `qs` e altre (via express/jsonwebtoken), più la toolchain di sviluppo (`brace-expansion`, `minimatch`, `flatted`, `js-yaml`, `ajv`). Tutte risolvibili con `npm audit fix` senza major. Da valutare in T23 con la suite di test attiva.
-
-### Lint (`npx eslint .`)
-
-Fallisce: **4663 errori e 97 warning** in 43 file su 47.
-
-| Regola | Occorrenze | Natura |
+| ID | Task | Esito |
 |---|---|---|
-| `indent` | 2754 | stile |
-| `linebreak-style` | 1078 | CRLF imposto; nel repo: 103 file CRLF, 15 LF, 11 misti |
-| `curly` | 337 | stile |
-| `brace-style` | 216 | stile |
-| `no-trailing-spaces` | 98 | stile |
-| `no-unused-vars` | 97 | da esaminare (codice morto) |
-| `no-undef` | 29 | **falsi positivi**: `escapeHTML` e `goToStep` sono globali definiti in altri script; la configurazione non dichiara i globali del browser condivisi |
-| `eqeqeq` | 6 | `admin-depositi.js`, `admin-listino.js` |
-| `no-unreachable` | 1 | `admin.js:1295`: il selettore di granularità è disattivato intenzionalmente (`calendarGranularity = 15; return;`) |
-| errori di parsing | 2 | `check-api.js` e `debug.js` sono codificati UTF-16 (artefatti, T28) |
+| T00 | Branch, baseline | ✅ |
+| T01 | DB e file WAL fuori dal repository | ✅ |
+| T27 | LF, ESLint/Prettier coerenti, formattazione | ✅ (lint: 0 errori e 0 warning; format: pulito) |
+| T03 | `app.js` / `server.js` | ✅ |
+| T08 | Flag di retention | ✅ |
+| T02/T04 | Harness `node:test` e test di caratterizzazione | ✅ (98 test) |
+| T17 | XSS: escape in pagine admin, cliente ed email | ✅ |
+| T05 | Scrittura atomica, `withTransaction`, id reali, migrazione sicura | ✅ |
+| T06 | Transazioni nei flussi multi-record | ✅ (insieme a T21) |
+| T07 | Backup su `DATABASE_PATH` | ✅ |
+| T09 | Durata dal listino, servizio attivo obbligatorio | ✅ |
+| T10 | Orari per ruolo | ✅ |
+| T11 | Spostamento basato sulla durata, id preservato | ✅ |
+| T12 | Cancellazione cliente con pulizia del deposito | ✅ |
+| T13 | Stati dei depositi e pianificazione validati | ✅ |
+| T14 | `servizio` salvato | ✅ |
+| T15 | Date locali, report D-4 | ✅ |
+| T16 | Funzioni morte | ✅ |
+| T18 | Rate limit senza `X-Forwarded-For` falsificabile | ✅ |
+| T19 | CSP senza inline, Chart.js da npm | ✅ |
+| T20a/b | Segnaposto JWT, registrazione case-insensitive | ✅ |
+| T21 | Route per dominio, errori centralizzati, logica nei servizi | ✅ |
+| T22 | Moduli legacy ed endpoint di riparazione | ✅ |
+| T23 | Dipendenze | ✅ (npm audit: da 17 vulnerabilità a 0, senza aggiornamenti di versione maggiore) |
+| T24 | Frontend morto | ✅ |
+| T25 | Sidebar condivisa | ✅ (comportamento in `utils.js`; markup lasciato nelle pagine) |
+| T26 | Audit CSS | ✅ (solo regole morte rimosse) |
+| T28 | Riordino della radice | ✅ |
+| T29 | Metadati del pacchetto | ✅ |
+| T30 | Seed con dati sintetici | ✅ |
+| T31 | CI GitHub Actions | ✅ scritta e validata (YAML); **eseguita su GitHub solo dopo un push autorizzato** |
+| T32 | README, CLAUDE.md, `.env.example`, LICENSE, guida utente | ✅ |
+| T33 | Verifica nel browser prima e dopo | ✅ |
+| T34 | Revisione finale | ✅ |
 
-La configurazione dichiara `sourceType: module` su codice CommonJS e usa un solo `env` per backend e frontend.
+### Fuori piano, motivati e committati separatamente
 
-### Format (`npx prettier --check .`)
+- Accessibilità da tastiera nei wizard di prenotazione (prima card, giorni e orari non si raggiungevano con Tab).
+- `TZ=Europe/Rome` come default quando non configurato: su un server in UTC gli slot del mattino già passati risultavano prenotabili.
+- Slot 18:00 duplicato negli orari estesi.
+- Markup e CSS della pagina depositi (un `div` non chiuso e una `}` in più).
+- Configurazione SMTP inutilizzata rimossa.
 
-114 file non conformi; 4 file non analizzabili (gli artefatti UTF-16 e la `diff_admin.txt`).
+## Problemi trovati
 
-### Avvio e smoke test
-
-Avvio con DB temporaneo (fuori dal repo), `RESEND_API_KEY` vuota e admin sintetico (`admin@example.test`).
-
-- Il DB viene creato, l'admin pure, e il seed del listino inserisce 10 servizi. `GET /api/services` ne restituisce 9: "Cambio gomme stagionale" è nascosto dal filtro stagionale (15/11–15/04) alla data del test, 26/10.
-- **La retention viene eseguita all'avvio con cancellazioni reali** (confermato dal log `[Retention] Cleanup iniziale completato`). Sul DB vuoto non ha cancellato nulla.
-- Pagine: tutte `200` tranne **`/summary` → 404**, con lo stack trace `ENOENT .../frontend/summary.html` nel log (route verso un file inesistente).
-- `/admin/vip`, `/admin/banned` e `/services` rispondono `200` ma nessuna pagina le collega.
-- Autorizzazione: `GET /api/admin/bookings` → `401` senza sessione, `200` con la sessione admin.
-- Email: disattivate come previsto (`RESEND_API_KEY non configurata`).
-
-### Test
-
-Nessuna suite di test (`package.json` non ha lo script `test`). Le verifiche di comportamento partono da T04.
-
-### Difetti preesistenti confermati nel codice (da riprodurre con test in T04)
-
-P02 (prenotazione spostata al 1970 se il limite depositi è raggiunto), P05 (durata decisa dal client), P06 (orari estesi aperti a tutti via API), P07 (spostamento admin), P08 (deposito orfano alla cancellazione), P09/P10 (depositi), P11 (XSS memorizzata nel pannello admin), P15/P16 (date UTC). Dettagli nella sezione seguente.
-
-## Riepilogo dell'analisi
-
-Valutazione: **combinazione per area**.
-- Integrità dei dati: refactoring circoscritto ma critico.
-- Regole di prenotazione: correzioni mirate (il motore a intervalli `computeAvailableSlots` resta).
-- `server.js`: suddivisione meccanica in route ed errori.
-- Frontend: pulizia del codice morto.
-- CSS: conservato.
-
-| ID | Problema | Riferimento |
+| ID | Problema | Stato |
 |---|---|---|
-| P01 | DB e file WAL tracciati (contengono indirizzi email e hash) | `database/` |
-| P02 | Modifica verso una consegna con limite raggiunto → prenotazione persa (`1970-01-01`) | `server/server.js:338,356` |
-| P03 | Scrittura del DB non atomica; corruzione già osservata | `server/database.js:29-35`, `error.asc` |
-| P04 | booking, deposito e collegamento sono scritture separate | `server/server.js` (3 route) |
-| P05 | Durata decisa dal client | `server/bookingService.js:220-224` |
-| P06 | Orari estesi per tutti i ruoli via API | `server/bookingService.js:232,300` |
-| P07 | Spostamento admin: ignora la durata, cambia l'id | `server/bookingService.js:544-585` |
-| P08 | Cancellazione del cliente senza pulizia del deposito | `server/bookingService.js:380-395` |
-| P09 | `schedule` dei depositi senza validazione | `server/server.js:1374-1427` |
-| P10 | Stato del deposito come testo libero | `server/depositService.js:92` |
-| P11 | XSS memorizzata nel pannello admin | `frontend/js/admin.js:704-707` e altri |
-| P12 | Iniezione HTML nelle email | `server/emailService.js` |
-| P13 | Rate limit aggirabile con `x-forwarded-for` | `server/server.js:77-91` |
-| P14 | CSP con `unsafe-inline`; Chart.js da CDN senza versione | `server/server.js:48-56` |
-| P15 | Report: giorno sfasato in UTC, blocchi `extra_work` contati | `server/server.js:1154-1160` |
-| P16 | `getUserBookings` usa la data UTC | `server/bookingService.js:347` |
-| P17 | `servizio` scartato dalla whitelist delle colonne | `server/database.js:468-472` |
-| P18 | Duplicato email case-sensitive in registrazione | `server/authService.js:72` |
-| P19 | Il backup ignora `DATABASE_PATH` | `server/backup.js:13` |
-| P20 | JS e pagine frontend non raggiungibili | `frontend/` |
-| P21 | Endpoint e script di riparazione una tantum | `server/server.js:861-936`, `fix-extrawork-db.js` |
-| P22 | Retention distruttiva in ogni ambiente | `server/retentionService.js:304` |
-| P23 | Lint inutilizzabile (CRLF, terminazioni miste) | `.eslintrc.json`, `.prettierrc` |
-| P24 | Dipendenze inutilizzate (`xlsx`, `nodemailer`, `cors`) | `package.json` |
-| P25 | README, CLAUDE.md e `.env.example` non aggiornati | radice |
-| P26 | Funzioni token inutilizzate | `server/bookingService.js:587-665` |
-| P27 | `maxDeposits` con tre fonti | `server/server.js:656`, `config/config.js:94` |
+| P01 | DB e file WAL tracciati (email e hash) | Albero ✅; cronologia ⛔ (D-7) |
+| P02 | Modifica verso una consegna con limite raggiunto → prenotazione spostata al 1970 | ✅ test |
+| P03 | Scrittura del DB non atomica | ✅ test |
+| P04 | Scritture multi-record non atomiche | ✅ test |
+| P05 | Durata decisa dal client, servizio non verificato | ✅ test |
+| P06 | Orari estesi aperti a tutti via API | ✅ test |
+| P07 | Spostamento admin senza controllo della durata e con cambio di id | ✅ test |
+| P08 | Deposito orfano alla cancellazione del cliente | ✅ test |
+| P09 | Pianificazione dei depositi senza controlli | ✅ test |
+| P10 | Stato del deposito come testo libero | ✅ test |
+| P11 | XSS memorizzata nel pannello admin da un ospite non autenticato | ✅ riprodotta su `f1dc01b`, corretta e verificata nel browser |
+| P12 | Iniezione HTML nelle email | ✅ test |
+| P13 | Rate limit aggirabile con `X-Forwarded-For` | ✅ test |
+| P14 | CSP permissiva; Chart.js da CDN senza versione | ✅ |
+| P15 | Report in UTC | ✅ test (TZ Europe/Rome) |
+| P16 | Prenotazioni del cliente con data UTC | ✅ |
+| P17 | `servizio` scartato | ✅ test |
+| P18 | Email duplicate con maiuscole diverse | ✅ test |
+| P19 | Backup sul file sbagliato | ✅ test |
+| P20 | Frontend non raggiungibile | ✅ |
+| P21 | Endpoint e script di riparazione | ✅ rimossi senza eseguirli |
+| P22 | Retention distruttiva in ogni ambiente | ✅ test |
+| P23 | Lint inutilizzabile | ✅ |
+| P24 | Dipendenze inutilizzate e vulnerabili | ✅ |
+| P25 | Documentazione errata | ✅ |
+| P26 | Funzioni token inutilizzate | ✅ |
+| P27 | `maxDeposits` con tre fonti | ✅ |
+| P28 | `insert()` restituiva sempre id 0 (deposit_id "0") | ✅ test (emerso dai test) |
+| P29 | La migrazione dallo schema iniziale perdeva le colonne v2 | ✅ test (emerso dai test) |
 
-## T01: pulizia dei dati nel repository
+## Verifiche eseguite (HEAD finale)
 
-- Rimossi dall'albero, senza leggerne i contenuti: `database/database.sqlite.bak` e 8 file `database/.fuse_hidden*` (file WAL e shared memory di SQLite). Restano nella cronologia Git: la riscrittura è la decisione separata D-7.
-- `.claude/settings.local.json` non è più tracciato (configurazione locale); il file locale resta.
-- `.gitignore`: ignora tutto `database/` tranne `.gitkeep`, più `*.sqlite`, `*.sqlite-*`, `*.sqlite.bak` e `.fuse_hidden*` ovunque.
-- Verifica: `git check-ignore` sui percorsi tipici (DB, WAL, CSV legacy, file fuse, impostazioni locali). Avvio con il percorso di default: `database/database.sqlite` viene creato, risulta ignorato e il server risponde `200`. Il DB sintetico di prova è stato eliminato.
+Locali, in questo ambiente:
+- `npm test`: **98 test, 0 falliti, 0 todo**. I test girano sul server reale con un database SQLite temporaneo, email disattivate e retention spenta. Suite superata anche con `TZ=UTC` e con `TZ` non impostato.
+- `npm run lint`: 0 errori, 0 warning. `npm run format:check`: pulito. `npm audit`: 0 vulnerabilità.
+- Riproducibilità: clone pulito → `npm install` → `.env` da `.env.example` → `npm run seed` → `npm start` → login admin e cliente demo → `npm test`, seguendo il README alla lettera.
+- Seed eseguito spostando l'orologio su tutti i 7 giorni della settimana.
+- Browser (Chromium via Playwright, app servita dal backend locale, dati sintetici):
+  - 13 pagine × tema chiaro/scuro × desktop 1280/mobile 390, confrontate pixel per pixel con la baseline `f1dc01b`. Differenze solo dove volute: layout della pagina depositi e grafico dei report, che prima non si caricava dal CDN.
+  - Percorsi end-to-end, desktop e mobile: prenotazione ospite (anche il pulsante "Indietro"), prenotazione e cancellazione del cliente, dettaglio e chiusura con Esc nel calendario admin, depositi, listino, clienti, grafico dei report.
+  - Registrazione, login, logout, richiesta e reimpostazione password, redirect dell'area admin senza sessione.
+  - Prenotazione ospite usando solo la tastiera, con focus visibile.
+  - Menu laterale su tutte le pagine: apertura, chiusura con × ed Esc, logout.
+  - Pianificazione di un deposito dal calendario (selezione trascinando 4 blocchi) e drag & drop di un appuntamento.
+  - XSS: payload inseriti da API pubbliche eseguiti su `f1dc01b` in `/admin`, `/admin/clienti` e `/admin/depositi`; con il codice finale nessuna esecuzione.
+  - Nessun errore in console né violazione CSP.
 
-## Avanzamento
+Non eseguite:
+- **CI su GitHub**: richiede un push.
+- **Node 24**: in locale c'è solo Node 22; la CI lo coprirà.
+- **Invio email reale**: escluso per scelta; sono testati i template.
+- **Deploy**.
 
-Ordine effettivo, con motivazioni:
-- T24 (rimozione del frontend morto) e la rimozione degli artefatti della radice (T28, prima parte) sono stati anticipati a prima della formattazione: gli screenshot "prima" (T33a) erano già stati acquisiti, e così non si formattano file destinati a sparire.
-- T21 (route per dominio) è stato eseguito prima delle correzioni T09–T15: le correzioni toccano la logica che era inline nelle route. T06 (transazioni) è nello stesso commit di T21, perché i flussi multi-record sono stati riscritti direttamente con `withTransaction` invece di trasportare il workaround "1970".
+Gli script di verifica nel browser sono rimasti fuori dal repository per non aggiungere Playwright come dipendenza. La procedura è descritta qui sopra e il README la indica come verifica locale.
 
-Problemi emersi durante il lavoro, non presenti nell'analisi iniziale:
-- **P28**: `SQLiteTable.insert()` restituiva sempre l'id 0 (`db.export()` azzera `last_insert_rowid`). Conseguenze: `deposit_id` salvato come "0" e risposte di creazione di veicoli e servizi senza l'oggetto creato. Corretto in T05.
-- **P29**: la migrazione dallo schema iniziale (NOT NULL su `bookings.servizio`) eliminava le colonne v2 appena aggiunte, fino al riavvio successivo. Corretto in T05.
-- Markup: in `admin-depositi.html` mancava la chiusura del `div` del contatore, e la griglia dei depositi finiva dentro l'header. In `admin-depositi.css` una `}` in più faceva scartare la regola successiva.
-- Gli slot serali VIP (D-2) non hanno una riga nel calendario admin, che mostra solo l'orario di lavoro: una prenotazione VIP serale non è visibile nella vista settimanale. Da segnalare al titolare insieme alla revisione degli orari VIP.
+## Struttura finale
 
-Verifiche:
-- XSS riprodotta nel browser sul commit `f1dc01b` (payload eseguiti su `/admin`, `/admin/clienti` e `/admin/depositi`, inseriti da un ospite non autenticato); dopo T17 nessun payload viene eseguito.
-- Screenshot di 13 pagine × 2 temi × 2 dispositivi confrontati pixel per pixel dopo ogni gruppo: nessuna differenza, salvo la correzione voluta della pagina depositi.
-- Suite: 92 test, 0 `todo` (dopo T15).
+- `server/server.js` (63 righe, era 1547) avvia; `app.js` costruisce l'app.
+- `routes/` contiene 6 router.
+- Servizi: `booking`, `deposit`, `catalog`, `holiday`, `vehicle`, `report`, `auth`, `email`, `retention`.
+- Supporto: `database.js` (atomico e transazionale), `errors.js`, `middleware.js`, `dates.js`, `backup.js`, `seed.js`.
+- `test/` contiene 15 file di test.
+- Radice: `README.md`, `CLAUDE.md`, `LICENSE`, configurazione. Sono spariti 20 documenti storici e 9 artefatti.
 
-## Prossimo passo
+## Blocchi e passi aperti
 
-T19 (CSP senza inline, Chart.js da npm), T26 (CSS), T25 (valutazione delle sidebar), poi T07 (backup), T30 (seed), T29 e T23 (package e dipendenze), T32 (documentazione), T31 (CI), T33b e T34 (verifica finale).
+1. **Push del branch e pull request**: da autorizzare. Dopo il push, verificare la CI verde su Node 22 e 24.
+2. **D-7, cronologia Git**: il backup del database resta nei commit precedenti a `7efa70e`. La riscrittura (filter-repo + force push) va decisa a parte. Se gli account erano reali, va valutato un cambio delle password.
+3. Decisioni di prodotto per il titolare, raccolte in [portfolio-checklist.md](portfolio-checklist.md):
+   - orari estesi VIP e loro visibilità nel calendario admin;
+   - veicoli salvati nel wizard;
+   - prenotazioni ospite con l'email di un cliente registrato;
+   - promemoria (tabella `notifications`).
+4. Storia, risultati reali e screenshot d'uso: da fornire all'autore (checklist).
