@@ -523,6 +523,7 @@ const bookingColumns = [
   'telefono',
   'giorno',
   'ora',
+  'servizio',
   'token',
   'user_id',
   'vehicle_id',

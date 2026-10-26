@@ -48,19 +48,15 @@ test('la registrazione rifiuta campi mancanti, password corte ed email duplicate
   assert.match(dup.data.error, /già registrata/);
 });
 
-test(
-  'email duplicata con maiuscole diverse: errore leggibile (non un errore SQLite)',
-  { todo: 'P18: il controllo duplicati non normalizza le maiuscole' },
-  async () => {
-    const user = makeUser('case');
-    assert.equal((await api.request('POST', '/api/auth/register', { body: user })).status, 201);
-    const dup = await api.request('POST', '/api/auth/register', {
-      body: { ...user, email: user.email.toUpperCase() }
-    });
-    assert.equal(dup.status, 400);
-    assert.match(dup.data.error, /già registrata/);
-  }
-);
+test('email duplicata con maiuscole diverse: errore leggibile (non un errore SQLite)', async () => {
+  const user = makeUser('case');
+  assert.equal((await api.request('POST', '/api/auth/register', { body: user })).status, 201);
+  const dup = await api.request('POST', '/api/auth/register', {
+    body: { ...user, email: user.email.toUpperCase() }
+  });
+  assert.equal(dup.status, 400);
+  assert.match(dup.data.error, /già registrata/);
+});
 
 test('login con credenziali errate restituisce 401 con messaggio generico', async () => {
   const user = makeUser('wrong');

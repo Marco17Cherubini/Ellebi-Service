@@ -72,20 +72,16 @@ test("l'admin può usare gli orari estesi", async () => {
   assert.equal(res.status, 201);
 });
 
-test(
-  "il testo libero 'servizio' di una prenotazione admin viene salvato",
-  { todo: 'P17: la colonna servizio non è nella whitelist di bookingsDB' },
-  async () => {
-    const day = futureWeekday(5);
-    const res = await api.request('POST', '/api/admin/bookings', {
-      cookie: admin,
-      body: { cognome: 'Libero', giorno: day, ora: '09:00', servizio: 'Controllo luci' }
-    });
-    assert.equal(res.status, 201);
-    const stored = db().bookingsDB.findOne(b => b.giorno === day && b.ora === '09:00');
-    assert.equal(stored.servizio, 'Controllo luci');
-  }
-);
+test("il testo libero 'servizio' di una prenotazione admin viene salvato", async () => {
+  const day = futureWeekday(5);
+  const res = await api.request('POST', '/api/admin/bookings', {
+    cookie: admin,
+    body: { cognome: 'Libero', giorno: day, ora: '09:00', servizio: 'Controllo luci' }
+  });
+  assert.equal(res.status, 201);
+  const stored = db().bookingsDB.findOne(b => b.giorno === day && b.ora === '09:00');
+  assert.equal(stored.servizio, 'Controllo luci');
+});
 
 test("l'admin sposta una prenotazione su uno slot libero e la cancella", async () => {
   const day = futureWeekday(1, 3);

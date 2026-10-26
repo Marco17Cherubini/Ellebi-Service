@@ -5,6 +5,8 @@ const { usersDB, adminDB } = require('./database');
 const config = require('../config/config');
 const { HttpError, badRequest } = require('./errors');
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 // Verifica password admin
 async function verifyAdminPassword(email, password) {
   const admin = adminDB.findOne(a => a.email === email.trim().toLowerCase());
@@ -63,13 +65,18 @@ async function registerUser(userData) {
     throw badRequest('La password deve essere di almeno 8 caratteri');
   }
 
-  // Controlla email duplicata
-  const existingUser = usersDB.findOne(user => user.email === email);
-  if (existingUser) {
-    throw badRequest('Email già registrata');
+  const emailLower = String(email).trim().toLowerCase();
+  if (!EMAIL_REGEX.test(emailLower)) {
+    throw badRequest('Formato email non valido');
   }
+  const assertEmailFree = () => {
+    if (usersDB.findOne(user => user.email === emailLower)) {
+      throw badRequest('Email già registrata');
+    }
+  };
+  assertEmailFree();
 
-  // 🛡️ FASE 3 Sicurezza: Argon2id (OWASP 2025 Standard)
+  // Argon2id (raccomandazione OWASP)
   const hashedPassword = await argon2.hash(password, {
     type: argon2.argon2id,
     memoryCost: 15360, // 15 MiB mem
@@ -77,11 +84,13 @@ async function registerUser(userData) {
     parallelism: 1 // 1 thread
   });
 
-  // Crea utente (solo campi: nome, cognome, email, telefono, password)
+  // Durante l'hash (asincrono) potrebbe essere arrivata una registrazione con la stessa email
+  assertEmailFree();
+
   const user = {
     nome: nome.trim(),
     cognome: cognome.trim(),
-    email: email.trim().toLowerCase(),
+    email: emailLower,
     telefono: telefono.trim(),
     password: hashedPassword,
     vip: 0,
