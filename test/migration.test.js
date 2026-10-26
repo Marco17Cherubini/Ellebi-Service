@@ -58,50 +58,44 @@ before(async () => {
 
 after(() => api.close());
 
-test(
-  'migrazione: dati e login esistenti preservati, nuove tabelle e colonne create al primo avvio',
-  {
-    todo: 'P29: la ricostruzione di bookings (servizio NOT NULL) elimina le colonne v2 appena aggiunte'
-  },
-  async () => {
-    const { getRawDatabase, bookingsDB, holidaysDB, servicesDB } = require('../server/database');
-    const columns = table =>
-      getRawDatabase()
-        .exec(`PRAGMA table_info(${table})`)[0]
-        .values.map(c => ({ name: c[1], notnull: c[3] }));
+test('migrazione: dati e login esistenti preservati, nuove tabelle e colonne create al primo avvio', async () => {
+  const { getRawDatabase, bookingsDB, holidaysDB, servicesDB } = require('../server/database');
+  const columns = table =>
+    getRawDatabase()
+      .exec(`PRAGMA table_info(${table})`)[0]
+      .values.map(c => ({ name: c[1], notnull: c[3] }));
 
-    const bookingCols = columns('bookings');
-    for (const name of [
-      'service_id',
-      'targa',
-      'tipo',
-      'stato',
-      'deposit_id',
-      'durata_minuti',
-      'token'
-    ]) {
-      assert.ok(
-        bookingCols.some(c => c.name === name),
-        name
-      );
-    }
-    assert.equal(bookingCols.find(c => c.name === 'servizio').notnull, 0);
-    for (const name of ['banned', 'isGuest', 'last_active_at']) {
-      assert.ok(
-        columns('users').some(c => c.name === name),
-        name
-      );
-    }
-
-    const legacy = bookingsDB.findOne(b => b.email === 'vecchio@test.local');
-    assert.equal(legacy.ora, '09:00');
-    assert.equal(legacy.tipo, 'cliente');
-    assert.equal(holidaysDB.readAll().length, 1);
-    assert.ok(servicesDB.readAll().length >= 10);
-
-    const login = await api.login('vecchio@test.local', 'Password123!');
-    assert.equal(login.status, 200);
-    const mine = await api.request('GET', '/api/bookings', { cookie: login.cookie });
-    assert.equal(mine.data.bookings.length, 1);
+  const bookingCols = columns('bookings');
+  for (const name of [
+    'service_id',
+    'targa',
+    'tipo',
+    'stato',
+    'deposit_id',
+    'durata_minuti',
+    'token'
+  ]) {
+    assert.ok(
+      bookingCols.some(c => c.name === name),
+      name
+    );
   }
-);
+  assert.equal(bookingCols.find(c => c.name === 'servizio').notnull, 0);
+  for (const name of ['banned', 'isGuest', 'last_active_at']) {
+    assert.ok(
+      columns('users').some(c => c.name === name),
+      name
+    );
+  }
+
+  const legacy = bookingsDB.findOne(b => b.email === 'vecchio@test.local');
+  assert.equal(legacy.ora, '09:00');
+  assert.equal(legacy.tipo, 'cliente');
+  assert.equal(holidaysDB.readAll().length, 1);
+  assert.ok(servicesDB.readAll().length >= 10);
+
+  const login = await api.login('vecchio@test.local', 'Password123!');
+  assert.equal(login.status, 200);
+  const mine = await api.request('GET', '/api/bookings', { cookie: login.cookie });
+  assert.equal(mine.data.bookings.length, 1);
+});

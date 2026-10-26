@@ -187,17 +187,13 @@ test('consegna veicolo: appuntamento di 30 minuti + deposito "in attesa"', async
   assert.equal(res.data.deposit.booking_id, res.data.booking.id);
 });
 
-test(
-  'consegna veicolo: prenotazione e deposito sono collegati dai loro id reali',
-  { todo: "P28: insert() restituisce sempre l'id 0" },
-  async () => {
-    const res = await book(mario, findService('Distribuzione'), futureWeekday(1, 6), '10:00');
-    assert.equal(res.status, 201);
-    const stored = depositsDB().findOne(d => d.booking_id === res.data.booking.id);
-    assert.equal(res.data.deposit.id, stored.id);
-    assert.equal(bookingsDB().findOne(b => b.id === res.data.booking.id).deposit_id, stored.id);
-  }
-);
+test('consegna veicolo: prenotazione e deposito sono collegati dai loro id reali', async () => {
+  const res = await book(mario, findService('Distribuzione'), futureWeekday(1, 6), '10:00');
+  assert.equal(res.status, 201);
+  const stored = depositsDB().findOne(d => d.booking_id === res.data.booking.id);
+  assert.equal(res.data.deposit.id, stored.id);
+  assert.equal(bookingsDB().findOne(b => b.id === res.data.booking.id).deposit_id, stored.id);
+});
 
 test('consegna veicolo: targa e modello obbligatori', async () => {
   const distribuzione = findService('Distribuzione');
@@ -328,26 +324,22 @@ test('un VIP può prenotare negli orari estesi', async () => {
   assert.equal(res.status, 201);
 });
 
-test(
-  'veicoli: il cliente salva un veicolo, senza duplicati per targa',
-  { todo: 'P28: la risposta di creazione non contiene il veicolo' },
-  async () => {
-    const first = await api.request('POST', '/api/vehicles', {
-      cookie: mario,
-      body: { targa: 'zz999zz', modello: 'Fiat Uno' }
-    });
-    assert.equal(first.status, 201);
-    assert.equal(first.data.vehicle.targa, 'ZZ999ZZ');
-    const dup = await api.request('POST', '/api/vehicles', {
-      cookie: mario,
-      body: { targa: 'ZZ999ZZ', modello: 'Fiat Uno' }
-    });
-    assert.equal(dup.data.duplicate, true);
-    assert.equal(
-      (await api.request('POST', '/api/vehicles', { cookie: mario, body: {} })).status,
-      400
-    );
-    const list = await api.request('GET', '/api/vehicles', { cookie: mario });
-    assert.equal(list.data.vehicles.length, 1);
-  }
-);
+test('veicoli: il cliente salva un veicolo, senza duplicati per targa', async () => {
+  const first = await api.request('POST', '/api/vehicles', {
+    cookie: mario,
+    body: { targa: 'zz999zz', modello: 'Fiat Uno' }
+  });
+  assert.equal(first.status, 201);
+  assert.equal(first.data.vehicle.targa, 'ZZ999ZZ');
+  const dup = await api.request('POST', '/api/vehicles', {
+    cookie: mario,
+    body: { targa: 'ZZ999ZZ', modello: 'Fiat Uno' }
+  });
+  assert.equal(dup.data.duplicate, true);
+  assert.equal(
+    (await api.request('POST', '/api/vehicles', { cookie: mario, body: {} })).status,
+    400
+  );
+  const list = await api.request('GET', '/api/vehicles', { cookie: mario });
+  assert.equal(list.data.vehicles.length, 1);
+});

@@ -1,4 +1,4 @@
-const { getRawDatabase, saveDatabase } = require('./database');
+const { getRawDatabase, withTransaction } = require('./database');
 
 const RETENTION_PERIODS = Object.freeze({
   registeredMonths: 24,
@@ -150,7 +150,6 @@ function executeRetentionCleanup(options) {
     };
   }
 
-  const db = getRawDatabase();
   const thresholds = buildThresholds(options && options.referenceDate);
   const result = {
     dryRun: false,
@@ -167,9 +166,8 @@ function executeRetentionCleanup(options) {
     retention: RETENTION_PERIODS
   };
 
-  db.run('BEGIN TRANSACTION');
-
-  try {
+  // Tutte le cancellazioni o nessuna, con un solo salvataggio su disco
+  return withTransaction(function () {
     result.deleted.bookingsGuest = runCleanupStatement(
       `DELETE FROM bookings
        WHERE id IN (
@@ -292,14 +290,8 @@ function executeRetentionCleanup(options) {
       [thresholds.registered, thresholds.registered, thresholds.deposits]
     );
 
-    db.run('COMMIT');
-    saveDatabase();
-
     return result;
-  } catch (error) {
-    db.run('ROLLBACK');
-    throw error;
-  }
+  });
 }
 
 function startRetentionScheduler(options) {

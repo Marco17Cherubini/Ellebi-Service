@@ -230,17 +230,13 @@ test('listino: creazione, modifica, elenco admin (anche inattivi) ed eliminazion
   );
 });
 
-test(
-  'listino: la risposta di creazione contiene il servizio creato',
-  { todo: "P28: insert() restituisce sempre l'id 0" },
-  async () => {
-    const create = await api.request('POST', '/api/admin/services', {
-      cookie: admin,
-      body: { nome: 'Assetto', tipo_veicolo: 'auto', tipo_servizio: 'appuntamento' }
-    });
-    assert.equal(create.data.service.nome, 'Assetto');
-  }
-);
+test('listino: la risposta di creazione contiene il servizio creato', async () => {
+  const create = await api.request('POST', '/api/admin/services', {
+    cookie: admin,
+    body: { nome: 'Assetto', tipo_veicolo: 'auto', tipo_servizio: 'appuntamento' }
+  });
+  assert.equal(create.data.service.nome, 'Assetto');
+});
 
 test('impostazioni: lettura e modifica del limite depositi', async () => {
   const get = await api.request('GET', '/api/settings/maxDeposits', { cookie: admin });

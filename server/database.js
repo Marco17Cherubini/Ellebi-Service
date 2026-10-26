@@ -25,12 +25,55 @@ function getRawDatabase() {
   return db;
 }
 
-// Funzione per salvare il database su disco
+// true durante withTransaction: i salvataggi intermedi vengono rimandati al COMMIT
+let inTransaction = false;
+
+// Salva il database su disco in modo atomico: scrive un file temporaneo e lo rinomina,
+// così un'interruzione a metà scrittura non lascia mai un file corrotto.
+// Nota: db.export() chiude e riapre il database sql.js (azzera last_insert_rowid e
+// annullerebbe una transazione aperta), per questo non va mai chiamato dentro una transazione.
 function saveDatabase() {
-  if (db) {
-    const data = db.export();
-    const buffer = Buffer.from(data);
+  if (!db || inTransaction) return;
+
+  const buffer = Buffer.from(db.export());
+  const tmpPath = DB_PATH + '.tmp';
+  const fd = fs.openSync(tmpPath, 'w');
+  try {
+    fs.writeSync(fd, buffer);
+    fs.fsyncSync(fd);
+  } finally {
+    fs.closeSync(fd);
+  }
+  try {
+    fs.renameSync(tmpPath, DB_PATH);
+  } catch (error) {
+    // Su Windows la rinomina può fallire se il file è aperto da un altro processo
+    // (antivirus, backup): si ripiega sulla scrittura diretta
     fs.writeFileSync(DB_PATH, buffer);
+    fs.rmSync(tmpPath, { force: true });
+  }
+}
+
+// Esegue fn (sincrona) in una transazione: tutte le scritture o nessuna, un solo salvataggio.
+// Le chiamate annidate partecipano alla transazione esterna.
+function withTransaction(fn) {
+  if (!db || inTransaction) return fn();
+
+  db.run('BEGIN');
+  inTransaction = true;
+  try {
+    const result = fn();
+    db.run('COMMIT');
+    inTransaction = false;
+    saveDatabase();
+    return result;
+  } catch (error) {
+    try {
+      db.run('ROLLBACK');
+    } finally {
+      inTransaction = false;
+    }
+    throw error;
   }
 }
 
@@ -169,6 +212,44 @@ async function initDatabase() {
     )
   `);
 
+  // Migrazione: ricrea la tabella bookings se servizio è NOT NULL (schema della prima versione).
+  // SQLite non supporta ALTER COLUMN. Va eseguita prima delle ADD COLUMN qui sotto, che
+  // aggiungono poi le colonne v2 alla tabella ricostruita. Copia tutte le colonne presenti
+  // in entrambe le tabelle, in transazione: se qualcosa fallisce la tabella originale resta.
+  const bookingColumnsInfo = db.exec('PRAGMA table_info(bookings)')[0]?.values || [];
+  const servizioCol = bookingColumnsInfo.find(col => col[1] === 'servizio');
+  if (servizioCol && servizioCol[3] === 1) {
+    console.log('🔄 Migrazione: rimuovo vincolo NOT NULL da servizio...');
+    const oldColumns = bookingColumnsInfo.map(col => col[1]);
+    db.run('BEGIN');
+    try {
+      db.run('ALTER TABLE bookings RENAME TO bookings_old');
+      db.run(`
+        CREATE TABLE bookings (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          nome TEXT NOT NULL,
+          cognome TEXT NOT NULL,
+          email TEXT NOT NULL,
+          telefono TEXT NOT NULL,
+          giorno TEXT NOT NULL,
+          ora TEXT NOT NULL,
+          servizio TEXT,
+          token TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      const newColumns = db.exec('PRAGMA table_info(bookings)')[0].values.map(col => col[1]);
+      const shared = newColumns.filter(col => oldColumns.includes(col)).join(', ');
+      db.run(`INSERT INTO bookings (${shared}) SELECT ${shared} FROM bookings_old`);
+      db.run('DROP TABLE bookings_old');
+      db.run('COMMIT');
+      console.log('✅ Migrazione completata: servizio ora è opzionale');
+    } catch (error) {
+      db.run('ROLLBACK');
+      throw error;
+    }
+  }
+
   // ── Migrazioni colonne su bookings (schema v2) ───────────────────────────
   const bookingsMigrazioni = [
     'ALTER TABLE bookings ADD COLUMN user_id INTEGER',
@@ -258,53 +339,6 @@ async function initDatabase() {
     // Tabella non ancora presente
   }
 
-  // Migrazione: ricrea tabella bookings se servizio è NOT NULL
-  // Questo è necessario perché SQLite non supporta ALTER COLUMN
-  try {
-    // Verifica se serve la migrazione controllando lo schema
-    const tableInfo = db.exec('PRAGMA table_info(bookings)');
-    const columns = tableInfo[0]?.values || [];
-    const servizioCol = columns.find(col => col[1] === 'servizio');
-
-    // Se servizio ha notnull=1, dobbiamo ricreare la tabella
-    if (servizioCol && servizioCol[3] === 1) {
-      console.log('🔄 Migrazione: rimuovo vincolo NOT NULL da servizio...');
-
-      // Rinomina tabella esistente
-      db.run(`ALTER TABLE bookings RENAME TO bookings_old`);
-
-      // Crea nuova tabella con servizio nullable
-      db.run(`
-                CREATE TABLE bookings (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nome TEXT NOT NULL,
-                    cognome TEXT NOT NULL,
-                    email TEXT NOT NULL,
-                    telefono TEXT NOT NULL,
-                    giorno TEXT NOT NULL,
-                    ora TEXT NOT NULL,
-                    servizio TEXT,
-                    token TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            `);
-
-      // Copia dati dalla vecchia tabella
-      db.run(`
-                INSERT INTO bookings (id, nome, cognome, email, telefono, giorno, ora, servizio, token, created_at)
-                SELECT id, nome, cognome, email, telefono, giorno, ora, servizio, token, created_at
-                FROM bookings_old
-            `);
-
-      // Elimina vecchia tabella
-      db.run(`DROP TABLE bookings_old`);
-
-      console.log('✅ Migrazione completata: servizio ora è opzionale');
-    }
-  } catch (e) {
-    console.log('Migrazione servizio già eseguita o non necessaria');
-  }
-
   // Salva struttura iniziale
   saveDatabase();
 
@@ -376,8 +410,10 @@ class SQLiteTable {
 
     db.run(`INSERT INTO ${this.tableName} (${cols.join(', ')}) VALUES (${placeholders})`, values);
 
+    // L'id va letto prima di saveDatabase: db.export() azzera last_insert_rowid
+    const id = db.exec('SELECT last_insert_rowid()')[0]?.values[0]?.[0];
     saveDatabase();
-    return db.exec('SELECT last_insert_rowid()')[0]?.values[0]?.[0];
+    return id;
   }
 
   // Aggiorna record che matchano il filtro
@@ -733,5 +769,6 @@ module.exports = {
   setSetting,
   initDatabase,
   saveDatabase,
+  withTransaction,
   getRawDatabase
 };
