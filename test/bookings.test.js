@@ -210,29 +210,25 @@ test('consegna veicolo: rifiutata quando il limite di depositi attivi è raggiun
   await setMaxDeposits(5);
 });
 
-test(
-  'modifica verso una consegna con limite raggiunto: la prenotazione originale resta',
-  { todo: 'P02: la prenotazione originale resta spostata al 1970-01-01' },
-  async () => {
-    const day = futureWeekday(3, 6);
-    const olio = findService('Tagliando olio + filtro');
-    assert.equal((await book(luigi, olio, day, '09:00')).status, 201);
-    const active = depositsDB().findMany(d => d.stato !== 'completato').length;
-    await setMaxDeposits(active);
-    try {
-      const res = await book(luigi, findService('Distribuzione'), day, '15:00', {
-        old_giorno: day,
-        old_ora: '09:00'
-      });
-      assert.equal(res.status, 400);
-      assert.equal(bookingsDB().findMany(b => b.giorno === '1970-01-01').length, 0);
-      const mine = (await api.request('GET', '/api/bookings', { cookie: luigi })).data.bookings;
-      assert.ok(mine.some(b => b.giorno === day && b.ora === '09:00'));
-    } finally {
-      await setMaxDeposits(5);
-    }
+test('modifica verso una consegna con limite raggiunto: la prenotazione originale resta', async () => {
+  const day = futureWeekday(3, 6);
+  const olio = findService('Tagliando olio + filtro');
+  assert.equal((await book(luigi, olio, day, '09:00')).status, 201);
+  const active = depositsDB().findMany(d => d.stato !== 'completato').length;
+  await setMaxDeposits(active);
+  try {
+    const res = await book(luigi, findService('Distribuzione'), day, '15:00', {
+      old_giorno: day,
+      old_ora: '09:00'
+    });
+    assert.equal(res.status, 400);
+    assert.equal(bookingsDB().findMany(b => b.giorno === '1970-01-01').length, 0);
+    const mine = (await api.request('GET', '/api/bookings', { cookie: luigi })).data.bookings;
+    assert.ok(mine.some(b => b.giorno === day && b.ora === '09:00'));
+  } finally {
+    await setMaxDeposits(5);
   }
-);
+});
 
 test(
   'cancellare una consegna elimina anche il deposito collegato',
@@ -342,4 +338,29 @@ test('veicoli: il cliente salva un veicolo, senza duplicati per targa', async ()
   );
   const list = await api.request('GET', '/api/vehicles', { cookie: mario });
   assert.equal(list.data.vehicles.length, 1);
+});
+
+test('prenotazione ospite rifiutata: nessun profilo ospite resta nel database', async () => {
+  const { usersDB } = require('../server/database');
+  const res = await api.request('POST', '/api/bookings/guest', {
+    body: {
+      nome: 'Rifiutato',
+      cognome: 'Ospite',
+      email: 'rifiutato@test.local',
+      giorno: futureWeekday(0),
+      ora: '09:00'
+    }
+  });
+  assert.equal(res.status, 400);
+  assert.equal(
+    usersDB.findOne(u => u.email === 'rifiutato@test.local'),
+    undefined
+  );
+});
+
+test('consegna con deposito non valido: nessuna prenotazione orfana', async () => {
+  const day = futureWeekday(5, 7);
+  const res = await book(mario, findService('Distribuzione'), day, '08:30', { modello: '' });
+  assert.equal(res.status, 400);
+  assert.equal(bookingsDB().findMany(b => b.giorno === day).length, 0);
 });

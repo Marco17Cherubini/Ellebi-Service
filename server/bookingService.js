@@ -1,4 +1,14 @@
-const { bookingsDB, usersDB, holidaysDB } = require('./database');
+const {
+  bookingsDB,
+  usersDB,
+  holidaysDB,
+  depositsDB,
+  servicesDB,
+  withTransaction
+} = require('./database');
+const { badRequest } = require('./errors');
+const { findService, isConsegnaService } = require('./catalogService');
+const depositService = require('./depositService');
 const config = require('../config/config');
 const crypto = require('crypto');
 
@@ -16,7 +26,7 @@ function sanitizeText(value, maxLen) {
   return String(value).trim().slice(0, maxLen);
 }
 
-// Helper: restituisce il giorno della settimana senza sfasamenti UTC (0=Domenica, 1=LunedÃ¬, ...)
+// Helper: restituisce il giorno della settimana senza sfasamenti UTC (0=domenica, 1=lunedì, ...)
 function getLocalDayOfWeek(dateStr) {
   if (!dateStr || typeof dateStr !== 'string') return 0;
   const parts = dateStr.split('-');
@@ -27,7 +37,7 @@ function getLocalDayOfWeek(dateStr) {
   return new Date(dateStr).getDay();
 }
 
-// Verifica se un giorno Ã¨ disponibile (martedÃ¬-sabato)
+// Verifica se il giorno è tra quelli di apertura (config.businessHours.daysOpen)
 function isDayAvailable(date) {
   const dayOfWeek = getLocalDayOfWeek(date);
   return config.businessHours.daysOpen.includes(dayOfWeek);
@@ -244,13 +254,13 @@ function createBooking(userEmail, bookingData) {
 
   // Validazione Pragmatic Security (Blocca input corrotti, SQLi bypass, o malformattazioni)
   if (!data || !orario) {
-    throw new Error('Data e orario sono obbligatori');
+    throw badRequest('Data e orario sono obbligatori');
   }
   if (!DATE_REGEX.test(data)) {
-    throw new Error('Formato data non valido (atteso YYYY-MM-DD)');
+    throw badRequest('Formato data non valido (atteso YYYY-MM-DD)');
   }
   if (!TIME_REGEX.test(orario)) {
-    throw new Error('Formato ora non valido (atteso HH:MM)');
+    throw badRequest('Formato ora non valido (atteso HH:MM)');
   }
 
   // Risoluzione del vecchio concetto di "numPersone" in una pura durata temporale
@@ -270,11 +280,11 @@ function createBooking(userEmail, bookingData) {
   const targetSlotObj = availableSlots.find(s => s.time === orario);
 
   if (!targetSlotObj) {
-    throw new Error('Orario non valido o non selezionabile per questa data');
+    throw badRequest('Orario non valido o non selezionabile per questa data');
   }
 
   if (!targetSlotObj.available) {
-    throw new Error(
+    throw badRequest(
       "Lo slot o l'intervallo richiesto non è disponibile (conflitto o pausa pranzo)"
     );
   }
@@ -282,7 +292,7 @@ function createBooking(userEmail, bookingData) {
   // Ottieni dati utente
   const user = usersDB.findOne(u => u.email === userEmail);
   if (!user) {
-    throw new Error('Utente non trovato');
+    throw badRequest('Utente non trovato');
   }
 
   // Inserimento a Singolo Record
@@ -330,19 +340,19 @@ function createConsegnaBooking(userEmail, bookingData) {
 
   // Validazione Pragmatic Security campi obbligatori e formati
   if (!data || !orario) {
-    throw new Error('Data e orario sono obbligatori');
+    throw badRequest('Data e orario sono obbligatori');
   }
   if (!DATE_REGEX.test(data)) {
-    throw new Error('Formato data non valido (atteso YYYY-MM-DD)');
+    throw badRequest('Formato data non valido (atteso YYYY-MM-DD)');
   }
   if (!TIME_REGEX.test(orario)) {
-    throw new Error('Formato ora non valido (atteso HH:MM)');
+    throw badRequest('Formato ora non valido (atteso HH:MM)');
   }
   if (!targa || !targa.toString().trim()) {
-    throw new Error('La targa del veicolo è obbligatoria per le consegne');
+    throw badRequest('La targa del veicolo è obbligatoria per le consegne');
   }
   if (!modello || !modello.toString().trim()) {
-    throw new Error('Il modello del veicolo è obbligatorio per le consegne');
+    throw badRequest('Il modello del veicolo è obbligatorio per le consegne');
   }
 
   // Durata fissa accoglienza consegna: 30 minuti singoli
@@ -353,11 +363,11 @@ function createConsegnaBooking(userEmail, bookingData) {
   const targetSlotObj = availableSlots.find(s => s.time === orario);
 
   if (!targetSlotObj) {
-    throw new Error('Orario non valido o non selezionabile per questa data');
+    throw badRequest('Orario non valido o non selezionabile per questa data');
   }
 
   if (!targetSlotObj.available) {
-    throw new Error("L'intervallo richiesto non è disponibile (conflitto o pausa pranzo)");
+    throw badRequest("L'intervallo richiesto non è disponibile (conflitto o pausa pranzo)");
   }
 
   // Ottieni dati utente (registrato o guest)
@@ -411,11 +421,11 @@ function cancelBooking(giorno, ora, userEmail) {
   const booking = bookingsDB.findOne(b => b.giorno === giorno && b.ora === ora);
 
   if (!booking) {
-    throw new Error('Prenotazione non trovata');
+    throw badRequest('Prenotazione non trovata');
   }
 
   if (booking.email !== userEmail) {
-    throw new Error('Non autorizzato');
+    throw badRequest('Non autorizzato');
   }
 
   // Elimina la prenotazione dal CSV
@@ -453,13 +463,13 @@ function createAdminBooking(bookingData) {
 
   // Validazione Pragmatic Security (solo cognome, giorno, ora obbligatori per admin)
   if (!cognome || !giorno || !ora) {
-    throw new Error('Cognome, giorno e ora sono obbligatori');
+    throw badRequest('Cognome, giorno e ora sono obbligatori');
   }
   if (!DATE_REGEX.test(giorno)) {
-    throw new Error('Formato data non valido (atteso YYYY-MM-DD)');
+    throw badRequest('Formato data non valido (atteso YYYY-MM-DD)');
   }
   if (!TIME_REGEX.test(ora)) {
-    throw new Error('Formato ora non valido (atteso HH:MM)');
+    throw badRequest('Formato ora non valido (atteso HH:MM)');
   }
 
   // Determina se è una consegna (per il caller in server.js che controlla booking.isConsegna)
@@ -473,12 +483,12 @@ function createAdminBooking(bookingData) {
   const targetSlotObj = availableSlots.find(s => s.time === ora);
 
   if (!targetSlotObj) {
-    throw new Error('Orario non valido o fuori range lavorativo');
+    throw badRequest('Orario non valido o fuori range lavorativo');
   }
 
   // L'incrocio invalido viene bloccato anche all'admin
   if (!targetSlotObj.available) {
-    throw new Error(
+    throw badRequest(
       "L'intervallo richiesto si sovrappone a una prenotazione esistente o alle ferie"
     );
   }
@@ -524,8 +534,6 @@ function cleanDepositOnCancellation(booking) {
   if (!booking) return;
 
   const isExtraWork = booking.service_id === 'extra_work';
-  const { depositsDB } = require('./database');
-  const depositService = require('./depositService');
 
   // Trova il deposito collegato in modo robusto:
   // 1) Tramite booking_id (il deposito punta a questa prenotazione consegna)
@@ -562,15 +570,15 @@ function cleanDepositOnCancellation(booking) {
 // Cancella prenotazione da admin (senza verifica proprietario)
 function adminCancelBooking(giorno, ora) {
   if (!giorno || !ora) {
-    throw new Error('Giorno e ora sono obbligatori');
+    throw badRequest('Giorno e ora sono obbligatori');
   }
   if (!DATE_REGEX.test(giorno) || !TIME_REGEX.test(ora)) {
-    throw new Error('Formato data o ora non valido');
+    throw badRequest('Formato data o ora non valido');
   }
 
   const booking = bookingsDB.findOne(b => b.giorno === giorno && b.ora === ora);
   if (!booking) {
-    throw new Error('Prenotazione non trovata');
+    throw badRequest('Prenotazione non trovata');
   }
 
   cleanDepositOnCancellation(booking);
@@ -583,30 +591,30 @@ function adminCancelBooking(giorno, ora) {
 // Sposta prenotazione da admin (cambia giorno/ora)
 function moveBooking(oldGiorno, oldOra, newGiorno, newOra) {
   if (!oldGiorno || !oldOra || !newGiorno || !newOra) {
-    throw new Error('Tutti i campi sono obbligatori');
+    throw badRequest('Tutti i campi sono obbligatori');
   }
   if (!DATE_REGEX.test(newGiorno) || !DATE_REGEX.test(oldGiorno)) {
-    throw new Error('Formato data non valido (atteso YYYY-MM-DD)');
+    throw badRequest('Formato data non valido (atteso YYYY-MM-DD)');
   }
   if (!TIME_REGEX.test(newOra) || !TIME_REGEX.test(oldOra)) {
-    throw new Error('Formato ora non valido (atteso HH:MM)');
+    throw badRequest('Formato ora non valido (atteso HH:MM)');
   }
 
   // Trova la prenotazione da spostare
   const booking = bookingsDB.findOne(b => b.giorno === oldGiorno && b.ora === oldOra);
   if (!booking) {
-    throw new Error('Prenotazione non trovata');
+    throw badRequest('Prenotazione non trovata');
   }
 
   // Verifica che il nuovo slot non sia occupato
   const existingBooking = bookingsDB.findOne(b => b.giorno === newGiorno && b.ora === newOra);
   if (existingBooking) {
-    throw new Error('Questo slot è già occupato');
+    throw badRequest('Questo slot è già occupato');
   }
 
   // Verifica che il nuovo slot non sia in ferie
   if (isHolidaySlot(newGiorno, newOra)) {
-    throw new Error('Slot non disponibile (ferie)');
+    throw badRequest('Slot non disponibile (ferie)');
   }
 
   // Elimina la vecchia prenotazione
@@ -624,7 +632,240 @@ function moveBooking(oldGiorno, oldOra, newGiorno, newOra) {
   return newBooking;
 }
 
+// ==================== FLUSSI COMPLETI (prenotazione + deposito) ====================
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Consegna veicolo: prenotazione di accoglienza + deposito collegato (da eseguire in transazione)
+function createDropOff(email, payload, depositData, limitMessage) {
+  if (!depositService.canAcceptDeposit()) throw badRequest(limitMessage);
+
+  const booking = createConsegnaBooking(email, payload);
+  const deposit = depositService.createDeposit(booking.id, depositData);
+  bookingsDB.update(b => String(b.id) === String(booking.id), { deposit_id: deposit.id });
+  booking.deposit_id = deposit.id;
+  return { booking, deposit };
+}
+
+function depositFields(data, service, person) {
+  return {
+    ...person,
+    targa: data.targa || '',
+    modello: data.modello || '',
+    servizio: service ? service.nome : data.servizio || '',
+    ore_stimate: data.ore_stimate || 0,
+    note_cliente: data.note_cliente || data.noteCliente || ''
+  };
+}
+
+/**
+ * Prenotazione di un cliente registrato. Con old_giorno/old_ora sostituisce una propria
+ * prenotazione (modifica): tutto in una transazione, se la nuova non è valida la vecchia resta.
+ * Restituisce { booking, deposit, isConsegna }.
+ */
+function createCustomerBooking(email, data) {
+  return withTransaction(() => {
+    if (data.old_giorno && data.old_ora) {
+      const old = getUserBookings(email).find(
+        b => b.giorno === data.old_giorno && b.ora === data.old_ora
+      );
+      if (old) {
+        cleanDepositOnCancellation(old);
+        bookingsDB.delete(b => b.id === old.id);
+      }
+    }
+
+    const service = findService(data.serviceId);
+    if (!isConsegnaService(service)) {
+      return { booking: createBooking(email, data), deposit: null, isConsegna: false };
+    }
+
+    const user = usersDB.findOne(u => u.email === email) || {};
+    const person = {
+      nome: data.nome || user.nome || '',
+      cognome: data.cognome || user.cognome || '',
+      email,
+      telefono: data.telefono || user.telefono || ''
+    };
+    const result = createDropOff(
+      email,
+      data,
+      depositFields(data, service, person),
+      depositService.depositLimitMessage('Contattare il laboratorio.')
+    );
+    return { ...result, isConsegna: true };
+  });
+}
+
+/**
+ * Prenotazione senza account: crea (o riusa) un profilo ospite senza password.
+ * Accetta sia { data, orario } sia { giorno, ora }. Restituisce { booking, deposit }.
+ */
+function createGuestBooking(data) {
+  const { nome, cognome, email, giorno, ora } = data;
+  if (!nome || !cognome || !email) throw badRequest('Nome, cognome e email sono obbligatori');
+  if (!giorno || !ora) throw badRequest('Dati prenotazione incompleti (giorno, ora)');
+  if (!EMAIL_REGEX.test(email)) throw badRequest('Formato email non valido');
+
+  const emailLower = email.trim().toLowerCase();
+  const payload = { ...data, data: data.data || giorno, orario: data.orario || ora };
+
+  return withTransaction(() => {
+    const now = new Date().toISOString();
+    if (usersDB.findOne(u => u.email === emailLower)) {
+      usersDB.update(u => u.email === emailLower, { last_active_at: now });
+    } else {
+      usersDB.insert({
+        nome: nome.trim().slice(0, 100),
+        cognome: cognome.trim().slice(0, 100),
+        email: emailLower,
+        telefono: '',
+        password: '',
+        vip: '0',
+        banned: '0',
+        isGuest: '1',
+        last_active_at: now
+      });
+    }
+
+    const service = findService(data.serviceId);
+    if (!isConsegnaService(service)) {
+      return { booking: createBooking(emailLower, payload), deposit: null };
+    }
+    const person = {
+      nome: nome.trim(),
+      cognome: cognome.trim(),
+      email: emailLower,
+      telefono: data.telefono || ''
+    };
+    return createDropOff(
+      emailLower,
+      payload,
+      depositFields(data, service, person),
+      'Limite depositi raggiunto. Contattare il laboratorio.'
+    );
+  });
+}
+
+/**
+ * Prenotazione inserita dall'admin dal calendario; per i servizi di consegna crea anche il deposito.
+ * Restituisce { booking, deposit }.
+ */
+function createAdminBookingWithDeposit(data) {
+  const service = findService(data.serviceId || data.service_id);
+  const consegna = isConsegnaService(service);
+  if (consegna && !depositService.canAcceptDeposit()) {
+    throw badRequest(
+      depositService.depositLimitMessage('Non è possibile aggiungere altri lavori straordinari.')
+    );
+  }
+
+  return withTransaction(() => {
+    const booking = createAdminBooking(consegna ? { ...data, tipo: 'deposito' } : data);
+    if (!booking.isConsegna) return { booking, deposit: null };
+
+    const person = {
+      nome: data.nome || '',
+      cognome: data.cognome || '',
+      email: data.email || '',
+      telefono: data.telefono || ''
+    };
+    const deposit = depositService.createDeposit(booking.id, depositFields(data, service, person));
+    bookingsDB.update(b => String(b.id) === String(booking.id), { deposit_id: deposit.id });
+    booking.deposit_id = deposit.id;
+    return { booking, deposit };
+  });
+}
+
+// ==================== VISTE ====================
+
+function serviceName(booking) {
+  if (booking.service_id) {
+    const service = servicesDB.findOne(s => String(s.id) === String(booking.service_id));
+    if (service) return service.nome;
+  }
+  return booking.servizio || 'Prenotazione';
+}
+
+// Prenotazioni attive del cliente, con nome del servizio; le prenotazioni con lo stesso
+// token (vecchie prenotazioni multi-slot) vengono mostrate come una sola
+function getUserBookingList(email) {
+  const byToken = {};
+  const standalone = [];
+
+  getUserBookings(email).forEach(b => {
+    if (b.token) (byToken[b.token] = byToken[b.token] || []).push(b);
+    else standalone.push({ ...b, servizio: serviceName(b) });
+  });
+
+  const grouped = Object.values(byToken).map(group => {
+    group.sort((a, b) => (a.ora < b.ora ? -1 : 1));
+    const first = group[0];
+    const durata = first.durata_minuti ? parseInt(first.durata_minuti, 10) : group.length * 15;
+    return { ...first, servizio: serviceName(first), durata_minuti: durata };
+  });
+
+  return [...grouped, ...standalone];
+}
+
+// Prenotazioni per il calendario admin, arricchite con servizio, tipo veicolo e,
+// per consegne e blocchi di lavoro, con i dati del deposito collegato
+function getAdminBookings() {
+  const findById = id => servicesDB.findOne(s => String(s.id) === String(id));
+
+  return bookingsDB.readAll().map(bk => {
+    let servizio = bk.servizio || '';
+    if (!servizio && bk.service_id) {
+      const service = findById(bk.service_id);
+      if (service) servizio = service.nome;
+    }
+    let tipoVeicolo = '';
+    if (bk.service_id && bk.service_id !== 'extra_work') {
+      const service = findById(bk.service_id);
+      if (service) tipoVeicolo = service.tipo_veicolo || '';
+    }
+
+    if (bk.tipo !== 'deposito') {
+      const changes = {};
+      if (servizio !== bk.servizio) changes.servizio = servizio;
+      if (tipoVeicolo) changes.tipo_veicolo = tipoVeicolo;
+      return Object.keys(changes).length ? { ...bk, ...changes } : bk;
+    }
+
+    // Deposito collegato: via booking_id (consegna) oppure via deposit_id (blocco di lavoro)
+    const deposit =
+      depositsDB.findOne(d => String(d.booking_id) === String(bk.id)) ||
+      (bk.deposit_id ? depositsDB.findOne(d => String(d.id) === String(bk.deposit_id)) : null);
+    if (!deposit) return { ...bk, servizio, tipo_veicolo: tipoVeicolo };
+
+    if (bk.service_id === 'extra_work' && deposit.servizio) {
+      const service = servicesDB.findOne(s => s.nome === deposit.servizio);
+      if (service) tipoVeicolo = service.tipo_veicolo || '';
+    }
+    return {
+      ...bk,
+      // Per i blocchi di lavoro il servizio del deposito ha la precedenza
+      servizio:
+        bk.service_id === 'extra_work'
+          ? deposit.servizio || servizio || ''
+          : servizio || deposit.servizio || '',
+      targa: bk.targa || deposit.targa || '',
+      modello: bk.modello || deposit.modello || '',
+      note_cliente: bk.note_cliente || deposit.note_cliente || '',
+      telefono: bk.telefono || deposit.telefono || '',
+      ore_stimate: deposit.ore_stimate || 0,
+      nota_interna: deposit.nota_lorenzo || '',
+      tipo_veicolo: tipoVeicolo
+    };
+  });
+}
+
 module.exports = {
+  createCustomerBooking,
+  createGuestBooking,
+  createAdminBookingWithDeposit,
+  getUserBookingList,
+  getAdminBookings,
   isDayAvailable,
   getAvailableSlots,
   getAvailableSlotsForService,

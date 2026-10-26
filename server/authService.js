@@ -3,6 +3,7 @@ const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
 const { usersDB, adminDB } = require('./database');
 const config = require('../config/config');
+const { HttpError, badRequest } = require('./errors');
 
 // Verifica password admin
 async function verifyAdminPassword(email, password) {
@@ -55,17 +56,17 @@ async function registerUser(userData) {
 
   // Validazione base
   if (!nome || !cognome || !email || !telefono || !password) {
-    throw new Error('Tutti i campi sono obbligatori');
+    throw badRequest('Tutti i campi sono obbligatori');
   }
 
   if (password.length < 8) {
-    throw new Error('La password deve essere di almeno 8 caratteri');
+    throw badRequest('La password deve essere di almeno 8 caratteri');
   }
 
   // Controlla email duplicata
   const existingUser = usersDB.findOne(user => user.email === email);
   if (existingUser) {
-    throw new Error('Email già registrata');
+    throw badRequest('Email già registrata');
   }
 
   // 🛡️ FASE 3 Sicurezza: Argon2id (OWASP 2025 Standard)
@@ -99,7 +100,7 @@ async function registerUser(userData) {
 // Login utente
 async function loginUser(email, password) {
   if (!email || !password) {
-    throw new Error('Email e password sono obbligatori');
+    throw new HttpError(401, 'Email e password sono obbligatori');
   }
 
   const emailLower = email.trim().toLowerCase();
@@ -122,12 +123,12 @@ async function loginUser(email, password) {
   // Non è admin, cerca tra gli utenti normali
   const user = usersDB.findOne(u => u.email === emailLower);
   if (!user) {
-    throw new Error('Credenziali non valide');
+    throw new HttpError(401, 'Credenziali non valide');
   }
 
   // Verifica se l'utente è bannato
   if (user.banned === '1' || user.banned === 1) {
-    throw new Error('Account sospeso');
+    throw new HttpError(401, 'Account sospeso');
   }
 
   // 🛡️ FASE 3 Sicurezza: Graceful Upgrade Utenti (Argon2id)
@@ -145,11 +146,11 @@ async function loginUser(email, password) {
     }
   } catch (err) {
     console.error('Errore verifica password utente:', err);
-    throw new Error('Credenziali non valide');
+    throw new HttpError(401, 'Credenziali non valide');
   }
 
   if (!isValid) {
-    throw new Error('Credenziali non valide');
+    throw new HttpError(401, 'Credenziali non valide');
   }
 
   touchUserActivity(user.email);
@@ -168,7 +169,7 @@ function verifyToken(token) {
   try {
     return jwt.verify(token, config.jwt.secret);
   } catch (error) {
-    throw new Error('Token non valido');
+    throw new HttpError(401, 'Token non valido');
   }
 }
 
@@ -200,7 +201,7 @@ function getAllUsers() {
 function toggleVip(email) {
   const user = usersDB.findOne(u => u.email === email);
   if (!user) {
-    throw new Error('Utente non trovato');
+    throw badRequest('Utente non trovato');
   }
 
   const newVipStatus = user.vip === '1' || user.vip === 1 ? '0' : '1';
@@ -220,7 +221,7 @@ function isVip(email) {
 function toggleBanned(email) {
   const user = usersDB.findOne(u => u.email === email);
   if (!user) {
-    throw new Error('Utente non trovato');
+    throw badRequest('Utente non trovato');
   }
 
   const newBannedStatus = user.banned === '1' || user.banned === 1 ? '0' : '1';
@@ -257,11 +258,11 @@ function generateResetToken(email) {
 // Reset password con token
 async function resetPassword(token, newPassword) {
   if (!token || !newPassword) {
-    throw new Error('Token e password sono obbligatori');
+    throw badRequest('Token e password sono obbligatori');
   }
 
   if (newPassword.length < 8) {
-    throw new Error('La password deve essere di almeno 8 caratteri');
+    throw badRequest('La password deve essere di almeno 8 caratteri');
   }
 
   // Verifica token
@@ -269,18 +270,18 @@ async function resetPassword(token, newPassword) {
   try {
     decoded = jwt.verify(token, config.jwt.secret);
   } catch (error) {
-    throw new Error('Link scaduto o non valido');
+    throw badRequest('Link scaduto o non valido');
   }
 
   // Verifica che sia un token di reset
   if (decoded.purpose !== 'password-reset') {
-    throw new Error('Token non valido');
+    throw badRequest('Token non valido');
   }
 
   // Trova utente
   const user = usersDB.findOne(u => u.email === decoded.email);
   if (!user) {
-    throw new Error('Utente non trovato');
+    throw badRequest('Utente non trovato');
   }
 
   // 🛡️ FASE 3 Sicurezza: Argon2id per i Reset Passwords (OWASP 2025)
