@@ -3,6 +3,12 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+// Orari, "oggi" e date di calendario seguono il fuso dell'officina. Senza TZ i container
+// (es. Railway) usano UTC e, la mattina, gli slot appena passati risulterebbero ancora liberi.
+if (!process.env.TZ) {
+  process.env.TZ = 'Europe/Rome';
+}
+
 /**
  * Genera un array di orari (HH:MM) ogni intervalMins minuti
  * da startH:startM fino a (escluso) endH:endM.
