@@ -171,10 +171,11 @@ document.getElementById('service-next-btn').addEventListener('click', function (
 
   // Mostra recap servizio in step 3
   var recap = document.getElementById('selected-service-recap');
-  if (recap)
+  if (recap) {
     recap.textContent =
       selectedService.nome +
       (selectedService.durata_minuti ? ' (' + selectedService.durata_minuti + ' min)' : '');
+  }
 
   goToStep(3);
   renderCalendar();
@@ -295,7 +296,9 @@ async function loadTimeSlots(date) {
             '&excludeOra=' +
             encodeURIComponent(editingB.ora);
         }
-      } catch (e) {}
+      } catch (e) {
+        /* valore non valido: si ignora */
+      }
     }
 
     // Usa endpoint duration-aware se c'è un servizio selezionato
@@ -419,7 +422,9 @@ function populateSummary() {
       if (noteInput && !noteInput.value && editingB.note_cliente) {
         noteInput.value = editingB.note_cliente;
       }
-    } catch (e) {}
+    } catch (e) {
+      /* valore non valido: si ignora */
+    }
   }
 }
 
@@ -521,7 +526,9 @@ document.getElementById('modal-confirm').addEventListener('click', async functio
       var oldB = JSON.parse(editingBookingStr);
       payload.old_giorno = oldB.giorno;
       payload.old_ora = oldB.ora;
-    } catch (e) {}
+    } catch (e) {
+      /* valore non valido: si ignora */
+    }
   }
 
   try {

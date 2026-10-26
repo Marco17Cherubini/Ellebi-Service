@@ -643,8 +643,9 @@ app.post('/api/bookings/guest', guestLimiter, (req, res) => {
       if (
         svc &&
         (svc.tipo_servizio === 'consegna' || (svc.nome || '').toLowerCase().includes('consegna'))
-      )
+      ) {
         isConsegna = true;
+      }
     }
 
     let booking, deposit;

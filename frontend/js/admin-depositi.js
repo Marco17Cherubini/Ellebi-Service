@@ -127,8 +127,9 @@ function renderDeposits() {
     storico.classList.remove('hidden');
     storico.style.display = '';
     var storicoToggle = document.getElementById('storico-toggle');
-    if (storicoToggle)
+    if (storicoToggle) {
       storicoToggle.textContent = 'Storico lavori completati (' + completed.length + ')';
+    }
     sGrid.innerHTML = completed.map(buildStoricaCard).join('');
     attachCardListeners(sGrid);
     // Aperto di default
@@ -172,7 +173,9 @@ function buildDepositCard(deposit) {
   var noteCliente = deposit.note_cliente || '';
   var notaInterna = deposit.nota_lorenzo || '';
   var calcOreResidue =
-    deposit.ore_residue != null ? parseFloat(deposit.ore_residue) : parseFloat(deposit.ore_stimate);
+    deposit.ore_residue !== null && deposit.ore_residue !== undefined
+      ? parseFloat(deposit.ore_residue)
+      : parseFloat(deposit.ore_stimate);
   var oreResidueVal = calcOreResidue && calcOreResidue > 0 ? calcOreResidue : '';
 
   // ── Pill stato sul header
@@ -668,7 +671,9 @@ function buildStoricaCard(deposit) {
   logoutBtn.addEventListener('click', async function () {
     try {
       await apiRequest('/auth/logout', { method: 'POST' });
-    } catch (e) {}
+    } catch (e) {
+      /* valore non valido: si ignora */
+    }
     window.location.href = '/';
   });
 })();

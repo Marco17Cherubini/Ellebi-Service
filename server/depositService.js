@@ -97,8 +97,9 @@ function updateDeposit(id, updates) {
     changes.stato = sanitizeText(updates.stato, 50);
     changes.completed_at = changes.stato === 'completato' ? new Date().toISOString() : '';
   }
-  if (updates.nota_lorenzo !== undefined)
+  if (updates.nota_lorenzo !== undefined) {
     changes.nota_lorenzo = sanitizeText(updates.nota_lorenzo, 1000);
+  }
   if (updates.ore_residue !== undefined) changes.ore_residue = updates.ore_residue;
   if (updates.ore_stimate !== undefined) changes.ore_stimate = updates.ore_stimate;
 

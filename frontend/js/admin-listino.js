@@ -57,8 +57,8 @@ function renderTable() {
 }
 
 function buildRow(s) {
-  var attivo = s.attivo != 0 && s.attivo !== false;
-  var stagionale = s.stagionale != 0 && s.stagionale !== false;
+  var attivo = Number(s.attivo) !== 0;
+  var stagionale = Number(s.stagionale) !== 0;
   var durata = s.durata_minuti ? s.durata_minuti + ' min' : '—';
   var prezzo = s.prezzo_interno ? '€' + parseFloat(s.prezzo_interno).toFixed(2) : '—';
 
@@ -163,7 +163,10 @@ async function toggleActive(id, checked) {
     // Sync row opacity
     document.querySelectorAll('#services-tbody tr').forEach(function (tr, i) {
       if (allServices[i]) {
-        tr.classList.toggle('row-inactive', !allServices[i].attivo && allServices[i].attivo != 1);
+        tr.classList.toggle(
+          'row-inactive',
+          !allServices[i].attivo && Number(allServices[i].attivo) !== 1
+        );
       }
     });
   } catch (e) {
@@ -201,8 +204,8 @@ function openEditModal(s) {
   }
   document.getElementById('f-campi-extra').value = campi;
 
-  var attivo = s.attivo != 0 && s.attivo !== false;
-  var stagionale = s.stagionale != 0 && s.stagionale !== false;
+  var attivo = Number(s.attivo) !== 0;
+  var stagionale = Number(s.stagionale) !== 0;
 
   document.getElementById('f-attivo').checked = attivo;
   document.getElementById('f-stagionale').checked = stagionale;
@@ -388,7 +391,9 @@ document.getElementById('confirm-overlay').addEventListener('click', function (e
   logoutBtn.addEventListener('click', async function () {
     try {
       await apiRequest('/auth/logout', { method: 'POST' });
-    } catch (e) {}
+    } catch (e) {
+      /* valore non valido: si ignora */
+    }
     window.location.href = '/';
   });
 })();

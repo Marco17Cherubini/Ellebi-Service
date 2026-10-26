@@ -331,9 +331,10 @@
     grid.innerHTML = '<div class="loading">Caricamento orari...</div>';
 
     const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
-    if (title)
+    if (title) {
       title.textContent =
         'Orari disponibili - ' + dayNames[dateObj.getDay()] + ' ' + dateObj.getDate();
+    }
 
     // Calculate slots needed (1 slot = 15min default, or dynamic based on duration)
     const duration = selectedService ? selectedService.durata_minuti || 60 : 60;
@@ -549,11 +550,12 @@
     const confDate = document.getElementById('conf-data');
     const confTime = document.getElementById('conf-ora');
 
-    if (confNome)
+    if (confNome) {
       confNome.textContent =
         (payload && payload.nome ? payload.nome : '') +
         ' ' +
         (payload && payload.cognome ? payload.cognome : '');
+    }
     if (confService) confService.textContent = selectedService ? selectedService.nome : 'Servizio';
     if (confDate) confDate.textContent = formatDateDisplay(selectedDate);
     if (confTime) confTime.textContent = selectedTime;

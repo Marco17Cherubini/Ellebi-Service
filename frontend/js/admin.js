@@ -1419,13 +1419,7 @@ document.getElementById('next-week').addEventListener('click', async () => {
   renderCalendar();
 });
 
-// Cambio granularità calendario
-document.getElementById('granularity-select').addEventListener('change', function () {
-  calendarGranularity = 15;
-  return; //
-  calendarGranularity = parseInt(this.value, 10);
-  renderCalendar();
-});
+// La granularità del calendario resta fissa a 15 minuti: il selettore è nascosto (#granularity-select)
 
 // ==================== SIDEBAR MENU ====================
 
@@ -1822,8 +1816,9 @@ function setupHolidayTouch() {
         cell.classList.contains('has-booking') ||
         !cell.dataset.date ||
         !cell.dataset.time
-      )
+      ) {
         return;
+      }
 
       // Avvia immediatamente il drag al primo tocco, esattamene come il mousedown
       e.preventDefault();

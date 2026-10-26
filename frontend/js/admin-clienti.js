@@ -43,8 +43,10 @@ function getCurrentStatus(email) {
   const original = originalStatus[email] || { vip: false, banned: false };
   const pending = pendingChanges[email] || {};
   return {
-    vip: pending.hasOwnProperty('vip') ? pending.vip : original.vip,
-    banned: pending.hasOwnProperty('banned') ? pending.banned : original.banned
+    vip: Object.prototype.hasOwnProperty.call(pending, 'vip') ? pending.vip : original.vip,
+    banned: Object.prototype.hasOwnProperty.call(pending, 'banned')
+      ? pending.banned
+      : original.banned
   };
 }
 
@@ -79,7 +81,7 @@ function renderUsers(users) {
       let pendingClass = '';
       let pendingBadges = '';
 
-      if (pending.hasOwnProperty('vip')) {
+      if (Object.prototype.hasOwnProperty.call(pending, 'vip')) {
         if (pending.vip && !original.vip) {
           pendingClass += ' pending-vip-add';
           pendingBadges += '<span class="pending-badge vip-add">+ VIP</span>';
@@ -89,7 +91,7 @@ function renderUsers(users) {
         }
       }
 
-      if (pending.hasOwnProperty('banned')) {
+      if (Object.prototype.hasOwnProperty.call(pending, 'banned')) {
         if (pending.banned && !original.banned) {
           pendingClass += ' pending-ban-add';
           pendingBadges += '<span class="pending-badge ban-add">+ BAN</span>';
@@ -317,13 +319,13 @@ async function confirmChanges() {
   try {
     // Esegui tutte le modifiche
     for (const [email, changes] of Object.entries(pendingChanges)) {
-      if (changes.hasOwnProperty('vip')) {
+      if (Object.prototype.hasOwnProperty.call(changes, 'vip')) {
         await fetch(`/api/admin/users/${encodeURIComponent(email)}/vip`, {
           method: 'PUT',
           credentials: 'include'
         });
       }
-      if (changes.hasOwnProperty('banned')) {
+      if (Object.prototype.hasOwnProperty.call(changes, 'banned')) {
         await fetch(`/api/admin/users/${encodeURIComponent(email)}/banned`, {
           method: 'PUT',
           credentials: 'include'
