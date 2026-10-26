@@ -35,7 +35,7 @@ async function init() {
       return;
     }
 
-    document.getElementById('welcome-message').textContent = 'Bentornato, ' + currentUser.nome;
+    document.getElementById('welcome-message').textContent = 'Ciao, ' + currentUser.nome + '!';
 
     // Carica giorni aperti dalla config
     try {

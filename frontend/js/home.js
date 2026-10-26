@@ -8,9 +8,9 @@ async function init() {
       return;
     }
 
-    // Mostra messaggio di benvenuto con stellina VIP se applicabile
+    // Saluto neutro (il genere del cliente non è noto), con stellina VIP se applicabile
     const vipBadge = user.vip ? ' ⭐' : '';
-    document.getElementById('welcome-message').textContent = `Bentornato, ${user.nome}${vipBadge}`;
+    document.getElementById('welcome-message').textContent = `Ciao, ${user.nome}!${vipBadge}`;
   } catch (error) {
     console.error('Errore inizializzazione:', error);
     redirectToLogin();
