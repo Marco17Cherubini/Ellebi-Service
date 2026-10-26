@@ -16,6 +16,7 @@ const {
 const depositService = require('./depositService');
 const config = require('../config/config');
 const crypto = require('crypto');
+const { dayOfWeek, todayString } = require('./dates');
 
 // Genera token univoco per gestione prenotazione (32 caratteri hex)
 function generateBookingToken() {
@@ -28,27 +29,16 @@ function sanitizeText(value, maxLen) {
   return String(value).trim().slice(0, maxLen);
 }
 
-// Helper: restituisce il giorno della settimana senza sfasamenti UTC (0=domenica, 1=lunedì, ...)
-function getLocalDayOfWeek(dateStr) {
-  if (!dateStr || typeof dateStr !== 'string') return 0;
-  const parts = dateStr.split('-');
-  if (parts.length === 3) {
-    // new Date(anno, mese_index, giorno) crea una data a mezzanotte nel fuso locale
-    return new Date(parts[0], parts[1] - 1, parts[2]).getDay();
-  }
-  return new Date(dateStr).getDay();
-}
-
 // Verifica se il giorno è tra quelli di apertura (config.businessHours.daysOpen)
 function isDayAvailable(date) {
-  const dayOfWeek = getLocalDayOfWeek(date);
-  return config.businessHours.daysOpen.includes(dayOfWeek);
+  const weekday = dayOfWeek(date);
+  return config.businessHours.daysOpen.includes(weekday);
 }
 
 // Ottieni gli slot per un giorno specifico (sabato ha orari diversi)
 function getSlotsForDay(date, includeExtraSlots = false) {
-  const dayOfWeek = getLocalDayOfWeek(date);
-  const hours = dayOfWeek === 6 ? config.businessHours.saturday : config.businessHours.weekday;
+  const weekday = dayOfWeek(date);
+  const hours = weekday === 6 ? config.businessHours.saturday : config.businessHours.weekday;
 
   let slots = [...hours.morning.slots, ...hours.afternoon.slots];
 
@@ -79,7 +69,7 @@ function getSlotsForDay(date, includeExtraSlots = false) {
       '22:15',
       '23:00'
     ];
-    const extraSlots = dayOfWeek === 6 ? extraSlotsSaturday : extraSlotsWeekday;
+    const extraSlots = weekday === 6 ? extraSlotsSaturday : extraSlotsWeekday;
     // Aggiungi pre-orario all'inizio, poi slot normali, poi straordinari
     slots = [...preOpeningSlot, ...slots, ...extraSlots];
   }
@@ -149,9 +139,8 @@ function computeAvailableSlots(
     });
 
   // 3. Calcola i limiti di turno (Shifts) per la giornata
-  const dayOfWeek = getLocalDayOfWeek(date);
-  const hoursConfig =
-    dayOfWeek === 6 ? config.businessHours.saturday : config.businessHours.weekday;
+  const weekday = dayOfWeek(date);
+  const hoursConfig = weekday === 6 ? config.businessHours.saturday : config.businessHours.weekday;
 
   const validShifts = [];
   if (includeExtraSlots) {
@@ -174,9 +163,9 @@ function computeAvailableSlots(
     }
   }
 
-  // Confronto "Pragmatic Security" senza instanziare nuovi oggetti Date dalle stringhe
+  // Solo slot futuri: giorni successivi interi, oggi solo gli orari non ancora passati
   const now = new Date();
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const todayStr = todayString();
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
   return allSlots
@@ -350,7 +339,7 @@ function createConsegnaBooking(userEmail, bookingData, { extendedHours = false }
 
 // Ottieni prenotazioni attive di un utente (future + non annullate, escluse extra_work)
 function getUserBookings(userEmail) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayString();
   return bookingsDB.findMany(
     b =>
       b.email === userEmail &&

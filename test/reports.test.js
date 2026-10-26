@@ -45,34 +45,26 @@ async function weekly() {
   return res.data.counts;
 }
 
-test(
-  'report settimanale: una prenotazione di oggi è contata nella colonna di oggi',
-  { todo: 'P15: le date dei report sono calcolate in UTC' },
-  async () => {
-    insertBooking(daysAgo(0), '09:00');
-    insertBooking(daysAgo(2), '10:00');
-    const counts = await weekly();
-    assert.equal(counts[6], 1);
-    assert.equal(counts[4], 1);
-  }
-);
+test('report settimanale: una prenotazione di oggi è contata nella colonna di oggi', async () => {
+  insertBooking(daysAgo(0), '09:00');
+  insertBooking(daysAgo(2), '10:00');
+  const counts = await weekly();
+  assert.equal(counts[6], 1);
+  assert.equal(counts[4], 1);
+});
 
-test(
-  'report: i blocchi di lavoro straordinario non contano come prenotazioni (D-4)',
-  { todo: 'D-4: ogni blocco extra_work da 15 minuti oggi conta come una prenotazione' },
-  async () => {
-    const before = (await weekly()).reduce((a, b) => a + b, 0);
-    insertBooking(daysAgo(1), '14:30', {
-      service_id: 'extra_work',
-      deposit_id: 1,
-      durata_minuti: 15
-    });
-    insertBooking(daysAgo(1), '14:45', {
-      service_id: 'extra_work',
-      deposit_id: 1,
-      durata_minuti: 15
-    });
-    const afterCount = (await weekly()).reduce((a, b) => a + b, 0);
-    assert.equal(afterCount, before);
-  }
-);
+test('report: i blocchi di lavoro straordinario non contano come prenotazioni (D-4)', async () => {
+  const before = (await weekly()).reduce((a, b) => a + b, 0);
+  insertBooking(daysAgo(1), '14:30', {
+    service_id: 'extra_work',
+    deposit_id: 1,
+    durata_minuti: 15
+  });
+  insertBooking(daysAgo(1), '14:45', {
+    service_id: 'extra_work',
+    deposit_id: 1,
+    durata_minuti: 15
+  });
+  const afterCount = (await weekly()).reduce((a, b) => a + b, 0);
+  assert.equal(afterCount, before);
+});
