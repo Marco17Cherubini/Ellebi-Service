@@ -34,6 +34,21 @@ const config = {
     env: process.env.NODE_ENV || 'development'
   },
 
+  // Cancellazione automatica dei dati scaduti (server/retentionService.js).
+  // Default: attiva solo in produzione; RETENTION_ENABLED=true|false la forza.
+  retention: {
+    enabled: process.env.RETENTION_ENABLED
+      ? process.env.RETENTION_ENABLED === 'true'
+      : (process.env.NODE_ENV || 'development') === 'production'
+  },
+
+  // Rate limiting per IP sulle rotte esposte ad abusi (login, registrazione, prenotazioni ospite)
+  rateLimit: {
+    windowMs: 15 * 60 * 1000,
+    authMax: parseInt(process.env.RATE_LIMIT_AUTH_MAX, 10) || 10,
+    guestMax: parseInt(process.env.RATE_LIMIT_GUEST_MAX, 10) || 5
+  },
+
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: '7d'
