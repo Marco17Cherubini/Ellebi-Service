@@ -67,14 +67,6 @@ const config = {
     expiresIn: '7d'
   },
 
-  email: {
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    user: process.env.EMAIL_USER,
-    password: process.env.EMAIL_PASSWORD,
-    from: process.env.EMAIL_FROM
-  },
-
   studio: {
     name: process.env.STUDIO_NAME || 'Ellebi Service SRL',
     phone: process.env.STUDIO_PHONE || '+39 366 304 3908',
@@ -119,7 +111,8 @@ const config = {
     }
   },
 
-  // Numero massimo di depositi attivi in contemporanea (provvisorio)
+  // Limite iniziale di depositi attivi; l'admin lo modifica dalla pagina Lavori Straordinari
+  // (impostazione maxDeposits nel database)
   maxDeposits: 5,
 
   // Helper esportato per uso in altri moduli (es. seed dati, test)
