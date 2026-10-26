@@ -1,8 +1,11 @@
 {
-  "name": "lb-service",
+  "name": "ellebi-service",
   "version": "1.0.0",
-  "description": "Sistema gestionale completo per LB Service",
+  "description": "Booking and workshop management web app for a car and motorcycle repair shop",
   "main": "server/server.js",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
@@ -20,27 +23,30 @@
   },
   "keywords": [
     "workshop",
-    "officina",
+    "garage",
     "booking",
-    "management"
+    "scheduling",
+    "express",
+    "sqlite"
   ],
-  "author": "LB Service",
+  "author": "Marco Cherubini",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Marco17Cherubini/Ellebi-Service.git"
+  },
   "dependencies": {
     "argon2": "^0.44.0",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.9",
     "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "express": "^4.22.3",
     "express-rate-limit": "^6.11.2",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^6.9.7",
     "resend": "^6.6.0",
-    "sql.js": "^1.13.0",
-    "xlsx": "^0.18.5"
+    "sql.js": "^1.13.0"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
