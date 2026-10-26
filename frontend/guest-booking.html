@@ -70,7 +70,7 @@
           La data verrà concordata con il laboratorio.
         </div>
         <div class="btn-group" style="margin-top: 14px">
-          <button type="button" class="btn btn-outline" onclick="goToStep(0)">Indietro</button>
+          <button type="button" class="btn btn-outline" data-go-to-step="0">Indietro</button>
           <button type="button" class="btn" id="service-next-btn" disabled>Continua</button>
         </div>
       </div>
@@ -112,7 +112,7 @@
         </div>
 
         <div class="btn-group" style="margin-top: 1rem">
-          <button type="button" class="btn btn-outline" onclick="goToStep(1)">Indietro</button>
+          <button type="button" class="btn btn-outline" data-go-to-step="1">Indietro</button>
         </div>
       </div>
 
@@ -242,7 +242,7 @@
 
           <div id="form-error" class="form-error hidden"></div>
           <div class="btn-group" style="gap: var(--space-3)">
-            <button type="button" class="btn btn-outline" onclick="goToStep(2)">Indietro</button>
+            <button type="button" class="btn btn-outline" data-go-to-step="2">Indietro</button>
             <button type="submit" class="btn btn-large">Conferma</button>
           </div>
         </form>

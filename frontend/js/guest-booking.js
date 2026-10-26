@@ -118,6 +118,11 @@
     });
   }
 
+  // Pulsanti "Indietro" (data-go-to-step): niente handler inline, compatibile con la CSP
+  document.querySelectorAll('[data-go-to-step]').forEach(btn => {
+    btn.addEventListener('click', () => window.goToStep(Number(btn.dataset.goToStep)));
+  });
+
   window.goToStep = function (step) {
     Object.values(sections).forEach(s => {
       if (s) s.classList.remove('active');

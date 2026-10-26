@@ -3,6 +3,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+const path = require('path');
 const config = require('../config/config');
 const { notFoundHandler, errorHandler } = require('./errors');
 const authRoutes = require('./routes/auth');
@@ -14,26 +15,17 @@ const { router: pageRoutes, FRONTEND_DIR } = require('./routes/pages');
 
 const app = express();
 
+// Content Security Policy: script solo da questo server e nessun handler inline,
+// così un eventuale XSS non può eseguire codice iniettato. Gli stili inline restano
+// ammessi (attributi style nel markup e negli script). In locale (http) non si forza
+// l'upgrade a https delle risorse.
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          'https://cdn.jsdelivr.net',
-          'https://cdn.iubenda.com',
-          'https://www.iubenda.com'
-        ],
-        scriptSrcAttr: ["'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://cdn.iubenda.com'],
-        imgSrc: ["'self'", 'data:', 'https://cdn.iubenda.com', 'https://www.iubenda.com'],
-        connectSrc: ["'self'", 'https://www.iubenda.com', 'https://cdn.iubenda.com'],
-        fontSrc: ["'self'", 'https://cdn.iubenda.com'],
-        frameSrc: ["'self'", 'https://www.iubenda.com'],
-        objectSrc: ["'none'"],
-        frameAncestors: ["'none'"]
+        scriptSrcAttr: ["'none'"],
+        frameAncestors: ["'none'"],
+        upgradeInsecureRequests: config.server.env === 'production' ? [] : null
       }
     }
   })
@@ -50,6 +42,10 @@ if (config.server.env === 'production') {
 }
 
 app.use(express.static(FRONTEND_DIR));
+
+// Chart.js (pagina Report) servito dalla dipendenza npm, con versione fissata nel lockfile
+const CHART_JS = path.join(path.dirname(require.resolve('chart.js')), 'chart.umd.js');
+app.get('/vendor/chart.umd.js', (req, res) => res.sendFile(CHART_JS));
 
 app.use(authRoutes);
 app.use(bookingRoutes);
