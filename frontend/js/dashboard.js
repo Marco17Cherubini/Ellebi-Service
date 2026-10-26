@@ -84,6 +84,7 @@ function goToStep(step) {
 // ==================== STEP 1: VEICOLO ====================
 
 document.querySelectorAll('.vehicle-card').forEach(function (card) {
+  makeKeyboardActivatable(card);
   card.addEventListener('click', function () {
     document.querySelectorAll('.vehicle-card').forEach(function (c) {
       c.classList.remove('selected');
@@ -143,6 +144,7 @@ async function loadServices() {
           ? '<div class="service-card-desc">' + escapeHTML(svc.descrizione) + '</div>'
           : '');
 
+      makeKeyboardActivatable(card);
       card.addEventListener('click', function () {
         document.querySelectorAll('.service-card').forEach(function (c) {
           c.classList.remove('selected');
@@ -261,6 +263,7 @@ function renderCalendar() {
       dayElement.classList.add('disabled');
     } else {
       (function (ds, el) {
+        makeKeyboardActivatable(el);
         el.addEventListener('click', function () {
           selectDate(ds, el);
         });
@@ -332,6 +335,7 @@ async function loadTimeSlots(date) {
       slotEl.className = 'time-slot';
       slotEl.textContent = slot.time;
       slotEl.dataset.time = slot.time;
+      makeKeyboardActivatable(slotEl);
       slotEl.addEventListener('click', function () {
         selectTimeSlot(slotEl);
       });

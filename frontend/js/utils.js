@@ -31,6 +31,19 @@ async function apiRequest(endpoint, options = {}) {
   return data;
 }
 
+// Rende utilizzabile da tastiera un elemento cliccabile non nativo (card, giorno, orario):
+// raggiungibile con Tab e attivabile con Invio o Spazio come un pulsante
+function makeKeyboardActivatable(el) {
+  el.setAttribute('role', 'button');
+  el.tabIndex = 0;
+  el.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      el.click();
+    }
+  });
+}
+
 function showError(elementId, message) {
   const errorElement = document.getElementById(elementId);
   errorElement.textContent = message;

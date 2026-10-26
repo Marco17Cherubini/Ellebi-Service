@@ -174,3 +174,9 @@
 .grid-3 {
   grid-template-columns: repeat(3, 1fr);
 }
+
+/* Focus visibile per gli elementi resi attivabili da tastiera (card, giorni, orari) */
+[role='button']:focus-visible {
+  outline: 2px solid var(--brand-accent);
+  outline-offset: 2px;
+}

@@ -65,7 +65,8 @@
         "redirectToDashboard": "readonly",
         "Modal": "readonly",
         "goToStep": "readonly",
-        "Chart": "readonly"
+        "Chart": "readonly",
+        "makeKeyboardActivatable": "readonly"
       }
     }
   ]

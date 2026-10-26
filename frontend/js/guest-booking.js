@@ -4,17 +4,6 @@
 (function () {
   'use strict';
 
-  // 🛡️ XSS Prevention: sanitizza input prima di iniettarlo nel DOM
-  function escapeHTML(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
   // State
   const guestData = {
     nome: '',
@@ -65,6 +54,7 @@
   function setupEventListeners() {
     // Step 0: Tipo Veicolo
     document.querySelectorAll('.vehicle-card').forEach(function (card) {
+      makeKeyboardActivatable(card);
       card.addEventListener('click', function () {
         document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
@@ -218,6 +208,7 @@
             ? '<div class="service-card-desc">' + escapeHTML(svc.descrizione) + '</div>'
             : '');
 
+        makeKeyboardActivatable(card);
         card.addEventListener('click', () => {
           document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
           card.classList.add('selected');
@@ -297,6 +288,7 @@
       if (date < today || !guestDaysOpen.includes(dayOfWeek)) {
         cell.classList.add('disabled');
       } else {
+        makeKeyboardActivatable(cell);
         cell.addEventListener('click', () => selectDate(dateStr, date));
       }
       grid.appendChild(cell);
@@ -397,6 +389,7 @@
           slotEl.className = 'time-slot';
           slotEl.textContent = slotTime;
           slotEl.dataset.time = slotTime;
+          makeKeyboardActivatable(slotEl);
           slotEl.addEventListener('click', () => selectTimeSlot(slotTime));
           grid.appendChild(slotEl);
         });
