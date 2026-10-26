@@ -35,7 +35,7 @@ Legenda: ✅ completato · 🔄 in corso · ⏳ da fare · ⛔ bloccato · ⏭�
 | # | ID | Task | Effort | Stato |
 |---|---|---|---|---|
 | 1 | T00 | Branch, `npm ci`, baseline (lint, format, audit, avvio) | LOW | ✅ |
-| 1 | T01 | Rimuovere DB e file WAL tracciati; `.gitignore` | LOW | ⏳ |
+| 1 | T01 | Rimuovere DB e file WAL tracciati; `.gitignore` | LOW | ✅ |
 | 1 | T27 | Normalizzazione LF, ESLint/Prettier coerenti | MEDIUM | ⏳ |
 | 2 | T03 | Separare `app.js` e `server.js` | HIGH | ⏳ |
 | 2 | T08 | Flag di retention (D-1) | MAX | ⏳ |
@@ -163,6 +163,13 @@ Valutazione: **combinazione per area**.
 | P26 | Funzioni token inutilizzate | `server/bookingService.js:587-665` |
 | P27 | `maxDeposits` con tre fonti | `server/server.js:656`, `config/config.js:94` |
 
+## T01: pulizia dei dati nel repository
+
+- Rimossi dall'albero, senza leggerne i contenuti: `database/database.sqlite.bak` e 8 file `database/.fuse_hidden*` (file WAL e shared memory di SQLite). Restano nella cronologia Git: la riscrittura è la decisione separata D-7.
+- `.claude/settings.local.json` non è più tracciato (configurazione locale); il file locale resta.
+- `.gitignore`: ignora tutto `database/` tranne `.gitkeep`, più `*.sqlite`, `*.sqlite-*`, `*.sqlite.bak` e `.fuse_hidden*` ovunque.
+- Verifica: `git check-ignore` sui percorsi tipici (DB, WAL, CSV legacy, file fuse, impostazioni locali). Avvio con il percorso di default: `database/database.sqlite` viene creato, risulta ignorato e il server risponde `200`. Il DB sintetico di prova è stato eliminato.
+
 ## Prossimo passo
 
-T01: togliere `database/database.sqlite.bak` e `database/.fuse_hidden*` dall'indice e dall'albero, senza leggerne i contenuti, e aggiornare `.gitignore`.
+T27: normalizzare le terminazioni di riga in LF (`.gitattributes`, un commit meccanico registrato in `.git-blame-ignore-revs`) e rendere coerenti ESLint e Prettier (env node/browser, CommonJS, globali condivisi del frontend).

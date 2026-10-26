@@ -1,15 +1,16 @@
 # Dipendenze
 node_modules/
 
-# File ambiente (contiene password!)
+# File ambiente (contiene segreti)
 .env
 
-# Database (dati sensibili!)
-database/*.sqlite
-database/*.sqlite-*
-database/*.csv
-database/*_backup.*
+# Database: nessun file di dati nel repository (possibili dati personali)
+database/*
 !database/.gitkeep
+*.sqlite
+*.sqlite-*
+*.sqlite.bak
+.fuse_hidden*
 
 # Backup
 backups/
@@ -17,6 +18,9 @@ backups/
 # Log
 logs/
 *.log
+
+# Configurazione locale di Claude Code
+.claude/settings.local.json
 
 # Sistema
 .DS_Store
