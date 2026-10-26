@@ -4,17 +4,6 @@ const jwt = require('jsonwebtoken');
 const { usersDB, adminDB } = require('./database');
 const config = require('../config/config');
 
-// Genera ID univoco
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-// Verifica se è admin (solo lettura da admin.xlsx)
-function isAdmin(email) {
-  const admin = adminDB.findOne(a => a.email === email.trim().toLowerCase());
-  return !!admin;
-}
-
 // Verifica password admin
 async function verifyAdminPassword(email, password) {
   const admin = adminDB.findOne(a => a.email === email.trim().toLowerCase());
@@ -313,8 +302,6 @@ module.exports = {
   loginUser,
   verifyToken,
   getUserByEmail,
-  generateId,
-  isAdmin,
   getAllUsers,
   toggleVip,
   isVip,

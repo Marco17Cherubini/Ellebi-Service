@@ -1,5 +1,4 @@
 const { depositsDB, getSetting } = require('./database');
-const config = require('../config/config');
 
 // 🛡️ Validazione lunghezza input: tronca campi di testo a lunghezze sicure
 function sanitizeText(value, maxLen) {
@@ -112,10 +111,6 @@ function updateDeposit(id, updates) {
   return getDepositById(id);
 }
 
-function markCompleted(id) {
-  return updateDeposit(id, { stato: 'completato' });
-}
-
 function deleteDeposit(id) {
   depositsDB.delete(function (d) {
     return String(d.id) === String(id);
@@ -132,7 +127,6 @@ module.exports = {
   getDepositById,
   createDeposit,
   updateDeposit,
-  markCompleted,
   deleteDeposit,
   get MAX_DEPOSITS() {
     return getSetting('maxDeposits');

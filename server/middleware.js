@@ -1,4 +1,4 @@
-const { verifyToken, getUserByEmail, isAdmin, isBanned } = require('./authService');
+const { verifyToken, getUserByEmail, isBanned } = require('./authService');
 
 // Middleware per autenticazione
 function authenticateToken(req, res, next) {
