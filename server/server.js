@@ -17,8 +17,21 @@ const {
   adminCancelBooking,
   moveBooking
 } = require('./bookingService');
-const { getAllUsers, toggleVip, isVip, toggleBanned, generateResetToken, resetPassword, touchUserActivity } = require('./authService');
-const { initializeEmailService, sendBookingConfirmation, sendPasswordResetEmail, sendDepositCompletionEmail } = require('./emailService');
+const {
+  getAllUsers,
+  toggleVip,
+  isVip,
+  toggleBanned,
+  generateResetToken,
+  resetPassword,
+  touchUserActivity
+} = require('./authService');
+const {
+  initializeEmailService,
+  sendBookingConfirmation,
+  sendPasswordResetEmail,
+  sendDepositCompletionEmail
+} = require('./emailService');
 const { initDatabase } = require('./database');
 const { startRetentionScheduler } = require('./retentionService');
 const depositService = require('./depositService');
@@ -29,7 +42,9 @@ const depositService = require('./depositService');
 if (!config.jwt.secret) {
   console.error('❌ ERRORE CRITICO: JWT_SECRET non configurato!');
   console.error('   Imposta JWT_SECRET nel file .env');
-  console.error('   Genera un secret con: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
+  console.error(
+    "   Genera un secret con: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\""
+  );
   process.exit(1);
 }
 
@@ -41,36 +56,38 @@ const app = express();
 initializeEmailService();
 
 // Middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: [
-        "'self'",
-        "'unsafe-inline'",
-        "https://cdn.jsdelivr.net",
-        "https://cdn.iubenda.com",
-        "https://www.iubenda.com"
-      ],
-      scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.iubenda.com"],
-      imgSrc: ["'self'", "data:", "https://cdn.iubenda.com", "https://www.iubenda.com"],
-      connectSrc: ["'self'", "https://www.iubenda.com", "https://cdn.iubenda.com"],
-      fontSrc: ["'self'", "https://cdn.iubenda.com"],
-      frameSrc: ["'self'", "https://www.iubenda.com"],
-      objectSrc: ["'none'"],
-      frameAncestors: ["'none'"]
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://cdn.jsdelivr.net',
+          'https://cdn.iubenda.com',
+          'https://www.iubenda.com'
+        ],
+        scriptSrcAttr: ["'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://cdn.iubenda.com'],
+        imgSrc: ["'self'", 'data:', 'https://cdn.iubenda.com', 'https://www.iubenda.com'],
+        connectSrc: ["'self'", 'https://www.iubenda.com', 'https://cdn.iubenda.com'],
+        fontSrc: ["'self'", 'https://cdn.iubenda.com'],
+        frameSrc: ["'self'", 'https://www.iubenda.com'],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"]
+      }
     }
-  }
-}));
+  })
+);
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 app.use(cookieParser());
 
 // Rate limiter per route di autenticazione (protezione brute-force)
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 minuti
-  max: 10,                     // Max 10 tentativi per finestra
+  windowMs: 15 * 60 * 1000, // 15 minuti
+  max: 10, // Max 10 tentativi per finestra
   message: { success: false, error: 'Troppi tentativi. Riprova tra 15 minuti.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -81,8 +98,8 @@ const authLimiter = rateLimit({
 
 // Rate limiter per guest checkout (protezione flood prenotazioni)
 const guestLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 minuti
-  max: 5,                      // Max 5 prenotazioni guest per finestra
+  windowMs: 15 * 60 * 1000, // 15 minuti
+  max: 5, // Max 5 prenotazioni guest per finestra
   message: { success: false, error: 'Troppi tentativi. Riprova tra 15 minuti.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -157,8 +174,7 @@ app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
     }
 
     // Risposta generica (anti-enumerazione)
-    res.json({ success: true, message: 'Se l\'email esiste, riceverai un link di reset.' });
-
+    res.json({ success: true, message: "Se l'email esiste, riceverai un link di reset." });
   } catch (error) {
     console.error('Errore forgot-password:', error);
     res.status(500).json({ success: false, error: 'Errore interno' });
@@ -173,7 +189,6 @@ app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
     await resetPassword(token, password);
 
     res.json({ success: true, message: 'Password aggiornata con successo' });
-
   } catch (error) {
     console.error('Errore reset-password:', error);
     res.status(400).json({ success: false, error: error.message });
@@ -208,9 +223,12 @@ app.get('/api/slots/:date', (req, res) => {
 
     // Supporto esclusione slot in modifica prenotazione
     let excludeBooking = null;
-    if (req.query.excludeGiorno && req.query.excludeOra &&
-        /^\d{4}-\d{2}-\d{2}$/.test(req.query.excludeGiorno) &&
-        /^([01]\d|2[0-3]):[0-5]\d$/.test(req.query.excludeOra)) {
+    if (
+      req.query.excludeGiorno &&
+      req.query.excludeOra &&
+      /^\d{4}-\d{2}-\d{2}$/.test(req.query.excludeGiorno) &&
+      /^([01]\d|2[0-3]):[0-5]\d$/.test(req.query.excludeOra)
+    ) {
       excludeBooking = { giorno: req.query.excludeGiorno, ora: req.query.excludeOra };
     }
 
@@ -230,14 +248,17 @@ app.get('/api/slots/:date/:serviceId', (req, res) => {
   try {
     const { date, serviceId } = req.params;
     const { servicesDB } = require('./database');
-    const service = servicesDB.findOne(function (s) { return String(s.id) === String(serviceId); });
+    const service = servicesDB.findOne(function (s) {
+      return String(s.id) === String(serviceId);
+    });
     if (!service) {
       return res.status(404).json({ success: false, error: 'Servizio non trovato' });
     }
     // Le consegne occupano sempre 30 minuti (accoglienza chiavi + spiegazione problema)
-    const isConsegnaService = service.tipo_servizio === 'consegna' ||
+    const isConsegnaService =
+      service.tipo_servizio === 'consegna' ||
       (service.nome || '').toLowerCase().includes('consegna');
-    const durata = isConsegnaService ? 30 : (parseInt(service.durata_minuti) || 60);
+    const durata = isConsegnaService ? 30 : parseInt(service.durata_minuti) || 60;
 
     // Verifica VIP/admin per slot extra
     let includeExtraSlots = false;
@@ -248,14 +269,19 @@ app.get('/api/slots/:date/:serviceId', (req, res) => {
         const decoded = jwt.verify(token, config.jwt.secret);
         if (decoded.isAdmin) includeExtraSlots = true;
         else if (decoded.email) includeExtraSlots = isVip(decoded.email);
-      } catch (e) { /* ignora token invalido */ }
+      } catch (e) {
+        /* ignora token invalido */
+      }
     }
 
     // Supporto esclusione slot in modifica prenotazione
     let excludeBooking = null;
-    if (req.query.excludeGiorno && req.query.excludeOra &&
-        /^\d{4}-\d{2}-\d{2}$/.test(req.query.excludeGiorno) &&
-        /^([01]\d|2[0-3]):[0-5]\d$/.test(req.query.excludeOra)) {
+    if (
+      req.query.excludeGiorno &&
+      req.query.excludeOra &&
+      /^\d{4}-\d{2}-\d{2}$/.test(req.query.excludeGiorno) &&
+      /^([01]\d|2[0-3]):[0-5]\d$/.test(req.query.excludeOra)
+    ) {
       excludeBooking = { giorno: req.query.excludeGiorno, ora: req.query.excludeOra };
     }
 
@@ -283,11 +309,15 @@ app.get('/api/config/slots', (req, res) => {
 app.get('/api/services', (req, res) => {
   try {
     const { servicesDB } = require('./database');
-    let services = servicesDB.findMany(function (s) { return s.attivo === 1 || s.attivo === '1'; });
+    let services = servicesDB.findMany(function (s) {
+      return s.attivo === 1 || s.attivo === '1';
+    });
 
     // Filtro per tipo_veicolo (auto | moto)
     if (req.query.tipo_veicolo) {
-      services = services.filter(function (s) { return s.tipo_veicolo === req.query.tipo_veicolo; });
+      services = services.filter(function (s) {
+        return s.tipo_veicolo === req.query.tipo_veicolo;
+      });
     }
 
     // Filtro stagionale: escludi servizi fuori stagione
@@ -301,7 +331,7 @@ app.get('/api/services', (req, res) => {
       if (!s.data_inizio_stagione || !s.data_fine_stagione) return true;
 
       var inizio = s.data_inizio_stagione; // formato MM-DD
-      var fine = s.data_fine_stagione;     // formato MM-DD
+      var fine = s.data_fine_stagione; // formato MM-DD
 
       if (inizio <= fine) {
         // Intervallo NON a cavallo d'anno (es. 03-01 → 06-30)
@@ -330,7 +360,7 @@ app.post('/api/bookings', authenticateToken, (req, res) => {
       const { getUserBookings } = require('./bookingService');
       const userBookings = getUserBookings(req.user.email);
       oldBooking = userBookings.find(b => b.giorno === old_giorno && b.ora === old_ora);
-      
+
       if (oldBooking) {
         const { bookingsDB, depositsDB } = require('./database');
         oldDeposit = depositsDB.findOne(d => String(d.booking_id) === String(oldBooking.id));
@@ -342,93 +372,114 @@ app.post('/api/bookings', authenticateToken, (req, res) => {
     try {
       // Determina se il servizio è di tipo 'consegna' (per tipo o per nome)
       let isConsegna = false;
-    if (serviceId) {
-      const service = servicesDB.findOne(function (s) { return String(s.id) === String(serviceId); });
-      if (service && (service.tipo_servizio === 'consegna' ||
-        (service.nome || '').toLowerCase().includes('consegna'))) {
-        isConsegna = true;
-      }
-    }
-
-    if (isConsegna) {
-      // Verifica limite depositi attivi
-      if (!depositService.canAcceptDeposit()) {
-        return res.status(400).json({
-          success: false,
-          error: 'Limite depositi raggiunto (' + depositService.getActiveDepositCount() + '/' + depositService.MAX_DEPOSITS + '). Contattare il laboratorio.'
+      if (serviceId) {
+        const service = servicesDB.findOne(function (s) {
+          return String(s.id) === String(serviceId);
         });
+        if (
+          service &&
+          (service.tipo_servizio === 'consegna' ||
+            (service.nome || '').toLowerCase().includes('consegna'))
+        ) {
+          isConsegna = true;
+        }
       }
 
-      // Crea prenotazione di accoglienza (sempre 30min, data/ora scelta dal cliente)
-      const bookingResult = createConsegnaBooking(req.user.email, req.body);
+      if (isConsegna) {
+        // Verifica limite depositi attivi
+        if (!depositService.canAcceptDeposit()) {
+          return res.status(400).json({
+            success: false,
+            error:
+              'Limite depositi raggiunto (' +
+              depositService.getActiveDepositCount() +
+              '/' +
+              depositService.MAX_DEPOSITS +
+              '). Contattare il laboratorio.'
+          });
+        }
 
-      // Risolvi il nome del servizio per mostrarlo nella card Lavori Straordinari
-      const { servicesDB: svcDB2 } = require('./database');
-      const svcForDeposit2 = svcDB2.findOne(function (s) { return String(s.id) === String(serviceId); });
+        // Crea prenotazione di accoglienza (sempre 30min, data/ora scelta dal cliente)
+        const bookingResult = createConsegnaBooking(req.user.email, req.body);
 
-      // Crea record deposito associato (targa e modello già validati in createConsegnaBooking)
-      const depositData = {
-        nome: req.body.nome || req.user.nome || '',
-        cognome: req.body.cognome || req.user.cognome || '',
-        email: req.user.email,
-        telefono: req.body.telefono || '',
-        targa: req.body.targa || '',
-        modello: req.body.modello || '',
-        servizio: svcForDeposit2 ? svcForDeposit2.nome : (req.body.servizio || ''),
-        ore_stimate: req.body.ore_stimate || 0,
-        note_cliente: req.body.note_cliente || ''
-      };
-      const deposit = depositService.createDeposit(bookingResult.id, depositData);
+        // Risolvi il nome del servizio per mostrarlo nella card Lavori Straordinari
+        const { servicesDB: svcDB2 } = require('./database');
+        const svcForDeposit2 = svcDB2.findOne(function (s) {
+          return String(s.id) === String(serviceId);
+        });
+
+        // Crea record deposito associato (targa e modello già validati in createConsegnaBooking)
+        const depositData = {
+          nome: req.body.nome || req.user.nome || '',
+          cognome: req.body.cognome || req.user.cognome || '',
+          email: req.user.email,
+          telefono: req.body.telefono || '',
+          targa: req.body.targa || '',
+          modello: req.body.modello || '',
+          servizio: svcForDeposit2 ? svcForDeposit2.nome : req.body.servizio || '',
+          ore_stimate: req.body.ore_stimate || 0,
+          note_cliente: req.body.note_cliente || ''
+        };
+        const deposit = depositService.createDeposit(bookingResult.id, depositData);
         if (deposit && deposit.id) {
           const { bookingsDB } = require('./database');
-          bookingsDB.update(function(b) { return String(b.id) === String(bookingResult.id); }, { deposit_id: deposit.id });
+          bookingsDB.update(
+            function (b) {
+              return String(b.id) === String(bookingResult.id);
+            },
+            { deposit_id: deposit.id }
+          );
           bookingResult.deposit_id = deposit.id;
         }
 
+        if (oldBooking) {
+          const { bookingsDB, depositsDB } = require('./database');
+          const { cleanDepositOnCancellation } = require('./bookingService');
+          cleanDepositOnCancellation(oldBooking);
+          bookingsDB.delete(b => b.id === oldBooking.id);
+          if (oldDeposit) depositsDB.delete(d => d.id === oldDeposit.id);
+        }
+
+        res.status(201).json({
+          success: true,
+          booking: bookingResult,
+          deposit,
+          slotAssigned: { date: bookingResult.giorno, time: bookingResult.ora },
+          message:
+            'Veicolo registrato per la consegna il ' +
+            bookingResult.giorno +
+            ' alle ' +
+            bookingResult.ora +
+            '.'
+        });
+        touchUserActivity(req.user.email);
+        return;
+      }
+
+      // Prenotazione normale (appuntamento)
+      const booking = createBooking(req.user.email, req.body);
+      touchUserActivity(req.user.email);
+
+      // Invia email di conferma in background (fire-and-forget)
+      sendBookingConfirmation(booking)
+        .then(function (result) {
+          if (!result.success) console.log('Email non inviata:', result.message);
+        })
+        .catch(function (err) {
+          console.error('Errore invio email:', err.message);
+        });
+
       if (oldBooking) {
         const { bookingsDB, depositsDB } = require('./database');
-        const { cleanDepositOnCancellation } = require('./bookingService');
-        cleanDepositOnCancellation(oldBooking);
         bookingsDB.delete(b => b.id === oldBooking.id);
         if (oldDeposit) depositsDB.delete(d => d.id === oldDeposit.id);
       }
 
       res.status(201).json({
         success: true,
-        booking: bookingResult,
-        deposit,
-        slotAssigned: { date: bookingResult.giorno, time: bookingResult.ora },
-        message: 'Veicolo registrato per la consegna il ' + bookingResult.giorno + ' alle ' + bookingResult.ora + '.'
+        booking,
+        emailSent: 'pending'
       });
-      touchUserActivity(req.user.email);
-      return;
-    }
-
-    // Prenotazione normale (appuntamento)
-    const booking = createBooking(req.user.email, req.body);
-    touchUserActivity(req.user.email);
-
-    // Invia email di conferma in background (fire-and-forget)
-    sendBookingConfirmation(booking)
-      .then(function (result) {
-        if (!result.success) console.log('Email non inviata:', result.message);
-      })
-      .catch(function (err) {
-        console.error('Errore invio email:', err.message);
-      });
-
-    if (oldBooking) {
-      const { bookingsDB, depositsDB } = require('./database');
-      bookingsDB.delete(b => b.id === oldBooking.id);
-      if (oldDeposit) depositsDB.delete(d => d.id === oldDeposit.id);
-    }
-
-    res.status(201).json({
-      success: true,
-      booking,
-      emailSent: 'pending'
-    });
-    
     } catch (err) {
       if (oldBooking) {
         const { bookingsDB } = require('./database');
@@ -436,7 +487,6 @@ app.post('/api/bookings', authenticateToken, (req, res) => {
       }
       throw err;
     }
-
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -469,9 +519,7 @@ app.get('/api/bookings', authenticateToken, (req, res) => {
       const first = group[0];
 
       // Durata: usa durata_minuti se presente (nuovo sistema), altrimenti calcola da slot count
-      const durata = first.durata_minuti
-        ? parseInt(first.durata_minuti, 10)
-        : group.length * 15;
+      const durata = first.durata_minuti ? parseInt(first.durata_minuti, 10) : group.length * 15;
 
       // Risolvi nome servizio
       let servizioNome = first.servizio || 'Prenotazione';
@@ -480,10 +528,12 @@ app.get('/api/bookings', authenticateToken, (req, res) => {
         if (svc) servizioNome = svc.nome;
       }
 
-      grouped.push(Object.assign({}, first, {
-        servizio: servizioNome,
-        durata_minuti: durata
-      }));
+      grouped.push(
+        Object.assign({}, first, {
+          servizio: servizioNome,
+          durata_minuti: durata
+        })
+      );
     });
 
     // Aggiungi standalone (senza token)
@@ -567,7 +617,12 @@ app.post('/api/bookings/guest', guestLimiter, (req, res) => {
       });
       console.log(`[Guest Checkout] Nuovo profilo guest creato: ${emailLower}`);
     } else {
-      usersDB.update(function (u) { return u.email === emailLower; }, { last_active_at: new Date().toISOString() });
+      usersDB.update(
+        function (u) {
+          return u.email === emailLower;
+        },
+        { last_active_at: new Date().toISOString() }
+      );
       console.log(`[Guest Checkout] Email esistente, associo prenotazione: ${emailLower}`);
     }
 
@@ -582,9 +637,14 @@ app.post('/api/bookings/guest', guestLimiter, (req, res) => {
     const serviceId = req.body.serviceId;
     let isConsegna = false;
     if (serviceId) {
-      const svc = servicesDB.findOne(function (s) { return String(s.id) === String(serviceId); });
-      if (svc && (svc.tipo_servizio === 'consegna' ||
-        (svc.nome || '').toLowerCase().includes('consegna'))) isConsegna = true;
+      const svc = servicesDB.findOne(function (s) {
+        return String(s.id) === String(serviceId);
+      });
+      if (
+        svc &&
+        (svc.tipo_servizio === 'consegna' || (svc.nome || '').toLowerCase().includes('consegna'))
+      )
+        isConsegna = true;
     }
 
     let booking, deposit;
@@ -600,7 +660,9 @@ app.post('/api/bookings/guest', guestLimiter, (req, res) => {
 
       // Risolvi nome servizio per la card Lavori Straordinari
       const { servicesDB: svcDBGuest } = require('./database');
-      const svcGuest = svcDBGuest.findOne(function (s) { return String(s.id) === String(serviceId); });
+      const svcGuest = svcDBGuest.findOne(function (s) {
+        return String(s.id) === String(serviceId);
+      });
 
       deposit = depositService.createDeposit(booking.id, {
         nome: nome.trim(),
@@ -609,7 +671,7 @@ app.post('/api/bookings/guest', guestLimiter, (req, res) => {
         telefono: req.body.telefono || '',
         targa: req.body.targa || '',
         modello: req.body.modello || '',
-        servizio: svcGuest ? svcGuest.nome : (req.body.servizio || ''),
+        servizio: svcGuest ? svcGuest.nome : req.body.servizio || '',
         ore_stimate: req.body.ore_stimate || 0,
         note_cliente: req.body.note_cliente || ''
       });
@@ -617,7 +679,12 @@ app.post('/api/bookings/guest', guestLimiter, (req, res) => {
       booking = createBooking(emailLower, bookingPayload);
     }
 
-    usersDB.update(function (u) { return u.email === emailLower; }, { last_active_at: new Date().toISOString() });
+    usersDB.update(
+      function (u) {
+        return u.email === emailLower;
+      },
+      { last_active_at: new Date().toISOString() }
+    );
 
     // Invia email di conferma (fire-and-forget)
     sendBookingConfirmation(booking)
@@ -636,13 +703,10 @@ app.post('/api/bookings/guest', guestLimiter, (req, res) => {
       message: 'Prenotazione confermata! Riceverai una email con i dettagli.',
       emailSent: 'pending'
     });
-
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
-
-
 
 // ==================== ADMIN ROUTES ====================
 
@@ -670,10 +734,10 @@ app.put('/api/settings/maxDeposits', authenticateToken, (req, res) => {
     if (typeof maxDeposits !== 'number' || maxDeposits < 0) {
       return res.status(400).json({ success: false, error: 'Valore maxDeposits non valido' });
     }
-    
+
     const { setSetting } = require('./database');
     setSetting('maxDeposits', maxDeposits.toString());
-    
+
     res.json({ success: true, message: 'Impostazione salvata con successo' });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -694,13 +758,17 @@ app.get('/api/admin/bookings', authenticateToken, (req, res) => {
       // Risolvi nome servizio se mancante
       let servizio = bk.servizio || '';
       if (!servizio && bk.service_id) {
-        const svc = svcDB.findOne(function (s) { return String(s.id) === String(bk.service_id); });
+        const svc = svcDB.findOne(function (s) {
+          return String(s.id) === String(bk.service_id);
+        });
         if (svc) servizio = svc.nome;
       }
       // Risolvi tipo_veicolo da service_id (per booking normali)
       let tipoVeicolo = '';
       if (bk.service_id && bk.service_id !== 'extra_work') {
-        const svc = svcDB.findOne(function (s) { return String(s.id) === String(bk.service_id); });
+        const svc = svcDB.findOne(function (s) {
+          return String(s.id) === String(bk.service_id);
+        });
         if (svc) tipoVeicolo = svc.tipo_veicolo || '';
       }
       if (bk.tipo !== 'deposito') {
@@ -710,19 +778,29 @@ app.get('/api/admin/bookings', authenticateToken, (req, res) => {
         return Object.keys(changes).length ? Object.assign({}, bk, changes) : bk;
       }
       // Cerca il deposito associato: prima via booking_id (consegna), poi via deposit_id (extrawork)
-      const dep = dDB.findOne(function (d) { return String(d.booking_id) === String(bk.id); })
-        || (bk.deposit_id ? dDB.findOne(function (d) { return String(d.id) === String(bk.deposit_id); }) : null);
+      const dep =
+        dDB.findOne(function (d) {
+          return String(d.booking_id) === String(bk.id);
+        }) ||
+        (bk.deposit_id
+          ? dDB.findOne(function (d) {
+              return String(d.id) === String(bk.deposit_id);
+            })
+          : null);
       if (!dep) return Object.assign({}, bk, { servizio: servizio, tipo_veicolo: tipoVeicolo });
       // Per extrawork, risolvi tipo_veicolo dal nome servizio del deposito
       if (bk.service_id === 'extra_work' && dep.servizio) {
-        const depSvc = svcDB.findOne(function (s) { return s.nome === dep.servizio; });
+        const depSvc = svcDB.findOne(function (s) {
+          return s.nome === dep.servizio;
+        });
         if (depSvc) tipoVeicolo = depSvc.tipo_veicolo || '';
       }
       // Per extrawork (service_id='extra_work'), dep.servizio ha priorità su bk.servizio
       // perché bk.servizio contiene un valore generico ('Prenotazione') salvato alla creazione.
-      const finalServizio = bk.service_id === 'extra_work'
-        ? (dep.servizio || servizio || '')
-        : (servizio || dep.servizio || '');
+      const finalServizio =
+        bk.service_id === 'extra_work'
+          ? dep.servizio || servizio || ''
+          : servizio || dep.servizio || '';
       return Object.assign({}, bk, {
         servizio: finalServizio,
         targa: bk.targa || dep.targa || '',
@@ -765,9 +843,14 @@ app.post('/api/admin/bookings', authenticateToken, (req, res) => {
     const adminServiceId = req.body.serviceId || req.body.service_id;
     let adminIsConsegna = false;
     if (adminServiceId) {
-      const adminSvc = servicesDB.findOne(function (s) { return String(s.id) === String(adminServiceId); });
-      if (adminSvc && (adminSvc.tipo_servizio === 'consegna' ||
-        (adminSvc.nome || '').toLowerCase().includes('consegna'))) {
+      const adminSvc = servicesDB.findOne(function (s) {
+        return String(s.id) === String(adminServiceId);
+      });
+      if (
+        adminSvc &&
+        (adminSvc.tipo_servizio === 'consegna' ||
+          (adminSvc.nome || '').toLowerCase().includes('consegna'))
+      ) {
         adminIsConsegna = true;
       }
     }
@@ -776,7 +859,12 @@ app.post('/api/admin/bookings', authenticateToken, (req, res) => {
     if (adminIsConsegna && !depositService.canAcceptDeposit()) {
       return res.status(400).json({
         success: false,
-        error: 'Limite depositi raggiunto (' + depositService.getActiveDepositCount() + '/' + depositService.MAX_DEPOSITS + '). Non è possibile aggiungere altri lavori straordinari.'
+        error:
+          'Limite depositi raggiunto (' +
+          depositService.getActiveDepositCount() +
+          '/' +
+          depositService.MAX_DEPOSITS +
+          '). Non è possibile aggiungere altri lavori straordinari.'
       });
     }
 
@@ -791,7 +879,9 @@ app.post('/api/admin/bookings', authenticateToken, (req, res) => {
     if (booking.isConsegna) {
       // Risolvi il nome del servizio selezionato
       const { servicesDB: svcDBAdmin } = require('./database');
-      const svcAdmin = svcDBAdmin.findOne(function (s) { return String(s.id) === String(adminServiceId); });
+      const svcAdmin = svcDBAdmin.findOne(function (s) {
+        return String(s.id) === String(adminServiceId);
+      });
 
       const adminDepositData = {
         nome: req.body.nome || '',
@@ -800,16 +890,21 @@ app.post('/api/admin/bookings', authenticateToken, (req, res) => {
         telefono: req.body.telefono || '',
         targa: req.body.targa || '',
         modello: req.body.modello || '',
-        servizio: svcAdmin ? svcAdmin.nome : (req.body.servizio || ''),
+        servizio: svcAdmin ? svcAdmin.nome : req.body.servizio || '',
         ore_stimate: req.body.ore_stimate || 0,
         note_cliente: req.body.note_cliente || req.body.noteCliente || ''
       };
       deposit = depositService.createDeposit(booking.id, adminDepositData);
-      
+
       // Associa il deposit_id al booking appena creato
       if (deposit && deposit.id) {
         const { bookingsDB } = require('./database');
-        bookingsDB.update(function(b) { return String(b.id) === String(booking.id); }, { deposit_id: deposit.id });
+        bookingsDB.update(
+          function (b) {
+            return String(b.id) === String(booking.id);
+          },
+          { deposit_id: deposit.id }
+        );
         booking.deposit_id = deposit.id;
       }
     }
@@ -869,7 +964,11 @@ app.post('/api/admin/repair-deposits', authenticateToken, (req, res) => {
     const { bookingsDB, servicesDB, depositsDB } = require('./database');
     const allBookings = bookingsDB.readAll();
     const allDeposits = depositsDB.readAll();
-    const existingBookingIds = new Set(allDeposits.map(function (d) { return String(d.booking_id); }));
+    const existingBookingIds = new Set(
+      allDeposits.map(function (d) {
+        return String(d.booking_id);
+      })
+    );
 
     const repaired = [];
     const skipped = [];
@@ -882,8 +981,13 @@ app.post('/api/admin/repair-deposits', authenticateToken, (req, res) => {
       const isDeposito = b.tipo === 'deposito';
       let isConsegnaByService = false;
       if (b.service_id) {
-        const svc = servicesDB.findOne(function (s) { return String(s.id) === String(b.service_id); });
-        if (svc && (svc.tipo_servizio === 'consegna' || (svc.nome || '').toLowerCase().includes('consegna'))) {
+        const svc = servicesDB.findOne(function (s) {
+          return String(s.id) === String(b.service_id);
+        });
+        if (
+          svc &&
+          (svc.tipo_servizio === 'consegna' || (svc.nome || '').toLowerCase().includes('consegna'))
+        ) {
           isConsegnaByService = true;
         }
       }
@@ -892,7 +996,12 @@ app.post('/api/admin/repair-deposits', authenticateToken, (req, res) => {
 
       // Ha già un deposito?
       if (existingBookingIds.has(String(b.id))) {
-        skipped.push({ id: b.id, nome: b.nome, cognome: b.cognome, motivo: 'deposito già esistente' });
+        skipped.push({
+          id: b.id,
+          nome: b.nome,
+          cognome: b.cognome,
+          motivo: 'deposito già esistente'
+        });
         return;
       }
 
@@ -912,7 +1021,9 @@ app.post('/api/admin/repair-deposits', authenticateToken, (req, res) => {
         // Aggiorna anche il campo tipo del booking se non era già 'deposito'
         if (b.tipo !== 'deposito') {
           bookingsDB.update(
-            function (bk) { return String(bk.id) === String(b.id); },
+            function (bk) {
+              return String(bk.id) === String(b.id);
+            },
             { tipo: 'deposito' }
           );
         }
@@ -1046,9 +1157,6 @@ app.get('/guest-booking', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/guest-booking.html'));
 });
 
-
-
-
 // Home page (dopo login)
 app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/home.html'));
@@ -1105,7 +1213,9 @@ app.get('/api/admin/reports/bookings-stats', authenticateToken, (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let startDate, labels = [], dateFormat;
+    let startDate,
+      labels = [],
+      dateFormat;
 
     if (period === 'weekly') {
       // Ultimi 7 giorni
@@ -1168,12 +1278,27 @@ app.post('/api/admin/services', authenticateToken, (req, res) => {
   try {
     if (!req.user.isAdmin) return res.status(403).json({ success: false, error: 'Accesso negato' });
     const { servicesDB } = require('./database');
-    const { nome, tipo_veicolo, tipo_servizio, durata_minuti, prezzo_interno, campi_extra, attivo, stagionale, data_inizio_stagione, data_fine_stagione } = req.body;
+    const {
+      nome,
+      tipo_veicolo,
+      tipo_servizio,
+      durata_minuti,
+      prezzo_interno,
+      campi_extra,
+      attivo,
+      stagionale,
+      data_inizio_stagione,
+      data_fine_stagione
+    } = req.body;
     if (!nome || !tipo_veicolo || !tipo_servizio) {
-      return res.status(400).json({ success: false, error: 'nome, tipo_veicolo e tipo_servizio sono obbligatori' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'nome, tipo_veicolo e tipo_servizio sono obbligatori' });
     }
     const id = servicesDB.insert({
-      nome, tipo_veicolo, tipo_servizio,
+      nome,
+      tipo_veicolo,
+      tipo_servizio,
       durata_minuti: durata_minuti || 60,
       prezzo_interno: prezzo_interno || null,
       campi_extra: campi_extra || '[]',
@@ -1182,7 +1307,9 @@ app.post('/api/admin/services', authenticateToken, (req, res) => {
       data_inizio_stagione: data_inizio_stagione || null,
       data_fine_stagione: data_fine_stagione || null
     });
-    const service = servicesDB.findOne(function (s) { return String(s.id) === String(id); });
+    const service = servicesDB.findOne(function (s) {
+      return String(s.id) === String(id);
+    });
     res.status(201).json({ success: true, service });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -1195,15 +1322,34 @@ app.put('/api/admin/services/:id', authenticateToken, (req, res) => {
     if (!req.user.isAdmin) return res.status(403).json({ success: false, error: 'Accesso negato' });
     const { servicesDB } = require('./database');
     const sid = req.params.id;
-    const service = servicesDB.findOne(function (s) { return String(s.id) === String(sid); });
+    const service = servicesDB.findOne(function (s) {
+      return String(s.id) === String(sid);
+    });
     if (!service) return res.status(404).json({ success: false, error: 'Servizio non trovato' });
 
-    const allowed = ['nome', 'tipo_veicolo', 'tipo_servizio', 'durata_minuti', 'prezzo_interno', 'campi_extra', 'attivo', 'stagionale', 'data_inizio_stagione', 'data_fine_stagione'];
+    const allowed = [
+      'nome',
+      'tipo_veicolo',
+      'tipo_servizio',
+      'durata_minuti',
+      'prezzo_interno',
+      'campi_extra',
+      'attivo',
+      'stagionale',
+      'data_inizio_stagione',
+      'data_fine_stagione'
+    ];
     const changes = {};
-    allowed.forEach(function (k) { if (req.body[k] !== undefined) changes[k] = req.body[k]; });
+    allowed.forEach(function (k) {
+      if (req.body[k] !== undefined) changes[k] = req.body[k];
+    });
 
-    servicesDB.update(function (s) { return String(s.id) === String(sid); }, changes);
-    const updated = servicesDB.findOne(function (s) { return String(s.id) === String(sid); });
+    servicesDB.update(function (s) {
+      return String(s.id) === String(sid);
+    }, changes);
+    const updated = servicesDB.findOne(function (s) {
+      return String(s.id) === String(sid);
+    });
     res.json({ success: true, service: updated });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -1216,9 +1362,13 @@ app.delete('/api/admin/services/:id', authenticateToken, (req, res) => {
     if (!req.user.isAdmin) return res.status(403).json({ success: false, error: 'Accesso negato' });
     const { servicesDB } = require('./database');
     const sid = req.params.id;
-    const service = servicesDB.findOne(function (s) { return String(s.id) === String(sid); });
+    const service = servicesDB.findOne(function (s) {
+      return String(s.id) === String(sid);
+    });
     if (!service) return res.status(404).json({ success: false, error: 'Servizio non trovato' });
-    servicesDB.delete(function (s) { return String(s.id) === String(sid); });
+    servicesDB.delete(function (s) {
+      return String(s.id) === String(sid);
+    });
     res.json({ success: true, message: 'Servizio eliminato' });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -1265,12 +1415,16 @@ app.get('/api/admin/deposits/all', authenticateToken, (req, res) => {
     // Risolve anche i campi mancanti nei depositi storici (targa, modello, nome, email, telefono, servizio)
     const enriched = deposits.map(function (d) {
       if (d.booking_id) {
-        const bk = bDB.findOne(function (b) { return String(b.id) === String(d.booking_id); });
+        const bk = bDB.findOne(function (b) {
+          return String(b.id) === String(d.booking_id);
+        });
         if (bk) {
           // Risolvi nome servizio: usa il deposito, poi il booking, poi service_id
           let servizio = d.servizio || bk.servizio || '';
           if (!servizio && bk.service_id) {
-            const svc = svcDB.findOne(function (s) { return String(s.id) === String(bk.service_id); });
+            const svc = svcDB.findOne(function (s) {
+              return String(s.id) === String(bk.service_id);
+            });
             if (svc) servizio = svc.nome;
           }
           return Object.assign({}, d, {
@@ -1291,7 +1445,12 @@ app.get('/api/admin/deposits/all', authenticateToken, (req, res) => {
       }
       return Object.assign({}, d, { booking_giorno: '', booking_ora: '', booking_durata: '' });
     });
-    res.json({ success: true, deposits: enriched, count: depositService.getActiveDepositCount(), max: depositService.MAX_DEPOSITS });
+    res.json({
+      success: true,
+      deposits: enriched,
+      count: depositService.getActiveDepositCount(),
+      max: depositService.MAX_DEPOSITS
+    });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -1302,20 +1461,28 @@ app.post('/api/admin/deposits/:id/status', authenticateToken, async (req, res) =
   try {
     if (!req.user.isAdmin) return res.status(403).json({ success: false, error: 'Accesso negato' });
     const { stato, nota_lorenzo, ore_residue } = req.body;
-    const deposit = depositService.updateDeposit(req.params.id, { stato, nota_lorenzo, ore_residue });
+    const deposit = depositService.updateDeposit(req.params.id, {
+      stato,
+      nota_lorenzo,
+      ore_residue
+    });
     if (!deposit) return res.status(404).json({ success: false, error: 'Deposito non trovato' });
 
-// Se completato o in attesa rimuove task da calendario, se completato invia email
-      if (stato === 'completato' || stato === 'in_attesa') {
-        const { bookingsDB } = require('./database');
-        bookingsDB.delete(function(b) {
-          return String(b.deposit_id) === String(deposit.id) && b.service_id === 'extra_work';
-        });
+    // Se completato o in attesa rimuove task da calendario, se completato invia email
+    if (stato === 'completato' || stato === 'in_attesa') {
+      const { bookingsDB } = require('./database');
+      bookingsDB.delete(function (b) {
+        return String(b.deposit_id) === String(deposit.id) && b.service_id === 'extra_work';
+      });
 
-        if (stato === 'completato' && deposit.email) {
+      if (stato === 'completato' && deposit.email) {
         sendDepositCompletionEmail(deposit)
-          .then(function (r) { if (!r.success) console.log('Email ritiro non inviata:', r.message); })
-          .catch(function (e) { console.error('Errore email ritiro:', e.message); });
+          .then(function (r) {
+            if (!r.success) console.log('Email ritiro non inviata:', r.message);
+          })
+          .catch(function (e) {
+            console.error('Errore email ritiro:', e.message);
+          });
       }
     }
 
@@ -1365,11 +1532,11 @@ app.post('/api/admin/deposits/:id/schedule', authenticateToken, (req, res) => {
     const depositService = require('./depositService'); // Ensure it's required
     const allDeposits = depositService.getAllDeposits();
     const deposit = allDeposits.find(d => String(d.id) === String(req.params.id));
-    
+
     if (!deposit) return res.status(404).json({ success: false, error: 'Deposito non trovato' });
 
     const ore_stimate = req.body.ore_stimate || deposit.ore_residue || deposit.ore_stimate || 0;
-    
+
     // Create a booking for each provided slot
     for (const slot of slots) {
       const slotDate = slot.date || slot.giorno;
@@ -1399,7 +1566,11 @@ app.post('/api/admin/deposits/:id/schedule', authenticateToken, (req, res) => {
     // Set status to in_corso automatically upon scheduling
     const updatedDeposit = depositService.updateDeposit(deposit.id, { stato: 'in_corso' });
 
-    res.json({ success: true, deposit: updatedDeposit, message: 'Slot assegnati e stato aggiornato a in_corso' });
+    res.json({
+      success: true,
+      deposit: updatedDeposit,
+      message: 'Slot assegnati e stato aggiornato a in_corso'
+    });
   } catch (error) {
     console.error('Error scheduling deposit:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -1412,9 +1583,13 @@ app.post('/api/admin/deposits/:id/schedule', authenticateToken, (req, res) => {
 app.get('/api/vehicles', authenticateToken, (req, res) => {
   try {
     const { vehiclesDB, usersDB: uDB } = require('./database');
-    const user = uDB.findOne(function (u) { return u.email === req.user.email; });
+    const user = uDB.findOne(function (u) {
+      return u.email === req.user.email;
+    });
     if (!user) return res.json({ success: true, vehicles: [] });
-    const vehicles = vehiclesDB.findMany(function (v) { return String(v.user_id) === String(user.id); });
+    const vehicles = vehiclesDB.findMany(function (v) {
+      return String(v.user_id) === String(user.id);
+    });
     res.json({ success: true, vehicles });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -1425,7 +1600,9 @@ app.get('/api/vehicles', authenticateToken, (req, res) => {
 app.post('/api/vehicles', authenticateToken, (req, res) => {
   try {
     const { vehiclesDB, usersDB: uDB } = require('./database');
-    const user = uDB.findOne(function (u) { return u.email === req.user.email; });
+    const user = uDB.findOne(function (u) {
+      return u.email === req.user.email;
+    });
     if (!user) return res.status(404).json({ success: false, error: 'Utente non trovato' });
     const { targa, modello, anno } = req.body;
     if (!targa) return res.status(400).json({ success: false, error: 'Targa obbligatoria' });
@@ -1435,8 +1612,15 @@ app.post('/api/vehicles', authenticateToken, (req, res) => {
       return String(v.user_id) === String(user.id) && v.targa === targa.toUpperCase().trim();
     });
     if (existing) return res.json({ success: true, vehicle: existing, duplicate: true });
-    const id = vehiclesDB.insert({ user_id: user.id, targa: targa.toUpperCase().trim(), modello: modello || '', anno: anno || null });
-    const vehicle = vehiclesDB.findOne(function (v) { return String(v.id) === String(id); });
+    const id = vehiclesDB.insert({
+      user_id: user.id,
+      targa: targa.toUpperCase().trim(),
+      modello: modello || '',
+      anno: anno || null
+    });
+    const vehicle = vehiclesDB.findOne(function (v) {
+      return String(v.id) === String(id);
+    });
     res.status(201).json({ success: true, vehicle });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -1448,12 +1632,18 @@ app.get('/api/admin/users/:email/vehicles', authenticateToken, (req, res) => {
   try {
     if (!req.user.isAdmin) return res.status(403).json({ success: false, error: 'Accesso negato' });
     const { usersDB, vehiclesDB, bookingsDB: bDB } = require('./database');
-    const user = usersDB.findOne(function (u) { return u.email === req.params.email; });
+    const user = usersDB.findOne(function (u) {
+      return u.email === req.params.email;
+    });
     if (!user) return res.status(404).json({ success: false, error: 'Utente non trovato' });
-    const vehicles = vehiclesDB.findMany(function (v) { return String(v.user_id) === String(user.id); });
+    const vehicles = vehiclesDB.findMany(function (v) {
+      return String(v.user_id) === String(user.id);
+    });
     const result = vehicles.map(function (v) {
       const bookingCount = bDB.findMany(function (b) {
-        return (b.targa || '').toUpperCase() === (v.targa || '').toUpperCase() && b.stato !== 'annullato';
+        return (
+          (b.targa || '').toUpperCase() === (v.targa || '').toUpperCase() && b.stato !== 'annullato'
+        );
       }).length;
       return Object.assign({}, v, { booking_count: bookingCount });
     });
@@ -1469,8 +1659,12 @@ app.get('/api/admin/vehicles/targa/:targa', authenticateToken, (req, res) => {
     if (!req.user.isAdmin) return res.status(403).json({ success: false, error: 'Accesso negato' });
     const targa = req.params.targa.toUpperCase().trim();
     const { bookingsDB: bDB, depositsDB: dDB } = require('./database');
-    const bookings = bDB.findMany(function (b) { return (b.targa || '').toUpperCase() === targa; });
-    const deposits = dDB.findMany(function (d) { return (d.targa || '').toUpperCase() === targa; });
+    const bookings = bDB.findMany(function (b) {
+      return (b.targa || '').toUpperCase() === targa;
+    });
+    const deposits = dDB.findMany(function (d) {
+      return (d.targa || '').toUpperCase() === targa;
+    });
     res.json({ success: true, targa, bookings, deposits });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -1523,5 +1717,3 @@ async function startServer() {
 startServer();
 
 module.exports = app;
-
-

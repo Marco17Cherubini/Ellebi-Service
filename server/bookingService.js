@@ -45,17 +45,35 @@ function getSlotsForDay(date, includeExtraSlots = false) {
   const dayOfWeek = getLocalDayOfWeek(date);
   const hours = dayOfWeek === 6 ? config.businessHours.saturday : config.businessHours.weekday;
 
-  let slots = [
-    ...hours.morning.slots,
-    ...hours.afternoon.slots
-  ];
+  let slots = [...hours.morning.slots, ...hours.afternoon.slots];
 
   // Se VIP o admin, aggiungi orari extra (pre-orario + straordinari serali)
   if (includeExtraSlots) {
     // Slot pre-orario (08:00) disponibile tutti i giorni lavorativi
     const preOpeningSlot = ['08:00'];
-    const extraSlotsWeekday = ['18:00', '18:45', '19:30', '20:15', '21:00', '21:45', '22:30', '23:15'];
-    const extraSlotsSaturday = ['15:30', '16:15', '17:00', '17:45', '18:30', '19:15', '20:00', '20:45', '21:30', '22:15', '23:00'];
+    const extraSlotsWeekday = [
+      '18:00',
+      '18:45',
+      '19:30',
+      '20:15',
+      '21:00',
+      '21:45',
+      '22:30',
+      '23:15'
+    ];
+    const extraSlotsSaturday = [
+      '15:30',
+      '16:15',
+      '17:00',
+      '17:45',
+      '18:30',
+      '19:15',
+      '20:00',
+      '20:45',
+      '21:30',
+      '22:15',
+      '23:00'
+    ];
     const extraSlots = dayOfWeek === 6 ? extraSlotsSaturday : extraSlotsWeekday;
     // Aggiungi pre-orario all'inizio, poi slot normali, poi straordinari
     slots = [...preOpeningSlot, ...slots, ...extraSlots];
@@ -64,7 +82,7 @@ function getSlotsForDay(date, includeExtraSlots = false) {
   return slots;
 }
 
-// Helper: converte orario stringa (HH:MM) in minuti trascorsi da mezzanotte 
+// Helper: converte orario stringa (HH:MM) in minuti trascorsi da mezzanotte
 function timeToMinutes(timeStr) {
   if (!timeStr) return 0;
   const parts = timeStr.split(':');
@@ -72,7 +90,12 @@ function timeToMinutes(timeStr) {
 }
 
 // Validatore Temporale Universale a base matematica (Time Ranges)
-function computeAvailableSlots(date, durataMinuti = 15, includeExtraSlots = false, excludeBooking = null) {
+function computeAvailableSlots(
+  date,
+  durataMinuti = 15,
+  includeExtraSlots = false,
+  excludeBooking = null
+) {
   if (!date || !DATE_REGEX.test(date)) {
     return [];
   }
@@ -80,13 +103,13 @@ function computeAvailableSlots(date, durataMinuti = 15, includeExtraSlots = fals
     return [];
   }
 
-  const effectiveDurata = (durataMinuti && durataMinuti > 0) ? parseInt(durataMinuti, 10) : 15;
+  const effectiveDurata = durataMinuti && durataMinuti > 0 ? parseInt(durataMinuti, 10) : 15;
   const allSlots = getSlotsForDay(date, includeExtraSlots);
 
   // 1. Mappa occupazioni in intervalli matematici [start, end]
   const existingBookings = bookingsDB.findMany(b => b.giorno === date);
   const occupiedRanges = [];
-  
+
   existingBookings.forEach(b => {
     // Se stiamo modificando una prenotazione, escludi lo slot originale dal calcolo
     if (excludeBooking && b.giorno === excludeBooking.giorno && b.ora === excludeBooking.ora) {
@@ -95,21 +118,24 @@ function computeAvailableSlots(date, durataMinuti = 15, includeExtraSlots = fals
     const startMin = timeToMinutes(b.ora);
     // Extra_work: ogni record è SEMPRE un singolo blocco da 15 minuti,
     // indipendentemente da cosa c'è scritto in durata_minuti (fix dati storici con DEFAULT 60)
-    const duration = (b.service_id === 'extra_work') ? 15 : (parseInt(b.durata_minuti, 10) || 15);
+    const duration = b.service_id === 'extra_work' ? 15 : parseInt(b.durata_minuti, 10) || 15;
     occupiedRanges.push({ start: startMin, end: startMin + duration });
   });
 
   // 2. Mappa ferie in intervalli (le ferie base occupano blocchi da 15min)
   const holidays = holidaysDB.readAll();
-  holidays.filter(h => h.giorno === date).forEach(h => {
-    const startMin = timeToMinutes(h.ora);
-    occupiedRanges.push({ start: startMin, end: startMin + 15 });
-  });
+  holidays
+    .filter(h => h.giorno === date)
+    .forEach(h => {
+      const startMin = timeToMinutes(h.ora);
+      occupiedRanges.push({ start: startMin, end: startMin + 15 });
+    });
 
   // 3. Calcola i limiti di turno (Shifts) per la giornata
   const dayOfWeek = getLocalDayOfWeek(date);
-  const hoursConfig = dayOfWeek === 6 ? config.businessHours.saturday : config.businessHours.weekday;
-  
+  const hoursConfig =
+    dayOfWeek === 6 ? config.businessHours.saturday : config.businessHours.weekday;
+
   const validShifts = [];
   if (includeExtraSlots) {
     // Admin o VIP vedono l'intera giornata senza barriere orarie strutturali tra mattina/pomeriggio
@@ -131,7 +157,7 @@ function computeAvailableSlots(date, durataMinuti = 15, includeExtraSlots = fals
     }
   }
 
-  // Confronto "Pragmatic Security" senza instanziare nuovi oggetti Date dalle stringhe     
+  // Confronto "Pragmatic Security" senza instanziare nuovi oggetti Date dalle stringhe
   const now = new Date();
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
@@ -141,14 +167,14 @@ function computeAvailableSlots(date, durataMinuti = 15, includeExtraSlots = fals
       // Mantiene solo slot futuri (confronto pragmatico basato su stringhe yyyy-mm-dd e minuti passati da mezzanotte)
       if (date > todayStr) return true; // Giorni futuri
       if (date < todayStr) return false; // Giorni passati
-      
-      // Stesso giorno, confronto intero matematico     
+
+      // Stesso giorno, confronto intero matematico
       return timeToMinutes(slot) > nowMinutes;
     })
     .map(slot => {
       const startReq = timeToMinutes(slot);
       const endReq = startReq + effectiveDurata;
-      
+
       let isHoliday = holidays.some(h => h.giorno === date && h.ora === slot);
       let available = true;
 
@@ -189,7 +215,12 @@ function getAvailableSlots(date, includeExtraSlots = false, excludeBooking = nul
 }
 
 // Wrapper per API service duration-aware
-function getAvailableSlotsForService(date, durataMinuti, includeExtraSlots = false, excludeBooking = null) {
+function getAvailableSlotsForService(
+  date,
+  durataMinuti,
+  includeExtraSlots = false,
+  excludeBooking = null
+) {
   return computeAvailableSlots(date, durataMinuti, includeExtraSlots, excludeBooking);
 }
 
@@ -200,9 +231,16 @@ const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 // Crea una nuova prenotazione (supporta campi v2)
 function createBooking(userEmail, bookingData) {
   const {
-    data, orario, numPersone,
+    data,
+    orario,
+    numPersone,
     // Campi v2
-    serviceId, service_id, targa, modello, durata_minuti, note_cliente
+    serviceId,
+    service_id,
+    targa,
+    modello,
+    durata_minuti,
+    note_cliente
   } = bookingData;
 
   // Validazione Pragmatic Security (Blocca input corrotti, SQLi bypass, o malformattazioni)
@@ -219,7 +257,7 @@ function createBooking(userEmail, bookingData) {
   // Risoluzione del vecchio concetto di "numPersone" in una pura durata temporale
   const hasDuration = durata_minuti || serviceId || service_id;
   let effectiveDurata = 15;
-  
+
   if (hasDuration) {
     effectiveDurata = parseInt(durata_minuti, 10) || APPOINTMENT_DURATION;
   } else {
@@ -235,9 +273,11 @@ function createBooking(userEmail, bookingData) {
   if (!targetSlotObj) {
     throw new Error('Orario non valido o non selezionabile per questa data');
   }
-  
+
   if (!targetSlotObj.available) {
-    throw new Error('Lo slot o l\'intervallo richiesto non è disponibile (conflitto o pausa pranzo)');
+    throw new Error(
+      "Lo slot o l'intervallo richiesto non è disponibile (conflitto o pausa pranzo)"
+    );
   }
 
   // Ottieni dati utente
@@ -268,13 +308,26 @@ function createBooking(userEmail, bookingData) {
   bookingsDB.insert(singleBookingRecord);
 
   // Ritorna la prenotazione creata per consentire il fetch dell'id
-  const savedBooking = bookingsDB.findOne(b => b.giorno === data && b.ora === orario && b.token === bookingToken);
+  const savedBooking = bookingsDB.findOne(
+    b => b.giorno === data && b.ora === orario && b.token === bookingToken
+  );
   return savedBooking || singleBookingRecord;
 }
 
 // Crea prenotazione di consegna veicolo (accoglienza 30 min = Single-Record strutturato)
 function createConsegnaBooking(userEmail, bookingData) {
-  const { data, orario, serviceId, service_id, targa, modello, note_cliente, nome, cognome, telefono } = bookingData;
+  const {
+    data,
+    orario,
+    serviceId,
+    service_id,
+    targa,
+    modello,
+    note_cliente,
+    nome,
+    cognome,
+    telefono
+  } = bookingData;
 
   // Validazione Pragmatic Security campi obbligatori e formati
   if (!data || !orario) {
@@ -303,16 +356,16 @@ function createConsegnaBooking(userEmail, bookingData) {
   if (!targetSlotObj) {
     throw new Error('Orario non valido o non selezionabile per questa data');
   }
-  
+
   if (!targetSlotObj.available) {
-    throw new Error('L\'intervallo richiesto non è disponibile (conflitto o pausa pranzo)');
+    throw new Error("L'intervallo richiesto non è disponibile (conflitto o pausa pranzo)");
   }
 
   // Ottieni dati utente (registrato o guest)
   const user = usersDB.findOne(u => u.email === userEmail);
-  const userName = user ? user.nome : (nome || '');
-  const userSurname = user ? user.cognome : (cognome || '');
-  const userPhone = user ? user.telefono : (telefono || '');
+  const userName = user ? user.nome : nome || '';
+  const userSurname = user ? user.cognome : cognome || '';
+  const userPhone = user ? user.telefono : telefono || '';
 
   // Crea l'unico record Single-Record
   const bookingToken = generateBookingToken();
@@ -345,11 +398,12 @@ function createConsegnaBooking(userEmail, bookingData) {
 // Ottieni prenotazioni attive di un utente (future + non annullate, escluse extra_work)
 function getUserBookings(userEmail) {
   const today = new Date().toISOString().split('T')[0];
-  return bookingsDB.findMany(b =>
-    b.email === userEmail &&
-    b.stato !== 'annullato' &&
-    b.giorno >= today &&
-    b.service_id !== 'extra_work'
+  return bookingsDB.findMany(
+    b =>
+      b.email === userEmail &&
+      b.stato !== 'annullato' &&
+      b.giorno >= today &&
+      b.service_id !== 'extra_work'
   );
 }
 
@@ -402,10 +456,23 @@ function getAllBookings() {
 // Crea prenotazione da admin (senza verifica utente)
 function createAdminBooking(bookingData) {
   const {
-    nome, cognome, email, telefono, giorno, ora, servizio,
+    nome,
+    cognome,
+    email,
+    telefono,
+    giorno,
+    ora,
+    servizio,
     // Campi v2
-    service_id, serviceId, targa, modello, durata_minuti, tipo,
-    note_cliente, nota_interna, deposit_id
+    service_id,
+    serviceId,
+    targa,
+    modello,
+    durata_minuti,
+    tipo,
+    note_cliente,
+    nota_interna,
+    deposit_id
   } = bookingData;
 
   // Validazione Pragmatic Security (solo cognome, giorno, ora obbligatori per admin)
@@ -423,7 +490,7 @@ function createAdminBooking(bookingData) {
   const isConsegna = tipo === 'deposito' || tipo === 'consegna';
 
   // Calcola durata effettiva
-  const effectiveDurata = durata_minuti ? (parseInt(durata_minuti, 10) || 15) : 15; 
+  const effectiveDurata = durata_minuti ? parseInt(durata_minuti, 10) || 15 : 15;
 
   // Deleghiamo il controllo al Validatore temporale (admin include extraSlots = true)
   const availableSlots = computeAvailableSlots(giorno, effectiveDurata, true);
@@ -435,7 +502,9 @@ function createAdminBooking(bookingData) {
 
   // L'incrocio invalido viene bloccato anche all'admin
   if (!targetSlotObj.available) {
-    throw new Error('L\'intervallo richiesto si sovrappone a una prenotazione esistente o alle ferie');
+    throw new Error(
+      "L'intervallo richiesto si sovrappone a una prenotazione esistente o alle ferie"
+    );
   }
 
   // Crea record Singolo
@@ -465,76 +534,84 @@ function createAdminBooking(bookingData) {
 
   // Recupera il booking con id dal DB
   const mainBooking = bookingsDB.findOne(
-    b => b.giorno === giorno && b.ora === ora && b.token === bookingToken       
+    b => b.giorno === giorno && b.ora === ora && b.token === bookingToken
   );
-  
+
   const result = mainBooking || singleBookingRecord;
 
   // Aggiunge flag isConsegna per il caller in server.js
   result.isConsegna = isConsegna;
 
   return result;
-}  // Helper interno per pulire i depositi e blocchi correlati quando si cancella una prenotazione
-  function cleanDepositOnCancellation(booking) {
-    if (!booking) return;
+} // Helper interno per pulire i depositi e blocchi correlati quando si cancella una prenotazione
+function cleanDepositOnCancellation(booking) {
+  if (!booking) return;
 
-    const isExtraWork = booking.service_id === 'extra_work';
-    const { depositsDB } = require('./database');
-    const depositService = require('./depositService');
+  const isExtraWork = booking.service_id === 'extra_work';
+  const { depositsDB } = require('./database');
+  const depositService = require('./depositService');
 
-    // Trova il deposito collegato in modo robusto:
-    // 1) Tramite booking_id (il deposito punta a questa prenotazione consegna)
-    // 2) Tramite deposit_id (la prenotazione punta al deposito)
-    let deposit = depositsDB.findOne(d => String(d.booking_id) === String(booking.id));
-    if (!deposit && booking.deposit_id) {
-      deposit = depositsDB.findOne(d => String(d.id) === String(booking.deposit_id));
-    }
-
-    const isPurpleDelivery = !!deposit && !isExtraWork;
-    const depId = deposit ? deposit.id : (booking.deposit_id || null);
-
-    if (!depId) return;
-
-    if (isPurpleDelivery) {
-      // Cancellazione della consegna (Deposito) → elimina tutto: extra_work + deposito
-      bookingsDB.delete(b => String(b.deposit_id) === String(depId) && b.service_id === 'extra_work');
-      try { depositService.deleteDeposit(depId); } catch(e) { console.error('Errore eliminazione deposito:', e); }
-    } else if (isExtraWork) {
-      // Cancellazione di uno slot extra_work → elimina tutti gli slot, deposito resta (torna in_attesa)
-      bookingsDB.delete(b => String(b.deposit_id) === String(depId) && b.service_id === 'extra_work');
-      try { depositService.updateDeposit(depId, { stato: 'in_attesa' }); } catch(e) { console.error('Errore aggiornamento deposito:', e); }
-    }
+  // Trova il deposito collegato in modo robusto:
+  // 1) Tramite booking_id (il deposito punta a questa prenotazione consegna)
+  // 2) Tramite deposit_id (la prenotazione punta al deposito)
+  let deposit = depositsDB.findOne(d => String(d.booking_id) === String(booking.id));
+  if (!deposit && booking.deposit_id) {
+    deposit = depositsDB.findOne(d => String(d.id) === String(booking.deposit_id));
   }
 
-  // Cancella prenotazione da admin (senza verifica proprietario)
-  function adminCancelBooking(giorno, ora) {
-    if (!giorno || !ora) {
-      throw new Error('Giorno e ora sono obbligatori');
+  const isPurpleDelivery = !!deposit && !isExtraWork;
+  const depId = deposit ? deposit.id : booking.deposit_id || null;
+
+  if (!depId) return;
+
+  if (isPurpleDelivery) {
+    // Cancellazione della consegna (Deposito) → elimina tutto: extra_work + deposito
+    bookingsDB.delete(b => String(b.deposit_id) === String(depId) && b.service_id === 'extra_work');
+    try {
+      depositService.deleteDeposit(depId);
+    } catch (e) {
+      console.error('Errore eliminazione deposito:', e);
     }
-    if (!DATE_REGEX.test(giorno) || !TIME_REGEX.test(ora)) {
-      throw new Error('Formato data o ora non valido');
+  } else if (isExtraWork) {
+    // Cancellazione di uno slot extra_work → elimina tutti gli slot, deposito resta (torna in_attesa)
+    bookingsDB.delete(b => String(b.deposit_id) === String(depId) && b.service_id === 'extra_work');
+    try {
+      depositService.updateDeposit(depId, { stato: 'in_attesa' });
+    } catch (e) {
+      console.error('Errore aggiornamento deposito:', e);
     }
-
-    const booking = bookingsDB.findOne(b => b.giorno === giorno && b.ora === ora);
-    if (!booking) {
-      throw new Error('Prenotazione non trovata');
-    }
-
-    cleanDepositOnCancellation(booking);
-
-    bookingsDB.delete(b => b.giorno === giorno && b.ora === ora);
-
-    return true;
   }
+}
+
+// Cancella prenotazione da admin (senza verifica proprietario)
+function adminCancelBooking(giorno, ora) {
+  if (!giorno || !ora) {
+    throw new Error('Giorno e ora sono obbligatori');
+  }
+  if (!DATE_REGEX.test(giorno) || !TIME_REGEX.test(ora)) {
+    throw new Error('Formato data o ora non valido');
+  }
+
+  const booking = bookingsDB.findOne(b => b.giorno === giorno && b.ora === ora);
+  if (!booking) {
+    throw new Error('Prenotazione non trovata');
+  }
+
+  cleanDepositOnCancellation(booking);
+
+  bookingsDB.delete(b => b.giorno === giorno && b.ora === ora);
+
+  return true;
+}
 
 // Helper Pragmatic Security: Calcola le ore mancanti a una prenotazione usando il fuso orario locale Node.js
-// senza interpolare stringhe ISO-8601 errate che producono sfasamenti o NaN.   
+// senza interpolare stringhe ISO-8601 errate che producono sfasamenti o NaN.
 function getHoursUntilBooking(giorno, ora) {
   if (!giorno || !ora) return 0;
   const [y, m, d] = giorno.split('-').map(Number);
   const [h, min] = ora.split(':').map(Number);
-  
-  // new Date(anno, mese_index, giorno, ore, minuti) Ã¨ sicuro nel fuso locale     
+
+  // new Date(anno, mese_index, giorno, ore, minuti) Ã¨ sicuro nel fuso locale
   const bookingTime = new Date(y, m - 1, d, h, min, 0).getTime();
   const now = new Date().getTime();
   return (bookingTime - now) / (1000 * 60 * 60);
@@ -601,18 +678,18 @@ function updateBookingByToken(token, updates) {
 
   const { newGiorno, newOra } = updates;
 
-    // Verifica politica 24h: non modificabile entro 24h dall'appuntamento
-    const hoursUntilBooking = getHoursUntilBooking(booking.giorno, booking.ora);
+  // Verifica politica 24h: non modificabile entro 24h dall'appuntamento
+  const hoursUntilBooking = getHoursUntilBooking(booking.giorno, booking.ora);
 
   if (hoursUntilBooking < 24) {
-    throw new Error('Non e possibile modificare la prenotazione entro 24 ore dall\'appuntamento');
+    throw new Error("Non e possibile modificare la prenotazione entro 24 ore dall'appuntamento");
   }
 
   // Se cambia data/ora, verifica disponibilita
   if (newGiorno && newOra && (newGiorno !== booking.giorno || newOra !== booking.ora)) {
     // Verifica slot non occupato
-    const existingBooking = bookingsDB.findOne(b =>
-      b.giorno === newGiorno && b.ora === newOra && b.token !== token
+    const existingBooking = bookingsDB.findOne(
+      b => b.giorno === newGiorno && b.ora === newOra && b.token !== token
     );
     if (existingBooking) {
       throw new Error('Questo slot e gia occupato');
@@ -651,16 +728,16 @@ function cancelBookingByToken(token) {
   }
 
   // Verifica politica 24h
-    const hoursUntilBooking = getHoursUntilBooking(booking.giorno, booking.ora);
+  const hoursUntilBooking = getHoursUntilBooking(booking.giorno, booking.ora);
 
   if (hoursUntilBooking < 24) {
-    throw new Error('Non e possibile cancellare la prenotazione entro 24 ore dall\'appuntamento');
+    throw new Error("Non e possibile cancellare la prenotazione entro 24 ore dall'appuntamento");
   }
 
   // Assicura proprietà al momento del `.delete` vincolandolo al token
   cleanDepositOnCancellation(booking);
-    cleanDepositOnCancellation(booking);
-    bookingsDB.delete(b => b.token === token && b.id === booking.id);
+  cleanDepositOnCancellation(booking);
+  bookingsDB.delete(b => b.token === token && b.id === booking.id);
   return true;
 }
 

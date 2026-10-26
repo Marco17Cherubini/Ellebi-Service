@@ -1,42 +1,42 @@
 // Password Reset Request
-document.getElementById('reset-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+document.getElementById('reset-form').addEventListener('submit', async e => {
+  e.preventDefault();
 
-    const email = document.getElementById('email').value.trim();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const errorMessage = document.getElementById('error-message');
-    const successMessage = document.getElementById('success-message');
+  const email = document.getElementById('email').value.trim();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const errorMessage = document.getElementById('error-message');
+  const successMessage = document.getElementById('success-message');
 
-    // Reset messages
-    errorMessage.classList.add('hidden');
-    successMessage.classList.add('hidden');
+  // Reset messages
+  errorMessage.classList.add('hidden');
+  successMessage.classList.add('hidden');
 
-    // Disable button
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Invio in corso...';
+  // Disable button
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Invio in corso...';
 
-    try {
-        const response = await fetch('/api/auth/forgot-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
+  try {
+    const response = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
 
-        const data = await response.json();
+    const data = await response.json();
 
-        // Always show success message (anti-enumeration)
-        successMessage.textContent = 'Se l\'email esiste nel nostro sistema, riceverai un link per reimpostare la password.';
-        successMessage.classList.remove('hidden');
+    // Always show success message (anti-enumeration)
+    successMessage.textContent =
+      "Se l'email esiste nel nostro sistema, riceverai un link per reimpostare la password.";
+    successMessage.classList.remove('hidden');
 
-        // Hide the form
-        document.getElementById('reset-form').style.display = 'none';
+    // Hide the form
+    document.getElementById('reset-form').style.display = 'none';
+  } catch (error) {
+    console.error('Errore:', error);
+    errorMessage.textContent = 'Si è verificato un errore. Riprova più tardi.';
+    errorMessage.classList.remove('hidden');
 
-    } catch (error) {
-        console.error('Errore:', error);
-        errorMessage.textContent = 'Si è verificato un errore. Riprova più tardi.';
-        errorMessage.classList.remove('hidden');
-
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Invia Link di Reset';
-    }
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Invia Link di Reset';
+  }
 });

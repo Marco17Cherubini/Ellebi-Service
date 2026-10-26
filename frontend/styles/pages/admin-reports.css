@@ -5,130 +5,128 @@
 
 /* Blocca lo scrolling globale della pagina */
 body {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Fa in modo che il container prenda lo spazio rimanente */
 .container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .reports-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    max-width: 56rem;
-    width: 100%;
-    margin: 0 auto;
-    min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 56rem;
+  width: 100%;
+  margin: 0 auto;
+  min-height: 0;
 }
 
 .page-title {
-    text-align: center;
-    margin-bottom: var(--space-2);
+  text-align: center;
+  margin-bottom: var(--space-2);
 }
 
 .page-subtitle {
-    text-align: center;
-    color: var(--color-text-secondary);
-    margin-bottom: var(--space-4);
+  text-align: center;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
 }
 
 /* ==================== FILTERS ==================== */
 
 .filter-container {
-    margin-bottom: var(--space-4);
-    display: flex;
-    justify-content: center;
-    gap: var(--space-4);
-    align-items: center;
+  margin-bottom: var(--space-4);
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  align-items: center;
 }
 
 .filter-label {
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text-primary);
 }
 
 .filter-select {
-    padding: var(--space-2) var(--space-4);
-    border: 1px solid var(--color-border-primary);
-    font-size: 1rem;
-    cursor: pointer;
-    background-color: var(--color-bg-primary);
-    color: var(--color-text-primary);
-    border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
 }
 
 /* ==================== CHART ==================== */
 
 .chart-container {
-    position: relative;
-    flex: 1;
-    min-height: 0;
-    background-color: var(--color-bg-primary);
-    border: 1px solid var(--color-border-primary);
-    padding: var(--space-4);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* ==================== STATS SUMMARY ==================== */
 
 .stats-summary {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
 }
 
 .stat-card {
-    flex: 1;
-    text-align: center;
-    background-color: var(--color-bg-secondary);
-    padding: var(--space-3) var(--space-2);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border-secondary);
+  flex: 1;
+  text-align: center;
+  background-color: var(--color-bg-secondary);
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-secondary);
 }
 
 .stat-value {
-    font-size: 2.25rem;
-    font-weight: 700;
-    margin-bottom: var(--space-1);
-    color: var(--color-accent);
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+  color: var(--color-accent);
 }
 
 .stat-label {
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
 }
 @media (max-width: 768px) {
-    body {
-        height: auto;
-        overflow: auto;
-    }
-    .container {
-        overflow: visible;
-    }
-    .reports-container {
-        height: auto;
-        overflow: visible;
-    }
-    .chart-container {
-        height: 60vh;
-        flex: none;
-    }
-    .stats-summary {
-        flex-direction: column;
-    }
+  body {
+    height: auto;
+    overflow: auto;
+  }
+  .container {
+    overflow: visible;
+  }
+  .reports-container {
+    height: auto;
+    overflow: visible;
+  }
+  .chart-container {
+    height: 60vh;
+    flex: none;
+  }
+  .stats-summary {
+    flex-direction: column;
+  }
 }
-
-

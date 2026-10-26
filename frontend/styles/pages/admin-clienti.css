@@ -4,407 +4,409 @@
    ============================================================================ */
 
 .clienti-container {
-    max-width: 900px;
-    margin: 0 auto;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 /* ==================== SEARCH ==================== */
 
 .search-box {
-    margin-bottom: var(--space-5);
+  margin-bottom: var(--space-5);
 }
 
 .search-input {
-    width: 100%;
-    padding: var(--space-3) var(--space-4);
-    border: 2px solid var(--color-border-primary);
-    font-size: 1rem;
-    background-color: var(--color-bg-primary);
-    color: var(--color-text-primary);
-    border-radius: var(--radius-md);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-border-primary);
+  font-size: 1rem;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
 }
 
 .search-input:focus {
-    outline: none;
-    border-color: var(--color-accent);
+  outline: none;
+  border-color: var(--color-accent);
 }
 
 /* ==================== USERS LIST ==================== */
 
 .users-list {
-    border: 2px solid var(--color-border-primary);
-    border-radius: var(--radius-md);
-    overflow: hidden;
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 .user-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-4) var(--space-5);
-    border-bottom: 1px solid var(--color-border-secondary);
-    transition: background-color 0.2s;
-    background-color: var(--color-bg-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-secondary);
+  transition: background-color 0.2s;
+  background-color: var(--color-bg-primary);
 }
 
 .user-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .user-item:hover {
-    background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-secondary);
 }
 
 /* Pending states */
 .user-item.pending-vip-add {
-    background-color: #fffbe6;
-    border-left: 4px solid #d4a800;
+  background-color: #fffbe6;
+  border-left: 4px solid #d4a800;
 }
 
 .user-item.pending-vip-remove {
-    background-color: var(--color-bg-secondary);
-    border-left: 4px solid #999;
+  background-color: var(--color-bg-secondary);
+  border-left: 4px solid #999;
 }
 
 .user-item.pending-ban-add {
-    background-color: #ffe6e6;
-    border-left: 4px solid #cc0000;
+  background-color: #ffe6e6;
+  border-left: 4px solid #cc0000;
 }
 
 .user-item.pending-ban-remove {
-    background-color: #e6ffe6;
-    border-left: 4px solid #00aa00;
+  background-color: #e6ffe6;
+  border-left: 4px solid #00aa00;
 }
 
 .user-info {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
 }
 
 .user-name {
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text-primary);
 }
 
 .user-badges {
-    display: flex;
-    gap: var(--space-2);
+  display: flex;
+  gap: var(--space-2);
 }
 
 .badge {
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
 }
 
 .badge-vip {
-    background-color: #fffbe6;
-    color: #8b7000;
-    border: 1px solid #d4a800;
+  background-color: #fffbe6;
+  color: #8b7000;
+  border: 1px solid #d4a800;
 }
 
 .badge-banned {
-    background-color: #ffe6e6;
-    color: #cc0000;
-    border: 1px solid #cc0000;
+  background-color: #ffe6e6;
+  color: #cc0000;
+  border: 1px solid #cc0000;
 }
 
 /* ==================== USER ACTIONS ==================== */
 
 .user-actions {
-    display: flex;
-    gap: var(--space-5);
-    align-items: center;
+  display: flex;
+  gap: var(--space-5);
+  align-items: center;
 }
 
 .action-group {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .action-label {
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
 }
 
 .action-label.vip {
-    color: #8b7000;
+  color: #8b7000;
 }
 
 .action-label.ban {
-    color: #cc0000;
+  color: #cc0000;
 }
 
 .action-checkbox {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
 .action-checkbox.vip {
-    accent-color: #d4a800;
+  accent-color: #d4a800;
 }
 
 .action-checkbox.ban {
-    accent-color: #cc0000;
+  accent-color: #cc0000;
 }
 
 .no-users {
-    text-align: center;
-    padding: var(--space-10);
-    color: var(--color-text-secondary);
+  text-align: center;
+  padding: var(--space-10);
+  color: var(--color-text-secondary);
 }
 
 .users-count {
-    text-align: right;
-    margin-bottom: var(--space-3);
-    font-size: 0.9rem;
-    color: var(--color-text-secondary);
+  text-align: right;
+  margin-bottom: var(--space-3);
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
 }
 
 /* ==================== PENDING BADGES ==================== */
 
 .pending-badge {
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    margin-left: var(--space-2);
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  margin-left: var(--space-2);
 }
 
 .pending-badge.vip-add {
-    background-color: #d4a800;
-    color: #fff;
+  background-color: #d4a800;
+  color: #fff;
 }
 
 .pending-badge.vip-remove {
-    background-color: #999;
-    color: #fff;
+  background-color: #999;
+  color: #fff;
 }
 
 .pending-badge.ban-add {
-    background-color: #cc0000;
-    color: #fff;
+  background-color: #cc0000;
+  color: #fff;
 }
 
 .pending-badge.ban-remove {
-    background-color: #00aa00;
-    color: #fff;
+  background-color: #00aa00;
+  color: #fff;
 }
 
 /* ==================== CONFIRM BAR ==================== */
 
 .confirm-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: var(--color-text-primary);
-    color: var(--color-bg-primary);
-    padding: var(--space-4) var(--space-5);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-    z-index: 1000;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-text-primary);
+  color: var(--color-bg-primary);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
 }
 
 .confirm-bar.visible {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 .confirm-bar .changes-info {
-    font-size: 0.95rem;
+  font-size: 0.95rem;
 }
 
 .confirm-bar .btn-confirm {
-    background-color: var(--color-bg-primary);
-    color: var(--color-text-primary);
-    border: none;
-    padding: var(--space-3) var(--space-6);
-    font-size: 1rem;
-    cursor: pointer;
-    font-weight: 600;
-    border-radius: var(--radius-md);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border: none;
+  padding: var(--space-3) var(--space-6);
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: var(--radius-md);
 }
 
 .confirm-bar .btn-confirm:hover {
-    background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-secondary);
 }
 
 .confirm-bar .btn-cancel {
-    background-color: transparent;
-    color: var(--color-bg-primary);
-    border: 1px solid var(--color-bg-primary);
-    padding: var(--space-3) var(--space-5);
-    font-size: 0.9rem;
-    cursor: pointer;
-    margin-right: var(--space-3);
-    border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--color-bg-primary);
+  border: 1px solid var(--color-bg-primary);
+  padding: var(--space-3) var(--space-5);
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-right: var(--space-3);
+  border-radius: var(--radius-md);
 }
 
 .confirm-bar .btn-cancel:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ─── Vehicle toggle button ─── */
 .btn-vehicles-toggle {
-    background: none;
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-radius: 6px;
-    padding: 3px 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    color: var(--color-text, #000);
-    transition: background 0.15s;
+  background: none;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-text, #000);
+  transition: background 0.15s;
 }
 
 .btn-vehicles-toggle:hover {
-    background: var(--color-bg-secondary, #f5f5f5);
+  background: var(--color-bg-secondary, #f5f5f5);
 }
 
 /* ─── Vehicles history panel ─── */
 .vehicles-history {
-    background: var(--color-bg-secondary, #f8f8f8);
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    padding: 12px 16px;
-    margin-bottom: 6px;
+  background: var(--color-bg-secondary, #f8f8f8);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 12px 16px;
+  margin-bottom: 6px;
 }
 
 .vehicles-history.hidden {
-    display: none;
+  display: none;
 }
 
 .vh-loading,
 .vh-empty {
-    font-size: 0.82rem;
-    color: var(--color-text-secondary, #888);
+  font-size: 0.82rem;
+  color: var(--color-text-secondary, #888);
 }
 
 .vh-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-text-secondary, #888);
-    margin-bottom: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary, #888);
+  margin-bottom: 8px;
 }
 
 /* ─── Vehicle card ─── */
 .vh-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-    gap: 8px;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .vh-targa {
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }
 
 .vh-modello {
-    font-size: 0.82rem;
-    color: var(--color-text-secondary, #888);
-    margin-left: 8px;
+  font-size: 0.82rem;
+  color: var(--color-text-secondary, #888);
+  margin-left: 8px;
 }
 
 .vh-anno {
-    font-size: 0.75rem;
-    background: #e8f4ff;
-    color: #1e40af;
-    padding: 1px 6px;
-    border-radius: 10px;
-    margin-left: 6px;
+  font-size: 0.75rem;
+  background: #e8f4ff;
+  color: #1e40af;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
 }
 
 .vh-card-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .vh-count {
-    font-size: 0.78rem;
-    color: var(--color-text-secondary, #888);
+  font-size: 0.78rem;
+  color: var(--color-text-secondary, #888);
 }
 
 .vh-storico-btn {
-    font-size: 0.75rem;
-    background: none;
-    border: 1px solid var(--brand-accent, #FF6B00);
-    color: var(--brand-accent, #FF6B00);
-    border-radius: 5px;
-    padding: 3px 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.15s, color 0.15s;
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid var(--brand-accent, #ff6b00);
+  color: var(--brand-accent, #ff6b00);
+  border-radius: 5px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .vh-storico-btn:hover {
-    background: var(--brand-accent, #FF6B00);
-    color: #fff;
+  background: var(--brand-accent, #ff6b00);
+  color: #fff;
 }
 
 /* ─── Targa storico ─── */
 .vh-storico-detail {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .vh-storico-detail.hidden {
-    display: none;
+  display: none;
 }
 
 .vh-storico-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: var(--color-text-secondary, #888);
-    text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--color-text-secondary, #888);
+  text-transform: uppercase;
 }
 
 .vh-storico-row {
-    display: flex;
-    gap: 16px;
-    font-size: 0.82rem;
-    padding: 4px 0;
-    border-bottom: 1px solid var(--color-border, #e0e0e0);
-    flex-wrap: wrap;
+  display: flex;
+  gap: 16px;
+  font-size: 0.82rem;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  flex-wrap: wrap;
 }
 
 .vh-storico-row:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .vhsr-date {
-    color: var(--color-text-secondary, #888);
-    min-width: 130px;
+  color: var(--color-text-secondary, #888);
+  min-width: 130px;
 }
 
 .vhsr-service {
-    flex: 1;
+  flex: 1;
 }
 
 .vhsr-stato {
-    font-size: 0.75rem;
-    font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .vh-storico-row.stato-annullato {
-    opacity: 0.5;
-    text-decoration: line-through;
+  opacity: 0.5;
+  text-decoration: line-through;
 }
 
 /* ─── Sidebar nav updates ─── */
 .sidebar-nav a.sidebar-item {
-    display: block;
+  display: block;
 }

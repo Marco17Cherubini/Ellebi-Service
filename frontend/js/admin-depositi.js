@@ -3,28 +3,31 @@
    ================================================================ */
 
 var allDeposits = [];
-var saveTimers = {};   // debounce per salvataggio note
+var saveTimers = {}; // debounce per salvataggio note
 var finishConfirmModal = null;
-  var attesaConfirmModal = null;
+var attesaConfirmModal = null;
 
 // ── Init ─────────────────────────────────────────────────────
 
 async function init() {
   try {
     var res = await apiRequest('/auth/me');
-    if (!res.success || !res.user.isAdmin) { window.location.href = '/login'; return; }
+    if (!res.success || !res.user.isAdmin) {
+      window.location.href = '/login';
+      return;
+    }
     await loadDeposits();
     showLoginBanner();
-    
+
     // Setup event listener per maxDeposits
     var saveMaxBtn = document.getElementById('save-max-btn');
     if (saveMaxBtn) {
-      saveMaxBtn.addEventListener('click', async function() {
+      saveMaxBtn.addEventListener('click', async function () {
         var inputMax = document.getElementById('input-counter-max');
         if (!inputMax) return;
         var newMax = parseInt(inputMax.value, 10);
         if (isNaN(newMax) || newMax < 1) {
-          alert("Inserisci un numero valido maggiore di 0");
+          alert('Inserisci un numero valido maggiore di 0');
           return;
         }
         try {
@@ -33,18 +36,17 @@ async function init() {
             body: JSON.stringify({ maxDeposits: newMax })
           });
           if (updateRes.success) {
-            alert("Limite massimo aggiornato con successo");
+            alert('Limite massimo aggiornato con successo');
             await loadDeposits();
           } else {
             alert(updateRes.error || "Errore nell'aggiornamento del limite");
           }
-        } catch(e) {
+        } catch (e) {
           console.error(e);
           alert("Errore nell'aggiornamento del limite");
         }
       });
     }
-
   } catch (e) {
     console.error('Errore init depositi:', e);
     window.location.href = '/login';
@@ -75,20 +77,23 @@ async function loadDeposits() {
 // ── Banner login ──────────────────────────────────────────────
 
 function showLoginBanner() {
-  var attesa = allDeposits.filter(function(d) { return d.stato === 'in_attesa'; }).length;
+  var attesa = allDeposits.filter(function (d) {
+    return d.stato === 'in_attesa';
+  }).length;
   if (attesa <= 0) return;
 
   var banner = document.getElementById('login-banner');
   var text = document.getElementById('login-banner-text');
   if (!banner || !text) return;
 
-  var label = attesa === 1
-    ? 'Hai 1 lavoro straordinario da fissare'
-    : 'Hai ' + attesa + ' lavori straordinari da fissare';
+  var label =
+    attesa === 1
+      ? 'Hai 1 lavoro straordinario da fissare'
+      : 'Hai ' + attesa + ' lavori straordinari da fissare';
   text.textContent = label;
   banner.style.display = 'flex';
 
-  document.getElementById('login-banner-close').addEventListener('click', function() {
+  document.getElementById('login-banner-close').addEventListener('click', function () {
     banner.style.display = 'none';
   });
 }
@@ -96,13 +101,17 @@ function showLoginBanner() {
 // ── Render ────────────────────────────────────────────────────
 
 function renderDeposits() {
-  var active    = allDeposits.filter(function(d) { return d.stato !== 'completato'; });
-  var completed = allDeposits.filter(function(d) { return d.stato === 'completato'; });
+  var active = allDeposits.filter(function (d) {
+    return d.stato !== 'completato';
+  });
+  var completed = allDeposits.filter(function (d) {
+    return d.stato === 'completato';
+  });
 
-  var grid    = document.getElementById('depositi-grid');
-  var empty   = document.getElementById('empty-state');
+  var grid = document.getElementById('depositi-grid');
+  var empty = document.getElementById('empty-state');
   var storico = document.getElementById('storico-section');
-  var sGrid   = document.getElementById('storico-grid');
+  var sGrid = document.getElementById('storico-grid');
 
   if (active.length === 0) {
     grid.style.display = 'none';
@@ -118,7 +127,8 @@ function renderDeposits() {
     storico.classList.remove('hidden');
     storico.style.display = '';
     var storicoToggle = document.getElementById('storico-toggle');
-    if (storicoToggle) storicoToggle.textContent = 'Storico lavori completati (' + completed.length + ')';
+    if (storicoToggle)
+      storicoToggle.textContent = 'Storico lavori completati (' + completed.length + ')';
     sGrid.innerHTML = completed.map(buildStoricaCard).join('');
     attachCardListeners(sGrid);
     // Aperto di default
@@ -146,23 +156,24 @@ function statoLabel(stato) {
 // ── Build card HTML ───────────────────────────────────────────
 
 function buildDepositCard(deposit) {
-  var stato   = deposit.stato || 'in_attesa';
-  var id      = deposit.id;
-  var nome    = ((deposit.nome || '') + ' ' + (deposit.cognome || '')).trim();
-  var targa   = deposit.targa || '';
+  var stato = deposit.stato || 'in_attesa';
+  var id = deposit.id;
+  var nome = ((deposit.nome || '') + ' ' + (deposit.cognome || '')).trim();
+  var targa = deposit.targa || '';
   var modello = deposit.modello || '';
   var servizio = deposit.servizio || '';
 
   // Dati booking collegato
-  var bGiorno  = deposit.booking_giorno  || '';
-  var bOra     = deposit.booking_ora     || '';
-  var bDurata  = deposit.booking_durata  || '';
+  var bGiorno = deposit.booking_giorno || '';
+  var bOra = deposit.booking_ora || '';
+  var bDurata = deposit.booking_durata || '';
 
   var veicolo = [targa, modello].filter(Boolean).join(' · ') || '—';
-  var noteCliente  = deposit.note_cliente  || '';
-  var notaInterna  = deposit.nota_lorenzo  || '';
-  var calcOreResidue = deposit.ore_residue != null ? parseFloat(deposit.ore_residue) : parseFloat(deposit.ore_stimate);
-  var oreResidueVal = (calcOreResidue && calcOreResidue > 0) ? calcOreResidue : '';
+  var noteCliente = deposit.note_cliente || '';
+  var notaInterna = deposit.nota_lorenzo || '';
+  var calcOreResidue =
+    deposit.ore_residue != null ? parseFloat(deposit.ore_residue) : parseFloat(deposit.ore_stimate);
+  var oreResidueVal = calcOreResidue && calcOreResidue > 0 ? calcOreResidue : '';
 
   // ── Pill stato sul header
   var pillHtml = '<span class="dc-stato-pill ' + stato + '">' + statoLabel(stato) + '</span>';
@@ -182,14 +193,28 @@ function buildDepositCard(deposit) {
   if (bGiorno || bOra) {
     bookingDetailsHtml =
       '<div class="dc-booking-details">' +
-      (servizio ? '<span class="dc-detail-item"><strong>Tipologia:</strong> ' + servizio + '</span>' : '') +
-      (targa    ? '<span class="dc-detail-item"><strong>Targa:</strong> ' + targa + '</span>' : '') +
-      (modello  ? '<span class="dc-detail-item"><strong>Modello:</strong> ' + modello + '</span>' : '') +
-      (bGiorno  ? '<span class="dc-detail-item"><strong>Data:</strong> ' + formatDateDisplay(bGiorno) + '</span>' : '') +
-      (bOra     ? '<span class="dc-detail-item"><strong>Ora:</strong> ' + bOra + '</span>' : '') +
-      (bDurata  ? '<span class="dc-detail-item"><strong>Durata:</strong> ' + bDurata + ' min</span>' : '') +
-      (deposit.email   ? '<span class="dc-detail-item"><strong>Email:</strong> ' + deposit.email + '</span>' : '') +
-      (deposit.telefono ? '<span class="dc-detail-item"><strong>Telefono:</strong> ' + deposit.telefono + '</span>' : '') +
+      (servizio
+        ? '<span class="dc-detail-item"><strong>Tipologia:</strong> ' + servizio + '</span>'
+        : '') +
+      (targa ? '<span class="dc-detail-item"><strong>Targa:</strong> ' + targa + '</span>' : '') +
+      (modello
+        ? '<span class="dc-detail-item"><strong>Modello:</strong> ' + modello + '</span>'
+        : '') +
+      (bGiorno
+        ? '<span class="dc-detail-item"><strong>Data:</strong> ' +
+          formatDateDisplay(bGiorno) +
+          '</span>'
+        : '') +
+      (bOra ? '<span class="dc-detail-item"><strong>Ora:</strong> ' + bOra + '</span>' : '') +
+      (bDurata
+        ? '<span class="dc-detail-item"><strong>Durata:</strong> ' + bDurata + ' min</span>'
+        : '') +
+      (deposit.email
+        ? '<span class="dc-detail-item"><strong>Email:</strong> ' + deposit.email + '</span>'
+        : '') +
+      (deposit.telefono
+        ? '<span class="dc-detail-item"><strong>Telefono:</strong> ' + deposit.telefono + '</span>'
+        : '') +
       '</div>';
   } else {
     // Fallback: mostra almeno email/telefono/modello
@@ -197,11 +222,21 @@ function buildDepositCard(deposit) {
     if (hasInfo) {
       bookingDetailsHtml =
         '<div class="dc-booking-details">' +
-        (servizio         ? '<span class="dc-detail-item"><strong>Tipologia:</strong> ' + servizio + '</span>' : '') +
-        (targa            ? '<span class="dc-detail-item"><strong>Targa:</strong> ' + targa + '</span>' : '') +
-        (modello          ? '<span class="dc-detail-item"><strong>Modello:</strong> ' + modello + '</span>' : '') +
-        (deposit.email    ? '<span class="dc-detail-item"><strong>Email:</strong> ' + deposit.email + '</span>' : '') +
-        (deposit.telefono ? '<span class="dc-detail-item"><strong>Telefono:</strong> ' + deposit.telefono + '</span>' : '') +
+        (servizio
+          ? '<span class="dc-detail-item"><strong>Tipologia:</strong> ' + servizio + '</span>'
+          : '') +
+        (targa ? '<span class="dc-detail-item"><strong>Targa:</strong> ' + targa + '</span>' : '') +
+        (modello
+          ? '<span class="dc-detail-item"><strong>Modello:</strong> ' + modello + '</span>'
+          : '') +
+        (deposit.email
+          ? '<span class="dc-detail-item"><strong>Email:</strong> ' + deposit.email + '</span>'
+          : '') +
+        (deposit.telefono
+          ? '<span class="dc-detail-item"><strong>Telefono:</strong> ' +
+            deposit.telefono +
+            '</span>'
+          : '') +
         '</div>';
     }
   }
@@ -212,64 +247,82 @@ function buildDepositCard(deposit) {
   //   in_corso   → [Attesa] [Finito]
   //   completato → (nessun bottone)
   var buttons = '';
-  var pianificaBtn = '<button class="dc-btn dc-btn-pianifica" data-action="pianifica" data-id="' + id + '">Pianifica a Calendario</button>';
-  
+  var pianificaBtn =
+    '<button class="dc-btn dc-btn-pianifica" data-action="pianifica" data-id="' +
+    id +
+    '">Pianifica a Calendario</button>';
+
   if (stato === 'in_attesa') {
     buttons =
       pianificaBtn +
-      '<button class="dc-btn dc-btn-incorso" data-action="in_corso"   data-id="' + id + '">In corso</button>' +
-      '<button class="dc-btn dc-btn-finito"  data-action="completato"  data-id="' + id + '" data-email="' + (deposit.email || '') + '">Finito</button>';
+      '<button class="dc-btn dc-btn-incorso" data-action="in_corso"   data-id="' +
+      id +
+      '">In corso</button>' +
+      '<button class="dc-btn dc-btn-finito"  data-action="completato"  data-id="' +
+      id +
+      '" data-email="' +
+      (deposit.email || '') +
+      '">Finito</button>';
   } else if (stato === 'in_corso') {
     buttons =
       pianificaBtn +
-      '<button class="dc-btn dc-btn-attesa"  data-action="in_attesa"  data-id="' + id + '">Attesa</button>' +
-      '<button class="dc-btn dc-btn-finito"  data-action="completato"  data-id="' + id + '" data-email="' + (deposit.email || '') + '">Finito</button>';
+      '<button class="dc-btn dc-btn-attesa"  data-action="in_attesa"  data-id="' +
+      id +
+      '">Attesa</button>' +
+      '<button class="dc-btn dc-btn-finito"  data-action="completato"  data-id="' +
+      id +
+      '" data-email="' +
+      (deposit.email || '') +
+      '">Finito</button>';
   }
 
-  var footerHtml = buttons
-    ? '<div class="deposit-card-footer">' + buttons + '</div>'
-    : '';
+  var footerHtml = buttons ? '<div class="deposit-card-footer">' + buttons + '</div>' : '';
 
   return (
-    '<div class="deposit-card stato-' + stato + '" id="deposit-card-' + id + '">' +
-
+    '<div class="deposit-card stato-' +
+    stato +
+    '" id="deposit-card-' +
+    id +
+    '">' +
     // ── Header sempre visibile (click per espandere)
-    '<div class="deposit-card-header" data-card-id="' + id + '">' +
-      '<div class="dc-header-info">' +
-        '<span class="dc-name">' + nome + '</span>' +
-        targaBadge +
-        servizioBadge +
-      '</div>' +
-      '<div style="display:flex;align-items:center;gap:8px;">' +
-        pillHtml +
-        '<span class="dc-chevron">▼</span>' +
-      '</div>' +
+    '<div class="deposit-card-header" data-card-id="' +
+    id +
+    '">' +
+    '<div class="dc-header-info">' +
+    '<span class="dc-name">' +
+    nome +
+    '</span>' +
+    targaBadge +
+    servizioBadge +
     '</div>' +
-
+    '<div style="display:flex;align-items:center;gap:8px;">' +
+    pillHtml +
+    '<span class="dc-chevron">▼</span>' +
+    '</div>' +
+    '</div>' +
     // ── Body espandibile
     '<div class="deposit-card-body">' +
-      bookingDetailsHtml +
-
-      '<label>Note cliente</label>' +
-      '<div class="dc-note-cliente">' +
-        (noteCliente
-          ? noteCliente
-          : '<em style="opacity:0.5;">Nessuna nota dal cliente</em>') +
-      '</div>' +
-
-      '<label>Note interne</label>' +
-      '<textarea class="dc-nota-interna" data-id="' + id + '" placeholder="Annotazioni di lavoro…">' +
-        notaInterna +
-      '</textarea>' +
-
-      '<label>Ore residue stimate</label>' +
-      '<div class="dc-ore-row">' +
-        '<input type="number" class="dc-ore-input" data-id="' + id + '" min="0" step="0.5" value="' + oreResidueVal + '" placeholder="h">' +
-        '<span style="font-size:0.8rem;color:var(--color-text-secondary,#888);">ore</span>' +
-      '</div>' +
-
+    bookingDetailsHtml +
+    '<label>Note cliente</label>' +
+    '<div class="dc-note-cliente">' +
+    (noteCliente ? noteCliente : '<em style="opacity:0.5;">Nessuna nota dal cliente</em>') +
     '</div>' +
-
+    '<label>Note interne</label>' +
+    '<textarea class="dc-nota-interna" data-id="' +
+    id +
+    '" placeholder="Annotazioni di lavoro…">' +
+    notaInterna +
+    '</textarea>' +
+    '<label>Ore residue stimate</label>' +
+    '<div class="dc-ore-row">' +
+    '<input type="number" class="dc-ore-input" data-id="' +
+    id +
+    '" min="0" step="0.5" value="' +
+    oreResidueVal +
+    '" placeholder="h">' +
+    '<span style="font-size:0.8rem;color:var(--color-text-secondary,#888);">ore</span>' +
+    '</div>' +
+    '</div>' +
     footerHtml +
     '</div>'
   );
@@ -279,8 +332,8 @@ function buildDepositCard(deposit) {
 
 function attachCardListeners(container) {
   // Toggle expand/collapse
-  container.querySelectorAll('.deposit-card-header').forEach(function(header) {
-    header.addEventListener('click', function(e) {
+  container.querySelectorAll('.deposit-card-header').forEach(function (header) {
+    header.addEventListener('click', function (e) {
       // Non espandere se si clicca su un button
       if (e.target.closest('.dc-btn')) return;
       var cardId = header.dataset.cardId;
@@ -290,8 +343,8 @@ function attachCardListeners(container) {
   });
 
   // Stato buttons
-  container.querySelectorAll('.dc-btn[data-action]').forEach(function(btn) {
-    btn.addEventListener('click', async function(e) {
+  container.querySelectorAll('.dc-btn[data-action]').forEach(function (btn) {
+    btn.addEventListener('click', async function (e) {
       e.stopPropagation();
       var action = btn.dataset.action;
       var id = btn.dataset.id;
@@ -313,22 +366,28 @@ function attachCardListeners(container) {
   });
 
   // Nota interna (debounce 1s)
-  container.querySelectorAll('.dc-nota-interna').forEach(function(ta) {
-    ta.addEventListener('input', function() {
+  container.querySelectorAll('.dc-nota-interna').forEach(function (ta) {
+    ta.addEventListener('input', function () {
       var id = ta.dataset.id;
       clearTimeout(saveTimers[id + '_nota']);
-      saveTimers[id + '_nota'] = setTimeout(function() {
+      saveTimers[id + '_nota'] = setTimeout(function () {
         saveNota(id, ta.value);
       }, 1000);
     });
     // Blocca propagazione click per non espandere/collassare quando si clicca dentro
-    ta.addEventListener('click', function(e) { e.stopPropagation(); });
+    ta.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
   });
 
   // Ore residue (save on blur)
-  container.querySelectorAll('.dc-ore-input').forEach(function(inp) {
-    inp.addEventListener('change', function() { saveOre(inp.dataset.id, inp.value); });
-    inp.addEventListener('click', function(e) { e.stopPropagation(); });
+  container.querySelectorAll('.dc-ore-input').forEach(function (inp) {
+    inp.addEventListener('change', function () {
+      saveOre(inp.dataset.id, inp.value);
+    });
+    inp.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
   });
 }
 
@@ -337,15 +396,15 @@ function attachCardListeners(container) {
 async function handleStatusChange(id, nuovoStato, btn, email) {
   if (nuovoStato === 'completato') {
     if (!finishConfirmModal) finishConfirmModal = new Modal('finish-confirm-modal');
-    
+
     // Gestione bottoni modale
     const confirmBtn = document.getElementById('finish-confirm');
     const cancelBtn = document.getElementById('finish-cancel');
-    
+
     // Rimuovi vecchi listener clonando i nodi
     const newConfirmBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-    
+
     const newCancelBtn = cancelBtn.cloneNode(true);
     cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
@@ -410,7 +469,9 @@ async function performStatusChange(id, nuovoStato, btn, email) {
           card.style.transition = 'opacity 0.4s, transform 0.4s';
           card.style.opacity = '0';
           card.style.transform = 'scale(0.95)';
-          setTimeout(function() { loadDeposits(); }, 400);
+          setTimeout(function () {
+            loadDeposits();
+          }, 400);
         } else {
           loadDeposits();
         }
@@ -439,11 +500,13 @@ function showEmailBanner(email) {
     '</span>';
   document.body.appendChild(banner);
 
-  setTimeout(function() {
+  setTimeout(function () {
     banner.style.transition = 'opacity 0.4s, transform 0.4s';
     banner.style.opacity = '0';
     banner.style.transform = 'translateX(-50%) translateY(-16px)';
-    setTimeout(function() { banner.remove(); }, 400);
+    setTimeout(function () {
+      banner.remove();
+    }, 400);
   }, 4000);
 }
 
@@ -453,7 +516,9 @@ async function saveNota(id, nota) {
       method: 'PUT',
       body: JSON.stringify({ nota_lorenzo: nota })
     });
-  } catch (e) { /* silenzioso */ }
+  } catch (e) {
+    /* silenzioso */
+  }
 }
 
 async function saveOre(id, ore) {
@@ -462,32 +527,37 @@ async function saveOre(id, ore) {
       method: 'PUT',
       body: JSON.stringify({ ore_residue: parseFloat(ore) || 0 })
     });
-  } catch (e) { /* silenzioso */ }
+  } catch (e) {
+    /* silenzioso */
+  }
 }
 
 // ── Storico toggle ────────────────────────────────────────────
 
-document.getElementById('storico-toggle').addEventListener('click', function() {
+document.getElementById('storico-toggle').addEventListener('click', function () {
   document.getElementById('storico-section').classList.toggle('open');
 });
 
 // ── Build storico card HTML (read-only) ───────────────────────
 
 function buildStoricaCard(deposit) {
-  var id      = deposit.id;
-  var nome    = ((deposit.nome || '') + ' ' + (deposit.cognome || '')).trim() || '—';
-  var targa   = deposit.targa   || '';
+  var id = deposit.id;
+  var nome = ((deposit.nome || '') + ' ' + (deposit.cognome || '')).trim() || '—';
+  var targa = deposit.targa || '';
   var modello = deposit.modello || '';
   var servizio = deposit.servizio || '';
-  var bGiorno  = deposit.booking_giorno || '';
-  var bOra     = deposit.booking_ora    || '';
-  var noteCliente  = deposit.note_cliente || '';
-  var notaInterna  = deposit.nota_lorenzo || '';
-  var oreStimate   = parseFloat(deposit.ore_stimate) || 0;
-  var createdAt    = deposit.created_at ? deposit.created_at.slice(0, 10) : '';
-  var createdDisplay = createdAt ? (function(d) {
-    var p = d.split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : d;
-  })(createdAt) : '';
+  var bGiorno = deposit.booking_giorno || '';
+  var bOra = deposit.booking_ora || '';
+  var noteCliente = deposit.note_cliente || '';
+  var notaInterna = deposit.nota_lorenzo || '';
+  var oreStimate = parseFloat(deposit.ore_stimate) || 0;
+  var createdAt = deposit.created_at ? deposit.created_at.slice(0, 10) : '';
+  var createdDisplay = createdAt
+    ? (function (d) {
+        var p = d.split('-');
+        return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : d;
+      })(createdAt)
+    : '';
 
   var targaBadge = targa
     ? '<span class="dc-sep">\u00b7</span><span class="dc-targa-inline">' + targa + '</span>'
@@ -497,62 +567,108 @@ function buildStoricaCard(deposit) {
     : '';
 
   var detailRows =
-    (servizio ? '<div class="sc-row"><span class="sc-label">Tipologia</span><span>' + servizio + '</span></div>' : '') +
-    (targa    ? '<div class="sc-row"><span class="sc-label">Targa</span><span>' + targa + '</span></div>' : '') +
-    (modello  ? '<div class="sc-row"><span class="sc-label">Modello</span><span>' + modello + '</span></div>' : '') +
-    (deposit.email    ? '<div class="sc-row"><span class="sc-label">Email</span><span>' + deposit.email + '</span></div>' : '') +
-    (deposit.telefono ? '<div class="sc-row"><span class="sc-label">Telefono</span><span>' + deposit.telefono + '</span></div>' : '') +
-    '<div class="sc-row"><span class="sc-label">Ore stimate</span><span>' + (oreStimate > 0 ? oreStimate + 'h' : '—') + '</span></div>' +
-    (bGiorno  ? '<div class="sc-row"><span class="sc-label">Data lavoro</span><span>' + formatDateDisplay(bGiorno) + (bOra ? ' alle ' + bOra : '') + '</span></div>' : '') +
-    (createdDisplay  ? '<div class="sc-row"><span class="sc-label">Aperto il</span><span>' + createdDisplay + '</span></div>' : '');
+    (servizio
+      ? '<div class="sc-row"><span class="sc-label">Tipologia</span><span>' +
+        servizio +
+        '</span></div>'
+      : '') +
+    (targa
+      ? '<div class="sc-row"><span class="sc-label">Targa</span><span>' + targa + '</span></div>'
+      : '') +
+    (modello
+      ? '<div class="sc-row"><span class="sc-label">Modello</span><span>' +
+        modello +
+        '</span></div>'
+      : '') +
+    (deposit.email
+      ? '<div class="sc-row"><span class="sc-label">Email</span><span>' +
+        deposit.email +
+        '</span></div>'
+      : '') +
+    (deposit.telefono
+      ? '<div class="sc-row"><span class="sc-label">Telefono</span><span>' +
+        deposit.telefono +
+        '</span></div>'
+      : '') +
+    '<div class="sc-row"><span class="sc-label">Ore stimate</span><span>' +
+    (oreStimate > 0 ? oreStimate + 'h' : '—') +
+    '</span></div>' +
+    (bGiorno
+      ? '<div class="sc-row"><span class="sc-label">Data lavoro</span><span>' +
+        formatDateDisplay(bGiorno) +
+        (bOra ? ' alle ' + bOra : '') +
+        '</span></div>'
+      : '') +
+    (createdDisplay
+      ? '<div class="sc-row"><span class="sc-label">Aperto il</span><span>' +
+        createdDisplay +
+        '</span></div>'
+      : '');
 
   var noteSection =
     (noteCliente
-      ? '<div class="sc-note-block"><span class="sc-label">Note cliente</span><p>' + noteCliente + '</p></div>'
+      ? '<div class="sc-note-block"><span class="sc-label">Note cliente</span><p>' +
+        noteCliente +
+        '</p></div>'
       : '') +
-    '<div class="sc-note-block' + (noteCliente ? ' sc-note-interna' : '') + '"><span class="sc-label">Note meccanico</span><p>' + (notaInterna || '<em class="sc-empty">Nessuna nota</em>') + '</p></div>';
+    '<div class="sc-note-block' +
+    (noteCliente ? ' sc-note-interna' : '') +
+    '"><span class="sc-label">Note meccanico</span><p>' +
+    (notaInterna || '<em class="sc-empty">Nessuna nota</em>') +
+    '</p></div>';
 
   return (
-    '<div class="deposit-card storica-card stato-completato" id="deposit-card-' + id + '">'
-
-    + '<div class="deposit-card-header" data-card-id="' + id + '">'
-      + '<div class="dc-header-info">'
-        + '<span class="dc-name">' + nome + '</span>'
-        + targaBadge
-        + servizioBadge
-      + '</div>'
-      + '<div style="display:flex;align-items:center;gap:8px;">'
-        + (createdDisplay ? '<span class="sc-date">' + createdDisplay + '</span>' : '')
-        + '<span class="dc-chevron">\u25bc</span>'
-      + '</div>'
-    + '</div>'
-
-    + '<div class="deposit-card-body">'
-      + (detailRows ? '<div class="sc-detail-grid">' + detailRows + '</div>' : '')
-      + noteSection
-    + '</div>'
-
-    + '</div>'
+    '<div class="deposit-card storica-card stato-completato" id="deposit-card-' +
+    id +
+    '">' +
+    '<div class="deposit-card-header" data-card-id="' +
+    id +
+    '">' +
+    '<div class="dc-header-info">' +
+    '<span class="dc-name">' +
+    nome +
+    '</span>' +
+    targaBadge +
+    servizioBadge +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;">' +
+    (createdDisplay ? '<span class="sc-date">' + createdDisplay + '</span>' : '') +
+    '<span class="dc-chevron">\u25bc</span>' +
+    '</div>' +
+    '</div>' +
+    '<div class="deposit-card-body">' +
+    (detailRows ? '<div class="sc-detail-grid">' + detailRows + '</div>' : '') +
+    noteSection +
+    '</div>' +
+    '</div>'
   );
 }
 
 // ── Sidebar ───────────────────────────────────────────────────
 
-(function() {
-  var ham     = document.getElementById('hamburger-btn');
+(function () {
+  var ham = document.getElementById('hamburger-btn');
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('sidebar-overlay');
-  var closeBtn  = document.getElementById('close-sidebar');
+  var closeBtn = document.getElementById('close-sidebar');
   var logoutBtn = document.getElementById('sidebar-logout');
 
-  function open()  { sidebar.classList.add('active');    overlay.classList.add('active'); }
-  function close() { sidebar.classList.remove('active'); overlay.classList.remove('active'); }
+  function open() {
+    sidebar.classList.add('active');
+    overlay.classList.add('active');
+  }
+  function close() {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+  }
 
   ham.addEventListener('click', open);
   closeBtn.addEventListener('click', close);
   overlay.addEventListener('click', close);
-  logoutBtn.addEventListener('click', async function() {
-    try { await apiRequest('/auth/logout', { method: 'POST' }); } catch (e) {}
+  logoutBtn.addEventListener('click', async function () {
+    try {
+      await apiRequest('/auth/logout', { method: 'POST' });
+    } catch (e) {}
     window.location.href = '/';
   });
 })();

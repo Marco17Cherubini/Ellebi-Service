@@ -39,7 +39,7 @@ function showError(elementId, message) {
   const errorElement = document.getElementById(elementId);
   errorElement.textContent = message;
   errorElement.classList.remove('hidden');
-  
+
   setTimeout(() => {
     errorElement.classList.add('hidden');
   }, 5000);
@@ -49,7 +49,7 @@ function showSuccess(elementId, message) {
   const successElement = document.getElementById(elementId);
   successElement.textContent = message;
   successElement.classList.remove('hidden');
-  
+
   setTimeout(() => {
     successElement.classList.add('hidden');
   }, 5000);
@@ -65,14 +65,26 @@ function hideMessage(elementId) {
 function formatDate(dateString) {
   const date = new Date(dateString);
   const days = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
-  const months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 
-                  'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
-  
+  const months = [
+    'gennaio',
+    'febbraio',
+    'marzo',
+    'aprile',
+    'maggio',
+    'giugno',
+    'luglio',
+    'agosto',
+    'settembre',
+    'ottobre',
+    'novembre',
+    'dicembre'
+  ];
+
   const dayName = days[date.getDay()];
   const day = date.getDate();
   const month = months[date.getMonth()];
   const year = date.getFullYear();
-  
+
   return `${dayName} ${day} ${month} ${year}`;
 }
 
@@ -81,7 +93,7 @@ function formatDateShort(dateString) {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
-  
+
   return `${day}/${month}/${year}`;
 }
 

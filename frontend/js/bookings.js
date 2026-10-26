@@ -12,7 +12,6 @@ async function init() {
 
     // Carica prenotazioni
     await loadBookings();
-
   } catch (error) {
     console.error('Errore inizializzazione:', error);
     redirectToLogin();
@@ -29,12 +28,14 @@ async function loadBookings() {
 
     // Filtra solo prenotazioni di oggi o future (per giorno, non per ora)
     const today = new Date().toISOString().split('T')[0];
-    const activeBookings = response.bookings.filter(booking => {
-      return booking.giorno >= today;
-    }).sort((a, b) => {
-      // Ordina per data crescente (più vicini prima)
-      return new Date(`${a.giorno}T${a.ora}:00`) - new Date(`${b.giorno}T${b.ora}:00`);
-    });
+    const activeBookings = response.bookings
+      .filter(booking => {
+        return booking.giorno >= today;
+      })
+      .sort((a, b) => {
+        // Ordina per data crescente (più vicini prima)
+        return new Date(`${a.giorno}T${a.ora}:00`) - new Date(`${b.giorno}T${b.ora}:00`);
+      });
 
     if (activeBookings.length === 0) {
       bookingsList.classList.add('hidden');
@@ -44,10 +45,11 @@ async function loadBookings() {
 
     window.currentActiveBookings = activeBookings;
 
-    bookingsList.innerHTML = activeBookings.map((booking, index) => {
-      var sid = booking.service_id || '';
-      var durata = booking.durata_minuti ? (booking.durata_minuti + ' min') : '';
-      return `
+    bookingsList.innerHTML = activeBookings
+      .map((booking, index) => {
+        var sid = booking.service_id || '';
+        var durata = booking.durata_minuti ? booking.durata_minuti + ' min' : '';
+        return `
       <div class="card booking-card" data-giorno="${booking.giorno}" data-ora="${booking.ora}">
         <div class="booking-info">
           <div class="card-title">${escapeHTML(booking.servizio)}</div>
@@ -65,8 +67,9 @@ async function loadBookings() {
           </button>
         </div>
       </div>
-    `}).join('');
-
+    `;
+      })
+      .join('');
   } catch (error) {
     console.error('Errore caricamento prenotazioni:', error);
     document.getElementById('bookings-list').innerHTML =
@@ -77,15 +80,18 @@ async function loadBookings() {
 // Funzione per modificare una prenotazione
 function editBooking(index) {
   var b = window.currentActiveBookings[index];
-  sessionStorage.setItem('editingBooking', JSON.stringify({ 
-    giorno: b.giorno, 
-    ora: b.ora, 
-    servizio: b.servizio, 
-    serviceId: b.service_id || '',
-    targa: b.targa || '',
-    modello: b.modello || '',
-    note_cliente: b.note_cliente || ''
-  }));
+  sessionStorage.setItem(
+    'editingBooking',
+    JSON.stringify({
+      giorno: b.giorno,
+      ora: b.ora,
+      servizio: b.servizio,
+      serviceId: b.service_id || '',
+      targa: b.targa || '',
+      modello: b.modello || '',
+      note_cliente: b.note_cliente || ''
+    })
+  );
 
   // Reindirizza al calendario per selezionare nuovo appuntamento
   window.location.href = '/dashboard';
@@ -120,7 +126,9 @@ document.getElementById('delete-cancel').addEventListener('click', closeDeleteMo
 document.getElementById('delete-confirm').addEventListener('click', executeDelete);
 
 // Chiudi modal cliccando sull'overlay
-document.querySelector('#delete-confirm-modal .modal-overlay').addEventListener('click', closeDeleteModal);
+document
+  .querySelector('#delete-confirm-modal .modal-overlay')
+  .addEventListener('click', closeDeleteModal);
 
 // Esegui cancellazione
 async function executeDelete() {
@@ -141,7 +149,6 @@ async function executeDelete() {
     deleteBtn.textContent = 'Sì, Cancella';
     closeDeleteModal();
     await loadBookings();
-
   } catch (error) {
     console.error('Errore cancellazione:', error);
     alert('Errore nella cancellazione: ' + error.message);

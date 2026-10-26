@@ -19,14 +19,14 @@
     'body > *:not(#legal-footer):not(script):not(style) { flex-shrink: 0; }' +
     '.center-container { flex: 1 0 auto !important; min-height: auto !important; }' +
     '#legal-footer {' +
-      'flex-shrink: 0;' +
-      'text-align: center;' +
-      'padding: 16px 12px;' +
-      'font-size: 0.8rem;' +
-      'opacity: 0.75;' +
-      'line-height: 1.5;' +
-      'border-top: 1px solid rgba(128,128,128,0.15);' +
-      'margin-top: 24px;' +
+    'flex-shrink: 0;' +
+    'text-align: center;' +
+    'padding: 16px 12px;' +
+    'font-size: 0.8rem;' +
+    'opacity: 0.75;' +
+    'line-height: 1.5;' +
+    'border-top: 1px solid rgba(128,128,128,0.15);' +
+    'margin-top: 24px;' +
     '}' +
     '#legal-footer a { color: inherit; text-decoration: underline; margin: 0 4px; }' +
     '#legal-footer a:hover { opacity: 0.9; }';
@@ -38,16 +38,18 @@
 
   var year = new Date().getFullYear();
   footer.innerHTML =
-    '<div>&copy; ' + year + ' Ellebi Service SRL</div>' +
+    '<div>&copy; ' +
+    year +
+    ' Ellebi Service SRL</div>' +
     '<div style="margin-top:4px;">P.IVA 02686660065 &middot; PEC: ellebi_service@legalmail.it</div>' +
     '<div style="margin-top:4px;">' +
-      'Via Zerbi 21, San Giuliano Vecchio, Alessandria &middot; ' +
-      '<a href="mailto:ellebi_service@libero.it">ellebi_service@libero.it</a>' +
+    'Via Zerbi 21, San Giuliano Vecchio, Alessandria &middot; ' +
+    '<a href="mailto:ellebi_service@libero.it">ellebi_service@libero.it</a>' +
     '</div>' +
     '<div style="margin-top:6px;">' +
-      '<a href="/privacy-policy.html" title="Privacy Policy">Privacy Policy</a>' +
-      ' &middot; ' +
-      '<a href="/cookie-policy.html" title="Cookie Policy">Cookie Policy</a>' +
+    '<a href="/privacy-policy.html" title="Privacy Policy">Privacy Policy</a>' +
+    ' &middot; ' +
+    '<a href="/cookie-policy.html" title="Cookie Policy">Cookie Policy</a>' +
     '</div>';
   d.body.appendChild(footer);
 })(window, document);

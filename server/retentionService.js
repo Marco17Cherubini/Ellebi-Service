@@ -85,7 +85,7 @@ function collectPreview(referenceDate) {
     staleDeposits: readScalar(
       `SELECT COUNT(*) AS count
        FROM deposits d
-       WHERE datetime(COALESCE(NULLIF(d.completed_at, ''), d.created_at, '1970-01-01 00:00:00')) < datetime('now', ?)` ,
+       WHERE datetime(COALESCE(NULLIF(d.completed_at, ''), d.created_at, '1970-01-01 00:00:00')) < datetime('now', ?)`,
       [thresholds.deposits]
     ),
     staleGuestUsers: readScalar(
@@ -303,7 +303,8 @@ function executeRetentionCleanup(options) {
 }
 
 function startRetentionScheduler(options) {
-  const intervalMs = ((options && options.intervalMs) || (RETENTION_PERIODS.schedulerHours * 60 * 60 * 1000));
+  const intervalMs =
+    (options && options.intervalMs) || RETENTION_PERIODS.schedulerHours * 60 * 60 * 1000;
 
   try {
     const initial = executeRetentionCleanup({ dryRun: false });

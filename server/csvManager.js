@@ -130,21 +130,12 @@ const adminColumns = ['email', 'password']; // Solo lettura - credenziali admin
 const holidayColumns = ['giorno', 'ora']; // Ferie: giorno e ora
 
 // Inizializza i manager
-const usersDB = new CSVManager(
-  config.database.usersFile,
-  userColumns
-);
+const usersDB = new CSVManager(config.database.usersFile, userColumns);
 
-const bookingsDB = new CSVManager(
-  config.database.bookingsFile,
-  bookingColumns
-);
+const bookingsDB = new CSVManager(config.database.bookingsFile, bookingColumns);
 
 // Admin DB - solo lettura (non usare insert/update/delete)
-const adminDB = new CSVManager(
-  config.database.adminFile,
-  adminColumns
-);
+const adminDB = new CSVManager(config.database.adminFile, adminColumns);
 
 // Inizializza admin da variabili d'ambiente (non più hardcoded)
 function initializeDefaultAdmin() {
@@ -156,7 +147,7 @@ function initializeDefaultAdmin() {
 
     if (!adminEmail || !adminPassword) {
       console.log('⚠️  ATTENZIONE: ADMIN_EMAIL e ADMIN_PASSWORD non configurati nel .env');
-      console.log('   Imposta queste variabili per creare l\'account admin');
+      console.log("   Imposta queste variabili per creare l'account admin");
       return;
     }
 
@@ -170,10 +161,7 @@ function initializeDefaultAdmin() {
 }
 
 // Holidays DB - ferie
-const holidaysDB = new CSVManager(
-  config.database.holidaysFile,
-  holidayColumns
-);
+const holidaysDB = new CSVManager(config.database.holidaysFile, holidayColumns);
 
 // Esegui inizializzazione
 initializeDefaultAdmin();

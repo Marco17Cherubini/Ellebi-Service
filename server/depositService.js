@@ -10,7 +10,7 @@ function sanitizeText(value, maxLen) {
 // ─── Query ────────────────────────────────────────────────────────────────────
 
 function getActiveDepositCount() {
-  return depositsDB.findMany(function(d) {
+  return depositsDB.findMany(function (d) {
     return d.stato === 'in_attesa' || d.stato === 'in_corso' || d.stato === 'standby';
   }).length;
 }
@@ -20,7 +20,7 @@ function canAcceptDeposit() {
 }
 
 function getActiveDeposits() {
-  return depositsDB.findMany(function(d) {
+  return depositsDB.findMany(function (d) {
     return d.stato !== 'completato';
   });
 }
@@ -30,7 +30,9 @@ function getAllDeposits() {
 }
 
 function getDepositById(id) {
-  return depositsDB.findOne(function(d) { return String(d.id) === String(id); });
+  return depositsDB.findOne(function (d) {
+    return String(d.id) === String(id);
+  });
 }
 
 // ─── Creazione ────────────────────────────────────────────────────────────────
@@ -60,17 +62,17 @@ function createDeposit(bookingId, depositData) {
   }
 
   var record = {
-    booking_id:   String(bookingId),
-    nome:         sanitizeText(depositData.nome, 100),
-    cognome:      sanitizeText(depositData.cognome, 100),
-    email:        sanitizeText(depositData.email, 254),
-    telefono:     sanitizeText(depositData.telefono, 20),
-    targa:        sanitizeText(depositData.targa, 10).toUpperCase(),
-    modello:      sanitizeText(depositData.modello, 100),
-    servizio:     sanitizeText(depositData.servizio, 200),
-    ore_stimate:  depositData.ore_stimate  || 0,
-    ore_residue:  depositData.ore_stimate  || 0,
-    stato:        'in_attesa',
+    booking_id: String(bookingId),
+    nome: sanitizeText(depositData.nome, 100),
+    cognome: sanitizeText(depositData.cognome, 100),
+    email: sanitizeText(depositData.email, 254),
+    telefono: sanitizeText(depositData.telefono, 20),
+    targa: sanitizeText(depositData.targa, 10).toUpperCase(),
+    modello: sanitizeText(depositData.modello, 100),
+    servizio: sanitizeText(depositData.servizio, 200),
+    ore_stimate: depositData.ore_stimate || 0,
+    ore_residue: depositData.ore_stimate || 0,
+    stato: 'in_attesa',
     completed_at: '',
     note_cliente: sanitizeText(depositData.note_cliente, 1000),
     nota_lorenzo: ''
@@ -95,15 +97,15 @@ function updateDeposit(id, updates) {
     changes.stato = sanitizeText(updates.stato, 50);
     changes.completed_at = changes.stato === 'completato' ? new Date().toISOString() : '';
   }
-  if (updates.nota_lorenzo !== undefined) changes.nota_lorenzo = sanitizeText(updates.nota_lorenzo, 1000);
-  if (updates.ore_residue !== undefined)  changes.ore_residue  = updates.ore_residue;
-  if (updates.ore_stimate !== undefined)  changes.ore_stimate  = updates.ore_stimate;
+  if (updates.nota_lorenzo !== undefined)
+    changes.nota_lorenzo = sanitizeText(updates.nota_lorenzo, 1000);
+  if (updates.ore_residue !== undefined) changes.ore_residue = updates.ore_residue;
+  if (updates.ore_stimate !== undefined) changes.ore_stimate = updates.ore_stimate;
 
   if (Object.keys(changes).length > 0) {
-    depositsDB.update(
-      function(d) { return String(d.id) === String(id); },
-      changes
-    );
+    depositsDB.update(function (d) {
+      return String(d.id) === String(id);
+    }, changes);
   }
 
   return getDepositById(id);
@@ -114,7 +116,9 @@ function markCompleted(id) {
 }
 
 function deleteDeposit(id) {
-  depositsDB.delete(function(d) { return String(d.id) === String(id); });
+  depositsDB.delete(function (d) {
+    return String(d.id) === String(id);
+  });
 }
 
 // ─── Export ─────────────────────────────────────────────────────────
@@ -129,5 +133,7 @@ module.exports = {
   updateDeposit,
   markCompleted,
   deleteDeposit,
-  get MAX_DEPOSITS() { return getSetting('maxDeposits'); }
+  get MAX_DEPOSITS() {
+    return getSetting('maxDeposits');
+  }
 };

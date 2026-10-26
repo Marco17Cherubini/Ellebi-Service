@@ -1,75 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrazione - Ellebi Service SRL</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registrazione - Ellebi Service SRL</title>
-  <link rel="stylesheet" href="/styles.css">
-</head>
+  <body>
+    <div class="center-container">
+      <div class="form">
+        <h2 class="text-center">Registrazione</h2>
 
-<body>
-  <div class="center-container">
-    <div class="form">
-      <h2 class="text-center">Registrazione</h2>
+        <div id="error-message" class="form-error hidden"></div>
 
-      <div id="error-message" class="form-error hidden"></div>
+        <form id="register-form">
+          <div class="form-group">
+            <label for="nome" class="form-label">Nome</label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              class="form-input"
+              required
+              placeholder="Mario"
+            />
+          </div>
 
-      <form id="register-form">
-        <div class="form-group">
-          <label for="nome" class="form-label">Nome</label>
-          <input type="text" id="nome" name="nome" class="form-input" required placeholder="Mario">
-        </div>
+          <div class="form-group">
+            <label for="cognome" class="form-label">Cognome</label>
+            <input
+              type="text"
+              id="cognome"
+              name="cognome"
+              class="form-input"
+              required
+              placeholder="Rossi"
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="cognome" class="form-label">Cognome</label>
-          <input type="text" id="cognome" name="cognome" class="form-input" required placeholder="Rossi">
-        </div>
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              required
+              placeholder="mario.rossi@example.com"
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="email" class="form-label">Email</label>
-          <input type="email" id="email" name="email" class="form-input" required placeholder="mario.rossi@example.com">
-        </div>
+          <div class="form-group">
+            <label for="telefono" class="form-label">Telefono</label>
+            <input
+              type="tel"
+              id="telefono"
+              name="telefono"
+              class="form-input"
+              required
+              placeholder="+39 123 456 7890"
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="telefono" class="form-label">Telefono</label>
-          <input type="tel" id="telefono" name="telefono" class="form-input" required placeholder="+39 123 456 7890">
-        </div>
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              required
+              minlength="8"
+              placeholder="Minimo 8 caratteri"
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="password" class="form-label">Password</label>
-          <input type="password" id="password" name="password" class="form-input" required minlength="8"
-            placeholder="Minimo 8 caratteri">
-        </div>
+          <div class="form-group">
+            <label for="confirm-password" class="form-label">Conferma Password</label>
+            <input
+              type="password"
+              id="confirm-password"
+              name="confirm-password"
+              class="form-input"
+              required
+              minlength="8"
+              placeholder="Ripeti la password"
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="confirm-password" class="form-label">Conferma Password</label>
-          <input type="password" id="confirm-password" name="confirm-password" class="form-input" required minlength="8"
-            placeholder="Ripeti la password">
-        </div>
+          <div
+            class="form-group"
+            style="
+              display: flex;
+              align-items: flex-start;
+              gap: 8px;
+              font-size: 0.875rem;
+              line-height: 1.45;
+            "
+          >
+            <input
+              type="checkbox"
+              id="privacy-consent"
+              name="privacy-consent"
+              required
+              style="margin-top: 3px; flex-shrink: 0; width: 16px; height: 16px; cursor: pointer"
+            />
+            <label
+              for="privacy-consent"
+              class="form-label"
+              style="margin: 0; cursor: pointer; font-weight: normal"
+            >
+              Ho letto e accetto la
+              <a href="/privacy-policy.html" class="link" title="Privacy Policy">Privacy Policy</a>
+              di Ellebi Service SRL.
+            </label>
+          </div>
 
-        <div class="form-group" style="display:flex;align-items:flex-start;gap:8px;font-size:0.875rem;line-height:1.45;">
-          <input type="checkbox" id="privacy-consent" name="privacy-consent" required
-            style="margin-top:3px;flex-shrink:0;width:16px;height:16px;cursor:pointer;">
-          <label for="privacy-consent" class="form-label" style="margin:0;cursor:pointer;font-weight:normal;">
-            Ho letto e accetto la
-            <a href="/privacy-policy.html" class="link" title="Privacy Policy">Privacy Policy</a>
-            di Ellebi Service SRL.
-          </label>
-        </div>
+          <button type="submit" class="btn btn-full">Registrati</button>
+        </form>
 
-        <button type="submit" class="btn btn-full">Registrati</button>
-      </form>
-
-      <p class="text-center mt-2">
-        Hai già un account? <a href="/login" class="link">Accedi</a>
-      </p>
+        <p class="text-center mt-2">Hai già un account? <a href="/login" class="link">Accedi</a></p>
+      </div>
     </div>
-  </div>
 
-  <script src="/js/theme.js"></script>
-  <script src="/js/register.js"></script>
-  <script src="/js/legal-footer.js"></script>
-</body>
-
+    <script src="/js/theme.js"></script>
+    <script src="/js/register.js"></script>
+    <script src="/js/legal-footer.js"></script>
+  </body>
 </html>

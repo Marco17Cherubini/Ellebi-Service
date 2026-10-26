@@ -1,6 +1,6 @@
-document.getElementById('register-form').addEventListener('submit', async (e) => {
+document.getElementById('register-form').addEventListener('submit', async e => {
   e.preventDefault();
-  
+
   hideMessage('error-message');
 
   const formData = {

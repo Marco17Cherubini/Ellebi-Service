@@ -35,29 +35,92 @@ let touchStartY = 0;
 
 // Orari di lavoro Ellebi Service — Lun-Ven (08:30-12:30, 14:30-18:30, 15min)
 const timeSlotsWeekday = [
-  '08:30', '08:45', '09:00', '09:15', '09:30', '09:45',
-  '10:00', '10:15', '10:30', '10:45', '11:00', '11:15',
-  '11:30', '11:45', '12:00', '12:15',
-  '14:30', '14:45', '15:00', '15:15', '15:30', '15:45',
-  '16:00', '16:15', '16:30', '16:45', '17:00', '17:15',
-  '17:30', '17:45', '18:00', '18:15'
+  '08:30',
+  '08:45',
+  '09:00',
+  '09:15',
+  '09:30',
+  '09:45',
+  '10:00',
+  '10:15',
+  '10:30',
+  '10:45',
+  '11:00',
+  '11:15',
+  '11:30',
+  '11:45',
+  '12:00',
+  '12:15',
+  '14:30',
+  '14:45',
+  '15:00',
+  '15:15',
+  '15:30',
+  '15:45',
+  '16:00',
+  '16:15',
+  '16:30',
+  '16:45',
+  '17:00',
+  '17:15',
+  '17:30',
+  '17:45',
+  '18:00',
+  '18:15'
 ];
 
 // Sabato (08:30-12:00, 15min)
 const timeSlotsSaturday = [
-  '08:30', '08:45', '09:00', '09:15', '09:30', '09:45',
-  '10:00', '10:15', '10:30', '10:45', '11:00', '11:15',
-  '11:30', '11:45'
+  '08:30',
+  '08:45',
+  '09:00',
+  '09:15',
+  '09:30',
+  '09:45',
+  '10:00',
+  '10:15',
+  '10:30',
+  '10:45',
+  '11:00',
+  '11:15',
+  '11:30',
+  '11:45'
 ];
 
 // Tutti gli slot per la griglia admin (unione weekday + saturday)
 const allTimeSlots = [
-  '08:30', '08:45', '09:00', '09:15', '09:30', '09:45',
-  '10:00', '10:15', '10:30', '10:45', '11:00', '11:15',
-  '11:30', '11:45', '12:00', '12:15',
-  '14:30', '14:45', '15:00', '15:15', '15:30', '15:45',
-  '16:00', '16:15', '16:30', '16:45', '17:00', '17:15',
-  '17:30', '17:45', '18:00', '18:15'
+  '08:30',
+  '08:45',
+  '09:00',
+  '09:15',
+  '09:30',
+  '09:45',
+  '10:00',
+  '10:15',
+  '10:30',
+  '10:45',
+  '11:00',
+  '11:15',
+  '11:30',
+  '11:45',
+  '12:00',
+  '12:15',
+  '14:30',
+  '14:45',
+  '15:00',
+  '15:15',
+  '15:30',
+  '15:45',
+  '16:00',
+  '16:15',
+  '16:30',
+  '16:45',
+  '17:00',
+  '17:15',
+  '17:30',
+  '17:45',
+  '18:00',
+  '18:15'
 ];
 
 // Servizi caricati dall'API
@@ -176,13 +239,18 @@ function buildServicePicker() {
   const panel = document.getElementById('svc-picker-panel');
   if (!panel) return;
 
-  const appuntamenti = allServices.filter(function(s) { return s.tipo_servizio !== 'consegna' && (s.attivo === 1 || s.attivo === '1'); });
-  const consegna     = allServices.filter(function(s) { return s.tipo_servizio === 'consegna'  && (s.attivo === 1 || s.attivo === '1'); });
+  const appuntamenti = allServices.filter(function (s) {
+    return s.tipo_servizio !== 'consegna' && (s.attivo === 1 || s.attivo === '1');
+  });
+  const consegna = allServices.filter(function (s) {
+    return s.tipo_servizio === 'consegna' && (s.attivo === 1 || s.attivo === '1');
+  });
 
   function buildItem(s) {
-    const tipoClass  = s.tipo_servizio === 'consegna' ? 'tipo-consegna' : 'tipo-appuntamento';
+    const tipoClass = s.tipo_servizio === 'consegna' ? 'tipo-consegna' : 'tipo-appuntamento';
     const veicoloLabel = s.tipo_veicolo === 'auto' ? 'Auto' : 'Moto';
-    const durataLabel  = s.tipo_servizio === 'consegna' ? 'Consegna' : (s.durata_minuti || '?') + 'min';
+    const durataLabel =
+      s.tipo_servizio === 'consegna' ? 'Consegna' : (s.durata_minuti || '?') + 'min';
     return `<div class="svc-option ${tipoClass}" data-svc-id="${s.id}" data-svc-nome="${s.nome}" role="option" tabindex="-1">
       <div class="svc-option-indicator"></div>
       <span class="svc-option-name">${s.nome}</span>
@@ -192,24 +260,33 @@ function buildServicePicker() {
 
   let html = '';
   if (appuntamenti.length > 0) {
-    html += `<div class="svc-group-header appuntamenti">
+    html +=
+      `<div class="svc-group-header appuntamenti">
       <div class="svc-group-dot"></div>Appuntamenti
     </div>` + appuntamenti.map(buildItem).join('');
   }
   if (consegna.length > 0) {
-    html += `<div class="svc-group-header consegna">
+    html +=
+      `<div class="svc-group-header consegna">
       <div class="svc-group-dot"></div>Consegna / Lavori Speciali
     </div>` + consegna.map(buildItem).join('');
   }
   panel.innerHTML = html;
 
   // Event listener su ogni opzione
-  panel.querySelectorAll('.svc-option').forEach(function(opt) {
-    opt.addEventListener('click', function() {
-      selectServicePicker(opt.dataset.svcId, opt.dataset.svcNome, opt.dataset.svcId && allServices.find(function(s){ return String(s.id) === String(opt.dataset.svcId); }));
+  panel.querySelectorAll('.svc-option').forEach(function (opt) {
+    opt.addEventListener('click', function () {
+      selectServicePicker(
+        opt.dataset.svcId,
+        opt.dataset.svcNome,
+        opt.dataset.svcId &&
+          allServices.find(function (s) {
+            return String(s.id) === String(opt.dataset.svcId);
+          })
+      );
       closePicker();
     });
-    opt.addEventListener('keydown', function(e) {
+    opt.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         opt.click();
@@ -225,8 +302,9 @@ function selectServicePicker(svcId, svcNome, svc) {
   // Mostra/nasconde solo il banner "Lavoro Straordinario" in base al tipo servizio
   const consegnaBanner = document.getElementById('consegna-banner');
   if (consegnaBanner) {
-    const isConsegnaSvc = svc && (svc.tipo_servizio === 'consegna' ||
-      (svc.nome || '').toLowerCase().includes('consegna'));
+    const isConsegnaSvc =
+      svc &&
+      (svc.tipo_servizio === 'consegna' || (svc.nome || '').toLowerCase().includes('consegna'));
     consegnaBanner.classList.toggle('hidden', !isConsegnaSvc);
   }
 
@@ -241,29 +319,29 @@ function selectServicePicker(svcId, svcNome, svc) {
     }
   }
   // Marca selected
-  document.querySelectorAll('#svc-picker-panel .svc-option').forEach(function(o) {
+  document.querySelectorAll('#svc-picker-panel .svc-option').forEach(function (o) {
     o.classList.toggle('selected', String(o.dataset.svcId) === String(svcId));
   });
 }
 
 function openPicker() {
-  const picker  = document.getElementById('svc-picker');
+  const picker = document.getElementById('svc-picker');
   const trigger = document.getElementById('svc-picker-trigger');
-  const panel   = document.getElementById('svc-picker-panel');
+  const panel = document.getElementById('svc-picker-panel');
   if (!picker) return;
   picker.classList.add('open');
   if (trigger) trigger.setAttribute('aria-expanded', 'true');
-  if (panel)   panel.setAttribute('aria-hidden', 'false');
+  if (panel) panel.setAttribute('aria-hidden', 'false');
 }
 
 function closePicker() {
-  const picker  = document.getElementById('svc-picker');
+  const picker = document.getElementById('svc-picker');
   const trigger = document.getElementById('svc-picker-trigger');
-  const panel   = document.getElementById('svc-picker-panel');
+  const panel = document.getElementById('svc-picker-panel');
   if (!picker) return;
   picker.classList.remove('open');
   if (trigger) trigger.setAttribute('aria-expanded', 'false');
-  if (panel)   panel.setAttribute('aria-hidden', 'true');
+  if (panel) panel.setAttribute('aria-hidden', 'true');
 }
 
 // Collega eventi al trigger (eseguito una volta al DOMContentLoaded)
@@ -274,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const isOpen = document.getElementById('svc-picker').classList.contains('open');
       isOpen ? closePicker() : openPicker();
     });
-    trigger.addEventListener('keydown', function(e) {
+    trigger.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
         e.preventDefault();
         openPicker();
@@ -285,12 +363,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
   // Chiudi cliccando fuori
-  document.addEventListener('click', function(e) {
+  document.addEventListener('click', function (e) {
     const picker = document.getElementById('svc-picker');
     if (picker && !picker.contains(e.target)) closePicker();
   });
 });
-
 
 // Carica tutte le prenotazioni
 async function loadBookings() {
@@ -352,7 +429,9 @@ function renderCalendar() {
   // step = numero di slot 15-min per ogni riga visibile.
   // visibleSlots = primo slot di ogni blocco (es: 08:30, 09:30, 10:30... a 1 ora).
   const step = calendarGranularity / 15;
-  const visibleSlots = allTimeSlots.filter(function (_, i) { return i % step === 0; });
+  const visibleSlots = allTimeSlots.filter(function (_, i) {
+    return i % step === 0;
+  });
 
   // Pre-calcola le righe visibili da saltare (dominio visibleSlots, non 15-min)
   const skipCells = new Map();
@@ -385,11 +464,12 @@ function renderCalendar() {
     group.sort((a, b) => allTimeSlots.indexOf(a.ora) - allTimeSlots.indexOf(b.ora));
     let runStart = 0;
     for (let i = 1; i <= group.length; i++) {
-      const isEnd = i === group.length ||
+      const isEnd =
+        i === group.length ||
         allTimeSlots.indexOf(group[i].ora) !== allTimeSlots.indexOf(group[i - 1].ora) + 1;
       if (isEnd) {
         const runSlots = i - runStart;
-        const visSpan = Math.max(1, Math.ceil(runSlots * 15 / calendarGranularity));
+        const visSpan = Math.max(1, Math.ceil((runSlots * 15) / calendarGranularity));
         const startSlotIdx = allTimeSlots.indexOf(group[runStart].ora);
         const visParentIdx = Math.floor(startSlotIdx / step);
         const visStartTime = visibleSlots[visParentIdx];
@@ -449,7 +529,10 @@ function renderCalendar() {
           const vs = extraworkSpans.get(`${dateStr}|${time}`) || 1;
           if (vs > 1) cell.style.gridRow = `${rowIndex} / span ${vs}`;
         } else {
-          const vs = Math.max(1, Math.ceil((parseInt(booking.durata_minuti) || 60) / calendarGranularity));
+          const vs = Math.max(
+            1,
+            Math.ceil((parseInt(booking.durata_minuti) || 60) / calendarGranularity)
+          );
           if (vs > 1) cell.style.gridRow = `${rowIndex} / span ${vs}`;
         }
       }
@@ -512,7 +595,7 @@ function renderCalendar() {
         cell.innerHTML = renderBookingItem(booking, actionTime);
 
         // Drag-and-drop: inizia drag su mousedown sulla prenotazione
-        cell.addEventListener('mousedown', (e) => {
+        cell.addEventListener('mousedown', e => {
           if (holidayMode) return;
           if (isExtraWorkBooking(booking)) return;
           e.preventDefault();
@@ -520,35 +603,43 @@ function renderCalendar() {
         });
 
         // Drag-and-drop: supporto TOUCH (Long Press)
-        cell.addEventListener('touchstart', (e) => {
-          if (holidayMode) return;
-          if (isExtraWorkBooking(booking)) return;
-          if (e.touches.length !== 1) return;
+        cell.addEventListener(
+          'touchstart',
+          e => {
+            if (holidayMode) return;
+            if (isExtraWorkBooking(booking)) return;
+            if (e.touches.length !== 1) return;
 
-          touchStartX = e.touches[0].clientX;
-          touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
 
-          // Avvia timer per long press (500ms)
-          longPressTimer = setTimeout(() => {
-            e.preventDefault();
-            startBookingDrag(booking, e.touches[0]);
+            // Avvia timer per long press (500ms)
+            longPressTimer = setTimeout(() => {
+              e.preventDefault();
+              startBookingDrag(booking, e.touches[0]);
 
-            // Feedback vibratile se supportato
-            if (navigator.vibrate) navigator.vibrate(50);
-          }, 500);
-        }, { passive: false });
+              // Feedback vibratile se supportato
+              if (navigator.vibrate) navigator.vibrate(50);
+            }, 500);
+          },
+          { passive: false }
+        );
 
-        cell.addEventListener('touchmove', (e) => {
-          // Se ci si muove troppo prima del long press, annulla
-          if (longPressTimer && !isDraggingBooking) {
-            const moveX = e.touches[0].clientX;
-            const moveY = e.touches[0].clientY;
-            if (Math.abs(moveX - touchStartX) > 10 || Math.abs(moveY - touchStartY) > 10) {
-              clearTimeout(longPressTimer);
-              longPressTimer = null;
+        cell.addEventListener(
+          'touchmove',
+          e => {
+            // Se ci si muove troppo prima del long press, annulla
+            if (longPressTimer && !isDraggingBooking) {
+              const moveX = e.touches[0].clientX;
+              const moveY = e.touches[0].clientY;
+              if (Math.abs(moveX - touchStartX) > 10 || Math.abs(moveY - touchStartY) > 10) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+              }
             }
-          }
-        }, { passive: false });
+          },
+          { passive: false }
+        );
 
         cell.addEventListener('touchend', () => {
           if (longPressTimer) {
@@ -565,7 +656,7 @@ function renderCalendar() {
         });
 
         // Click su cella con prenotazione -> mostra dettagli (solo se non era drag)
-        cell.addEventListener('click', (e) => {
+        cell.addEventListener('click', e => {
           if (isDraggingBooking) return;
           e.stopPropagation();
           showDetailModal(booking);
@@ -598,7 +689,11 @@ function renderCalendar() {
           if (holidayMode || extraWorkMode) {
             const isH = !!findHolidayInBlock(dateStr, time, step);
             if (extraWorkMode) {
-              dragMode = selectedExtraWorkSlots.some(s => s.giorno === dateStr && s.ora === actionTime) ? 'remove' : 'add';
+              dragMode = selectedExtraWorkSlots.some(
+                s => s.giorno === dateStr && s.ora === actionTime
+              )
+                ? 'remove'
+                : 'add';
               addToDragSelection(dateStr, actionTime, isH);
             } else {
               toggleHolidaySelection(dateStr, actionTime, isH);
@@ -642,7 +737,9 @@ function getBlockSlots(time, step) {
 function findBookingInBlock(dateStr, time, step) {
   const slots = getBlockSlots(time, step);
   for (let i = 0; i < slots.length; i++) {
-    const b = allBookings.find(function (bk) { return bk.giorno === dateStr && bk.ora === slots[i]; });
+    const b = allBookings.find(function (bk) {
+      return bk.giorno === dateStr && bk.ora === slots[i];
+    });
     if (b) return b;
   }
   return null;
@@ -652,7 +749,9 @@ function findBookingInBlock(dateStr, time, step) {
 function findHolidayInBlock(dateStr, time, step) {
   const slots = getBlockSlots(time, step);
   for (let i = 0; i < slots.length; i++) {
-    const h = allHolidays.find(function (hol) { return hol.giorno === dateStr && hol.ora === slots[i]; });
+    const h = allHolidays.find(function (hol) {
+      return hol.giorno === dateStr && hol.ora === slots[i];
+    });
     if (h) return h;
   }
   return null;
@@ -676,19 +775,25 @@ function isExtraWorkBooking(booking) {
 
 function isConsegnaBooking(booking) {
   if (booking.tipo === 'deposito') return true;
-  const svc = allServices.find(function(s) {
+  const svc = allServices.find(function (s) {
     if (booking.service_id && String(booking.service_id) !== '') {
       return String(s.id) === String(booking.service_id);
     }
     return booking.servizio && s.nome === booking.servizio;
   });
-  return !!(svc && (svc.tipo_servizio === 'consegna' ||
-    (svc.nome || '').toLowerCase().includes('consegna')));
+  return !!(
+    svc &&
+    (svc.tipo_servizio === 'consegna' || (svc.nome || '').toLowerCase().includes('consegna'))
+  );
 }
 
 // Render singolo appuntamento (con colori per tipo)
 function renderBookingItem(booking, time) {
-  const typeClass = isExtraWorkBooking(booking) ? 'booking-extrawork' : (isConsegnaBooking(booking) ? 'booking-deposito' : 'booking-cliente');
+  const typeClass = isExtraWorkBooking(booking)
+    ? 'booking-extrawork'
+    : isConsegnaBooking(booking)
+      ? 'booking-deposito'
+      : 'booking-cliente';
 
   // Extrawork: mostra "{nome} {cognome}", "{servizio} · {ore}h · {targa}" e "{telefono}"
   if (isExtraWorkBooking(booking)) {
@@ -730,7 +835,7 @@ function renderBookingItem(booking, time) {
     if (booking.servizio === 'Prenotazione' || serviceName === 'Prenotazione' || !serviceName) {
       serviceName = depNota;
     } else {
-      // Se c'è un servizio specifico ma anche una nota importante, potremmo mostrare entrambi o sostituirlo, 
+      // Se c'è un servizio specifico ma anche una nota importante, potremmo mostrare entrambi o sostituirlo,
       // il prompt dice "Al posto di 'Prenotazione' ... inserisci la tipologia ... e il numero di ore"
       if (booking.nota_interna) serviceName = booking.nota_interna;
     }
@@ -749,7 +854,11 @@ function renderBookingItem(booking, time) {
   // Se c'è solo la targa (senza servizio), mostrarla comunque come riga separata
   const serviceRow = serviceName
     ? `<div class="service">${veicoloBadge}${serviceName}${targaStr}</div>`
-    : (booking.targa ? `<div class="service">${veicoloBadge}${booking.targa}</div>` : (veicoloBadge ? `<div class="service">${veicoloBadge}</div>` : ''));
+    : booking.targa
+      ? `<div class="service">${veicoloBadge}${booking.targa}</div>`
+      : veicoloBadge
+        ? `<div class="service">${veicoloBadge}</div>`
+        : '';
 
   return `
     <div class="booking-item ${typeClass}" data-giorno="${booking.giorno}" data-ora="${booking.ora}">
@@ -779,7 +888,9 @@ function startBookingDrag(booking, event) {
   updateGhostPosition(event);
 
   // Aggiungi classe alla cella originale
-  const originalCell = document.querySelector(`[data-date="${booking.giorno}"][data-time="${booking.ora}"]`);
+  const originalCell = document.querySelector(
+    `[data-date="${booking.giorno}"][data-time="${booking.ora}"]`
+  );
   if (originalCell) {
     originalCell.classList.add('dragging-source');
   }
@@ -790,8 +901,8 @@ function startBookingDrag(booking, event) {
 
 function updateGhostPosition(event) {
   if (dragGhostElement) {
-    dragGhostElement.style.left = (event.clientX + 10) + 'px';
-    dragGhostElement.style.top = (event.clientY + 10) + 'px';
+    dragGhostElement.style.left = event.clientX + 10 + 'px';
+    dragGhostElement.style.top = event.clientY + 10 + 'px';
   }
 }
 
@@ -817,7 +928,9 @@ function endBookingDrag(snapBack = false) {
 
   // Rimuovi classi
   document.body.classList.remove('is-dragging-booking');
-  document.querySelectorAll('.dragging-source').forEach(el => el.classList.remove('dragging-source'));
+  document
+    .querySelectorAll('.dragging-source')
+    .forEach(el => el.classList.remove('dragging-source'));
   document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
   document.querySelectorAll('.drop-invalid').forEach(el => el.classList.remove('drop-invalid'));
 }
@@ -896,7 +1009,7 @@ async function dropBooking(newGiorno, newOra) {
 }
 
 // Event listener globali per drag prenotazioni
-document.addEventListener('mousemove', (e) => {
+document.addEventListener('mousemove', e => {
   if (isDraggingBooking) {
     updateGhostPosition(e);
   }
@@ -909,26 +1022,30 @@ document.addEventListener('mouseup', () => {
 });
 
 // Supporto Touch per Mobile (Global)
-document.addEventListener('touchmove', (e) => {
-  if (isDraggingBooking) {
-    e.preventDefault(); // Previene lo scroll
-    updateGhostPosition(e.touches[0]);
+document.addEventListener(
+  'touchmove',
+  e => {
+    if (isDraggingBooking) {
+      e.preventDefault(); // Previene lo scroll
+      updateGhostPosition(e.touches[0]);
 
-    // Identifica manualmente il target del drop
-    const touch = e.touches[0];
-    const target = document.elementFromPoint(touch.clientX, touch.clientY);
-    const cell = target ? target.closest('.admin-cell') : null;
+      // Identifica manualmente il target del drop
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const cell = target ? target.closest('.admin-cell') : null;
 
-    // Rimuovi highlight precedenti
-    document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+      // Rimuovi highlight precedenti
+      document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
 
-    if (cell && cell.classList.contains('droppable')) {
-      cell.classList.add('drop-target');
+      if (cell && cell.classList.contains('droppable')) {
+        cell.classList.add('drop-target');
+      }
     }
-  }
-}, { passive: false });
+  },
+  { passive: false }
+);
 
-document.addEventListener('touchend', (e) => {
+document.addEventListener('touchend', e => {
   if (isDraggingBooking) {
     e.preventDefault();
 
@@ -953,8 +1070,7 @@ document.addEventListener('touchend', (e) => {
 // ==================== MODAL INSERIMENTO ====================
 
 function openBookingModal(date, time) {
-    if (holidayMode || extraWorkMode) return;
-    
+  if (holidayMode || extraWorkMode) return;
 
   // Reset form
   document.getElementById('booking-form').reset();
@@ -989,7 +1105,7 @@ function closeBookingModal() {
 // ==================== MODAL DETTAGLIO ====================
 
 function showDetailModal(booking) {
-    if (holidayMode || extraWorkMode) return;
+  if (holidayMode || extraWorkMode) return;
 
   // Risolvi nome servizio
   let serviceName = booking.servizio || '';
@@ -1003,18 +1119,24 @@ function showDetailModal(booking) {
     `<div><strong>Data:</strong> ${formatDateStringDisplay(booking.giorno)}</div>`,
     `<div><strong>Ora:</strong> ${escapeHTML(booking.ora)}</div>`,
     serviceName ? `<div><strong>Servizio:</strong> ${escapeHTML(serviceName)}</div>` : '',
-    booking.durata_minuti ? `<div><strong>Durata:</strong> ${escapeHTML(String(booking.durata_minuti))} min</div>` : '',
+    booking.durata_minuti
+      ? `<div><strong>Durata:</strong> ${escapeHTML(String(booking.durata_minuti))} min</div>`
+      : '',
     booking.targa ? `<div><strong>Targa:</strong> ${escapeHTML(booking.targa)}</div>` : '',
     booking.modello ? `<div><strong>Modello:</strong> ${escapeHTML(booking.modello)}</div>` : '',
     `<div><strong>Email:</strong> ${escapeHTML(booking.email || '—')}</div>`,
     `<div><strong>Telefono:</strong> ${escapeHTML(booking.telefono || '—')}</div>`,
-    booking.note_cliente ? `<div><strong>Note:</strong> ${escapeHTML(booking.note_cliente)}</div>` : '',
+    booking.note_cliente
+      ? `<div><strong>Note:</strong> ${escapeHTML(booking.note_cliente)}</div>`
+      : '',
     booking.tipo === 'deposito' ? `<div class="badge-special mt-2">Lavoro Straordinario</div>` : ''
-  ].filter(Boolean).join('');
+  ]
+    .filter(Boolean)
+    .join('');
 
   document.getElementById('detail-content').innerHTML = rows;
-    selectedBooking = booking;
-    detailModal.open();
+  selectedBooking = booking;
+  detailModal.open();
 }
 
 function closeDetailModal() {
@@ -1095,9 +1217,8 @@ function setupAutocomplete() {
     }
 
     // Cerca utenti che matchano il cognome
-    const matches = allUsers.filter(user =>
-      user.cognome.toLowerCase().includes(value) ||
-      user.nome.toLowerCase().includes(value)
+    const matches = allUsers.filter(
+      user => user.cognome.toLowerCase().includes(value) || user.nome.toLowerCase().includes(value)
     );
 
     if (matches.length === 0) {
@@ -1106,12 +1227,16 @@ function setupAutocomplete() {
     }
 
     // Mostra suggerimenti
-    suggestionsList.innerHTML = matches.map(user => `
+    suggestionsList.innerHTML = matches
+      .map(
+        user => `
       <div class="suggestion-item" data-user='${JSON.stringify(user).replace(/'/g, "\\'")}'>
         <div class="suggestion-name">${user.cognome} ${user.nome}</div>
         <div class="suggestion-details">${user.email} | ${user.telefono}</div>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
 
     suggestionsList.classList.remove('hidden');
 
@@ -1126,7 +1251,7 @@ function setupAutocomplete() {
   });
 
   // Chiudi suggerimenti quando si clicca fuori
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', e => {
     if (!cognomeInput.contains(e.target) && !suggestionsList.contains(e.target)) {
       suggestionsList.classList.add('hidden');
     }
@@ -1175,30 +1300,34 @@ function setupModalListeners() {
   document.getElementById('modal-cancel').addEventListener('click', () => bookingModal.close());
   document.getElementById('detail-close').addEventListener('click', () => detailModal.close());
   document.getElementById('detail-delete').addEventListener('click', showDeleteConfirmModal);
-  document.getElementById('delete-cancel').addEventListener('click', () => deleteConfirmModal.close());
+  document
+    .getElementById('delete-cancel')
+    .addEventListener('click', () => deleteConfirmModal.close());
   document.getElementById('delete-confirm').addEventListener('click', executeDelete);
 
   // Submit form inserimento
-  document.getElementById('booking-form').addEventListener('submit', async (e) => {
+  document.getElementById('booking-form').addEventListener('submit', async e => {
     e.preventDefault();
 
     const serviceSelectVal = document.getElementById('input-servizio').value;
     const selectedSvc = allServices.find(s => String(s.id) === String(serviceSelectVal));
-    const isConsegnaSvc = selectedSvc && (selectedSvc.tipo_servizio === 'consegna' ||
-      (selectedSvc.nome || '').toLowerCase().includes('consegna'));
+    const isConsegnaSvc =
+      selectedSvc &&
+      (selectedSvc.tipo_servizio === 'consegna' ||
+        (selectedSvc.nome || '').toLowerCase().includes('consegna'));
     const formData = {
-      nome:         document.getElementById('input-nome').value.trim(),
-      cognome:      document.getElementById('input-cognome').value.trim(),
-      email:        document.getElementById('input-email').value.trim(),
-      telefono:     document.getElementById('input-telefono').value.trim(),
-      serviceId:    serviceSelectVal || null,
-      servizio:     selectedSvc ? selectedSvc.nome : '',
+      nome: document.getElementById('input-nome').value.trim(),
+      cognome: document.getElementById('input-cognome').value.trim(),
+      email: document.getElementById('input-email').value.trim(),
+      telefono: document.getElementById('input-telefono').value.trim(),
+      serviceId: serviceSelectVal || null,
+      servizio: selectedSvc ? selectedSvc.nome : '',
       durata_minuti: selectedSvc ? selectedSvc.durata_minuti : 60,
-      giorno:       selectedSlot.date,
-      ora:          selectedSlot.time,
+      giorno: selectedSlot.date,
+      ora: selectedSlot.time,
       // Campi veicolo — sempre obbligatori
-      targa:        (document.getElementById('input-targa-admin') || {}).value?.trim().toUpperCase() || '',
-      modello:      (document.getElementById('input-modello-admin') || {}).value?.trim() || '',
+      targa: (document.getElementById('input-targa-admin') || {}).value?.trim().toUpperCase() || '',
+      modello: (document.getElementById('input-modello-admin') || {}).value?.trim() || '',
       note_cliente: (document.getElementById('input-note-admin') || {}).value || ''
     };
 
@@ -1291,7 +1420,9 @@ document.getElementById('next-week').addEventListener('click', async () => {
 });
 
 // Cambio granularità calendario
-document.getElementById('granularity-select').addEventListener('change', function () { calendarGranularity = 15; return; // 
+document.getElementById('granularity-select').addEventListener('change', function () {
+  calendarGranularity = 15;
+  return; //
   calendarGranularity = parseInt(this.value, 10);
   renderCalendar();
 });
@@ -1371,31 +1502,31 @@ function enterHolidayMode() {
 }
 
 function exitHolidayMode() {
-    holidayMode = false;
-    selectedHolidaySlots = [];
+  holidayMode = false;
+  selectedHolidaySlots = [];
 
-    document.getElementById('holiday-mode-toggle').classList.remove('active');
-    document.getElementById('holiday-mode-indicator').classList.add('hidden');
-    document.querySelector('.admin-calendar').classList.remove('holiday-mode');
+  document.getElementById('holiday-mode-toggle').classList.remove('active');
+  document.getElementById('holiday-mode-indicator').classList.add('hidden');
+  document.querySelector('.admin-calendar').classList.remove('holiday-mode');
 
-    renderCalendar();
+  renderCalendar();
+}
+
+function toggleHolidaySelection(date, time, isCurrentlyHoliday) {
+  const slotIndex = selectedHolidaySlots.findIndex(s => s.giorno === date && s.ora === time);
+
+  if (slotIndex >= 0) {
+    // Rimuovi dalla selezione
+    selectedHolidaySlots.splice(slotIndex, 1);
+  } else {
+    // Aggiungi alla selezione (con flag per indicare se è da rimuovere o aggiungere)
+    selectedHolidaySlots.push({ giorno: date, ora: time, isRemove: isCurrentlyHoliday });
   }
 
-  function toggleHolidaySelection(date, time, isCurrentlyHoliday) {
-    const slotIndex = selectedHolidaySlots.findIndex(s => s.giorno === date && s.ora === time);
+  renderCalendar();
+}
 
-    if (slotIndex >= 0) {
-      // Rimuovi dalla selezione
-      selectedHolidaySlots.splice(slotIndex, 1);
-    } else {
-      // Aggiungi alla selezione (con flag per indicare se è da rimuovere o aggiungere)
-      selectedHolidaySlots.push({ giorno: date, ora: time, isRemove: isCurrentlyHoliday });
-    }
-
-    renderCalendar();
-  }
-
-  async function saveHolidays() {
+async function saveHolidays() {
   if (selectedHolidaySlots.length === 0) {
     exitHolidayMode();
     return;
@@ -1407,8 +1538,12 @@ function exitHolidayMode() {
 
   try {
     // Separa slot da aggiungere e da rimuovere
-    const toAdd = selectedHolidaySlots.filter(s => !s.isRemove).map(s => ({ giorno: s.giorno, ora: s.ora }));
-    const toRemove = selectedHolidaySlots.filter(s => s.isRemove).map(s => ({ giorno: s.giorno, ora: s.ora }));
+    const toAdd = selectedHolidaySlots
+      .filter(s => !s.isRemove)
+      .map(s => ({ giorno: s.giorno, ora: s.ora }));
+    const toRemove = selectedHolidaySlots
+      .filter(s => s.isRemove)
+      .map(s => ({ giorno: s.giorno, ora: s.ora }));
 
     // Aggiungi nuove ferie
     if (toAdd.length > 0) {
@@ -1429,7 +1564,6 @@ function exitHolidayMode() {
     // Ricarica ferie e esci dalla modalità
     await loadHolidays();
     exitHolidayMode();
-
   } catch (error) {
     console.error('Errore salvataggio ferie:', error);
     alert('Errore nel salvataggio delle ferie: ' + error.message);
@@ -1442,20 +1576,26 @@ function exitHolidayMode() {
 // ==================== DRAG-SELECT FERIE ====================
 
 function startDrag(date, time, isHoliday, isDoubleTap = false) {
-    isDragging = true;
-    dragStartCell = { date, time };
+  isDragging = true;
+  dragStartCell = { date, time };
 
-    if (extraWorkMode) {
-      const isAlreadySelected = selectedExtraWorkSlots.some(s => s.giorno === date && s.ora === time);
-      // Se è un double tap da touch, Tap #1 ha già invertito lo stato. 
-      // Quindi la direzione corretta del drag è proprio lo stato attuale!
-      dragMode = isDoubleTap ? (isAlreadySelected ? 'add' : 'remove') : (isAlreadySelected ? 'remove' : 'add');
-      addToDragSelection(date, time, isHoliday);
-      return;
-    }
-    
-    // Per le ferie stessa logica
-    dragMode = isDoubleTap ? (isHoliday ? 'add' : 'remove') : (isHoliday ? 'remove' : 'add');
+  if (extraWorkMode) {
+    const isAlreadySelected = selectedExtraWorkSlots.some(s => s.giorno === date && s.ora === time);
+    // Se è un double tap da touch, Tap #1 ha già invertito lo stato.
+    // Quindi la direzione corretta del drag è proprio lo stato attuale!
+    dragMode = isDoubleTap
+      ? isAlreadySelected
+        ? 'add'
+        : 'remove'
+      : isAlreadySelected
+        ? 'remove'
+        : 'add';
+    addToDragSelection(date, time, isHoliday);
+    return;
+  }
+
+  // Per le ferie stessa logica
+  dragMode = isDoubleTap ? (isHoliday ? 'add' : 'remove') : isHoliday ? 'remove' : 'add';
 
   // Aggiungi la prima cella alla selezione
   addToDragSelection(date, time, isHoliday);
@@ -1464,7 +1604,7 @@ function startDrag(date, time, isHoliday, isDoubleTap = false) {
 function addToDragSelection(date, time, isHoliday) {
   if (extraWorkMode) {
     if (isHoliday) return;
-    
+
     if (dragMode === 'add') {
       const oreSelezionate = selectedExtraWorkSlots.length * 0.25;
       if (oreSelezionate >= extraWorkHoursTotal) {
@@ -1483,7 +1623,7 @@ function addToDragSelection(date, time, isHoliday) {
         updateCellVisual(date, time, false, false);
       }
     }
-    
+
     // Feedback visuale al termine/rimozione
     if (selectedExtraWorkSlots.length * 0.25 >= extraWorkHoursTotal) {
       document.getElementById('extrawork-hours-left').style.color = 'green';
@@ -1554,7 +1694,7 @@ function updateCellVisual(date, time, isSelected, isRemove = false) {
 }
 
 // Previeni selezione testo durante il drag (sia mouse che touch)
-document.addEventListener('selectstart', (e) => {
+document.addEventListener('selectstart', e => {
   if (isDragging) e.preventDefault();
 });
 // Nota: il cleanup mouseup del drag ferie è gestito dinamicamente da _holMouseEndDrag()
@@ -1564,7 +1704,7 @@ document.addEventListener('selectstart', (e) => {
 // Formula iOS-gallery: la posizione del dito/cursore nel container determina
 // la velocità di scroll proporzionale (non solo edge-zone fissi).
 
-const HOL_MAX_SCROLL  = 12;   // px per frame (a 60fps ≈ 720px/s max)
+const HOL_MAX_SCROLL = 12; // px per frame (a 60fps ≈ 720px/s max)
 const HOL_DEAD_FACTOR = 0.25; // 25% dead zone intorno al centro (±12.5%)
 
 /**
@@ -1577,33 +1717,40 @@ const HOL_DEAD_FACTOR = 0.25; // 25% dead zone intorno al centro (±12.5%)
  */
 function _holComputeScrollFactor(clientY, calRect) {
   if (!calRect || calRect.height === 0) return 0;
-  const relY     = (clientY - calRect.top) / calRect.height; // 0..1 (extra: <0 o >1)
-  const dist     = relY - 0.5;                                // -0.5..+0.5
-  const halfDead = HOL_DEAD_FACTOR / 2;                       // ±12.5%
-  if (Math.abs(dist) <= halfDead) return 0;                   // dead zone
-  const sign      = dist > 0 ? 1 : -1;
+  const relY = (clientY - calRect.top) / calRect.height; // 0..1 (extra: <0 o >1)
+  const dist = relY - 0.5; // -0.5..+0.5
+  const halfDead = HOL_DEAD_FACTOR / 2; // ±12.5%
+  if (Math.abs(dist) <= halfDead) return 0; // dead zone
+  const sign = dist > 0 ? 1 : -1;
   const effective = (Math.abs(dist) - halfDead) / (0.5 - halfDead); // 0..1
-  return sign * Math.min(effective, 1);                       // clamped ±1.0
+  return sign * Math.min(effective, 1); // clamped ±1.0
 }
 
 // ─── TOUCH (mobile — primary) ── holiday drag-select ─────────────────────────
 // Gestore primario: touch events. Scroll proporzionale via _holComputeScrollFactor().
 // RAF avviato al touchstart e fermato al touchend — legge _holScrollFactor ogni frame.
 
-let _holScrollRaf    = null;
-let _holScrollFactor = 0;    // float -1.0..+1.0 (velocità+dir scroll touch)
-let _holLastTouch    = null;
+let _holScrollRaf = null;
+let _holScrollFactor = 0; // float -1.0..+1.0 (velocità+dir scroll touch)
+let _holLastTouch = null;
 
 function _holSelectAt(clientX, clientY) {
-  const el   = document.elementFromPoint(clientX, clientY);
+  const el = document.elementFromPoint(clientX, clientY);
   const cell = el && el.closest('.admin-cell');
   if (cell && !cell.classList.contains('has-booking') && cell.dataset.date && cell.dataset.time) {
-    addToDragSelection(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time));
+    addToDragSelection(
+      cell.dataset.date,
+      cell.dataset.time,
+      !!findHoliday(cell.dataset.date, cell.dataset.time)
+    );
   }
 }
 
 function _holScrollTick() {
-  if (!isDragging || (!holidayMode && !extraWorkMode)) { _holScrollRaf = null; return; }
+  if (!isDragging || (!holidayMode && !extraWorkMode)) {
+    _holScrollRaf = null;
+    return;
+  }
   const cal = document.querySelector('.admin-calendar');
   if (cal && _holScrollFactor !== 0) {
     cal.scrollTop += _holScrollFactor * HOL_MAX_SCROLL;
@@ -1614,7 +1761,10 @@ function _holScrollTick() {
 
 function _holStopScroll() {
   _holScrollFactor = 0;
-  if (_holScrollRaf) { cancelAnimationFrame(_holScrollRaf); _holScrollRaf = null; }
+  if (_holScrollRaf) {
+    cancelAnimationFrame(_holScrollRaf);
+    _holScrollRaf = null;
+  }
 }
 
 // Handler touchmove — aggiunto a window solo per la durata del drag
@@ -1634,14 +1784,15 @@ function _holOnWindowTouchMove(e) {
 function _holEndDrag() {
   _holStopScroll();
   _holLastTouch = null;
-  
+
   // Ripristina touchAction
-  const container = document.querySelector('.container') || document.querySelector('.admin-calendar');
+  const container =
+    document.querySelector('.container') || document.querySelector('.admin-calendar');
   if (container) container.style.touchAction = '';
 
   // Rimuovi tutti e tre i listener dinamici — pattern speculare a _holMouseEndDrag()
-  window.removeEventListener('touchmove',   _holOnWindowTouchMove);
-  window.removeEventListener('touchend',    _holEndDrag);
+  window.removeEventListener('touchmove', _holOnWindowTouchMove);
+  window.removeEventListener('touchend', _holEndDrag);
   window.removeEventListener('touchcancel', _holEndDrag);
   if (isDragging) {
     endDrag();
@@ -1649,29 +1800,37 @@ function _holEndDrag() {
   }
 }
 
-
 // Un solo touchstart sul grid, montato una volta (idempotente via _holReady).
 // touchmove, touchend e touchcancel aggiunti a window DINAMICAMENTE solo durante il drag
 // — speculare a setupHolidayMouse() — così il rilascio del dito è intercettato anche
 // quando il dito è uscito dal grid (es. durante auto-scroll del container).
 let _holLastTapTime = 0;
-  let _holLastTapTargetId = null;
+let _holLastTapTargetId = null;
 
-  function setupHolidayTouch() {
-    const grid = document.getElementById('admin-calendar-grid');
-    if (!grid || grid._holReady) return;
-    grid._holReady = true;
+function setupHolidayTouch() {
+  const grid = document.getElementById('admin-calendar-grid');
+  if (!grid || grid._holReady) return;
+  grid._holReady = true;
 
-    grid.addEventListener('touchstart', (e) => {
+  grid.addEventListener(
+    'touchstart',
+    e => {
       if (!holidayMode && !extraWorkMode) return;
       const cell = e.target.closest('.admin-cell');
-      if (!cell || cell.classList.contains('has-booking') || !cell.dataset.date || !cell.dataset.time) return;
+      if (
+        !cell ||
+        cell.classList.contains('has-booking') ||
+        !cell.dataset.date ||
+        !cell.dataset.time
+      )
+        return;
 
       // Avvia immediatamente il drag al primo tocco, esattamene come il mousedown
       e.preventDefault();
-      
+
       // Blocca scroll/pull-to-refresh aggiungendo touchAction al container parent
-      const container = document.querySelector('.container') || document.querySelector('.admin-calendar');
+      const container =
+        document.querySelector('.container') || document.querySelector('.admin-calendar');
       if (container) container.style.touchAction = 'none';
 
       // Feedback aptico immediato
@@ -1681,37 +1840,50 @@ let _holLastTapTime = 0;
       _holScrollFactor = 0;
       if (!_holScrollRaf) _holScrollRaf = requestAnimationFrame(_holScrollTick);
 
-      window.addEventListener('touchmove',   _holOnWindowTouchMove, { passive: false });
-      window.addEventListener('touchend',    _holEndDrag);
+      window.addEventListener('touchmove', _holOnWindowTouchMove, { passive: false });
+      window.addEventListener('touchend', _holEndDrag);
       window.addEventListener('touchcancel', _holEndDrag);
 
-      startDragWithFeedback(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time));
-    }, { passive: false });
-    // touchend/touchcancel NON più sul grid — gestiti via window listener dinamici
-  }
+      startDragWithFeedback(
+        cell.dataset.date,
+        cell.dataset.time,
+        !!findHoliday(cell.dataset.date, cell.dataset.time)
+      );
+    },
+    { passive: false }
+  );
+  // touchend/touchcancel NON più sul grid — gestiti via window listener dinamici
+}
 
-  // Feedback visivo: aggiunge classe al calendario durante il drag
-  function startDragWithFeedback(date, time, isHoliday, isDoubleTap = false) {
-    startDrag(date, time, isHoliday, isDoubleTap);
-    document.querySelector('.admin-calendar')?.classList.add('is-holiday-dragging');
-  }
+// Feedback visivo: aggiunge classe al calendario durante il drag
+function startDragWithFeedback(date, time, isHoliday, isDoubleTap = false) {
+  startDrag(date, time, isHoliday, isDoubleTap);
+  document.querySelector('.admin-calendar')?.classList.add('is-holiday-dragging');
+}
 // Pattern speculare al percorso touch. Stesso RAF, stessa formula proporzionale.
 // Usa elementFromPoint() per rilevare le celle indipendentemente dallo scroll.
 
-let _holMouseLastPos     = null;  // ultima posizione cursore { x, y }
-let _holMouseScrollRaf   = null;  // handle RAF auto-scroll mouse
-let _holMouseScrollFactor = 0;    // float -1.0..+1.0 (velocità+dir scroll mouse)
+let _holMouseLastPos = null; // ultima posizione cursore { x, y }
+let _holMouseScrollRaf = null; // handle RAF auto-scroll mouse
+let _holMouseScrollFactor = 0; // float -1.0..+1.0 (velocità+dir scroll mouse)
 
 function _holMouseSelectAt(clientX, clientY) {
-  const el   = document.elementFromPoint(clientX, clientY);
+  const el = document.elementFromPoint(clientX, clientY);
   const cell = el && el.closest('.admin-cell');
   if (cell && !cell.classList.contains('has-booking') && cell.dataset.date && cell.dataset.time) {
-    addToDragSelection(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time));
+    addToDragSelection(
+      cell.dataset.date,
+      cell.dataset.time,
+      !!findHoliday(cell.dataset.date, cell.dataset.time)
+    );
   }
 }
 
 function _holMouseScrollTick() {
-  if (!isDragging || (!holidayMode && !extraWorkMode)) { _holMouseScrollRaf = null; return; }
+  if (!isDragging || (!holidayMode && !extraWorkMode)) {
+    _holMouseScrollRaf = null;
+    return;
+  }
   const cal = document.querySelector('.admin-calendar');
   if (cal && _holMouseScrollFactor !== 0) {
     cal.scrollTop += _holMouseScrollFactor * HOL_MAX_SCROLL;
@@ -1722,7 +1894,10 @@ function _holMouseScrollTick() {
 
 function _holMouseStopScroll() {
   _holMouseScrollFactor = 0;
-  if (_holMouseScrollRaf) { cancelAnimationFrame(_holMouseScrollRaf); _holMouseScrollRaf = null; }
+  if (_holMouseScrollRaf) {
+    cancelAnimationFrame(_holMouseScrollRaf);
+    _holMouseScrollRaf = null;
+  }
 }
 
 // Handler mousemove — aggiunto a window solo per la durata del drag
@@ -1742,7 +1917,7 @@ function _holMouseEndDrag() {
   _holMouseLastPos = null;
   // Rimuovi i listener window immediatamente — pattern identico al touch
   window.removeEventListener('mousemove', _holOnWindowMouseMove);
-  window.removeEventListener('mouseup',   _holMouseEndDrag);
+  window.removeEventListener('mouseup', _holMouseEndDrag);
   if (isDragging) {
     endDrag();
     document.querySelector('.admin-calendar')?.classList.remove('is-holiday-dragging');
@@ -1755,7 +1930,7 @@ function setupHolidayMouse() {
   if (!grid || grid._holMouseReady) return;
   grid._holMouseReady = true;
 
-  grid.addEventListener('mousedown', (e) => {
+  grid.addEventListener('mousedown', e => {
     if (!holidayMode && !extraWorkMode) return;
     const cell = e.target.closest('.admin-cell');
     if (!cell || cell.classList.contains('has-booking')) return;
@@ -1765,8 +1940,12 @@ function setupHolidayMouse() {
     if (!_holMouseScrollRaf) _holMouseScrollRaf = requestAnimationFrame(_holMouseScrollTick);
     // Aggiungi mousemove/mouseup a window ORA — verranno rimossi in _holMouseEndDrag
     window.addEventListener('mousemove', _holOnWindowMouseMove);
-    window.addEventListener('mouseup',   _holMouseEndDrag);
-    startDragWithFeedback(cell.dataset.date, cell.dataset.time, !!findHoliday(cell.dataset.date, cell.dataset.time));
+    window.addEventListener('mouseup', _holMouseEndDrag);
+    startDragWithFeedback(
+      cell.dataset.date,
+      cell.dataset.time,
+      !!findHoliday(cell.dataset.date, cell.dataset.time)
+    );
   });
 }
 
@@ -1779,7 +1958,7 @@ async function checkPendingDeposits() {
 
     const deposits = res.deposits || [];
     // Conta solo i depositi in attesa (nuove consegne non ancora avviate)
-    const attesaCount = deposits.filter(function(d) {
+    const attesaCount = deposits.filter(function (d) {
       return d.stato === 'in_attesa';
     }).length;
 
@@ -1792,23 +1971,35 @@ async function checkPendingDeposits() {
     banner = document.createElement('div');
     banner.id = 'admin-deposit-banner';
     banner.style.cssText = [
-      'display:flex', 'align-items:center', 'gap:12px',
-      'background:#FFF7ED', 'border:1.5px solid #FF6B00', 'border-radius:10px',
-      'padding:12px 16px', 'margin-bottom:16px',
-      'font-size:0.9rem', 'color:#92400E', 'font-weight:600',
-      'cursor:pointer', 'transition:opacity 0.2s'
+      'display:flex',
+      'align-items:center',
+      'gap:12px',
+      'background:#FFF7ED',
+      'border:1.5px solid #FF6B00',
+      'border-radius:10px',
+      'padding:12px 16px',
+      'margin-bottom:16px',
+      'font-size:0.9rem',
+      'color:#92400E',
+      'font-weight:600',
+      'cursor:pointer',
+      'transition:opacity 0.2s'
     ].join(';');
 
-    const label = attesaCount === 1
-      ? 'Hai 1 lavoro straordinario da fissare — vai a Lavori Straordinari'
-      : 'Hai ' + attesaCount + ' lavori straordinari da fissare — vai a Lavori Straordinari';
+    const label =
+      attesaCount === 1
+        ? 'Hai 1 lavoro straordinario da fissare — vai a Lavori Straordinari'
+        : 'Hai ' + attesaCount + ' lavori straordinari da fissare — vai a Lavori Straordinari';
 
     banner.innerHTML =
-      '<span style="flex:1;">' + label + '</span>' +
+      '<span style="flex:1;">' +
+      label +
+      '</span>' +
       '<button id="admin-deposit-banner-close" style="background:none;border:none;cursor:pointer;color:#92400E;font-size:1.1rem;padding:2px 6px;border-radius:4px;opacity:0.7;" title="Chiudi">&times;</button>';
 
     // Inserisci sopra il calendario
-    const container = document.querySelector('.container') || document.querySelector('.admin-calendar');
+    const container =
+      document.querySelector('.container') || document.querySelector('.admin-calendar');
     if (container) {
       container.parentNode.insertBefore(banner, container);
     } else {
@@ -1816,21 +2007,24 @@ async function checkPendingDeposits() {
     }
 
     // Click sul banner → vai a Lavori Straordinari
-    banner.addEventListener('click', function(e) {
+    banner.addEventListener('click', function (e) {
       if (e.target.id === 'admin-deposit-banner-close') {
         banner.style.opacity = '0';
-        setTimeout(function() { banner.remove(); }, 250);
+        setTimeout(function () {
+          banner.remove();
+        }, 250);
         return;
       }
       window.location.href = '/admin/depositi';
     });
 
-    document.getElementById('admin-deposit-banner-close').addEventListener('click', function(e) {
+    document.getElementById('admin-deposit-banner-close').addEventListener('click', function (e) {
       e.stopPropagation();
       banner.style.opacity = '0';
-      setTimeout(function() { banner.remove(); }, 250);
+      setTimeout(function () {
+        banner.remove();
+      }, 250);
     });
-
   } catch (e) {
     console.warn('Errore controllo depositi:', e);
   }
@@ -1884,7 +2078,7 @@ function cancelExtraWork() {
   } else {
     // Se non ha selezionato niente, esce dalla modalità e rimbalza ai depositi
     exitExtraWorkMode();
-    window.location.href = '/admin-depositi.html'; 
+    window.location.href = '/admin-depositi.html';
   }
 }
 
@@ -1899,7 +2093,7 @@ function updateExtraWorkHoursLeft() {
 
 async function saveExtraWork() {
   if (selectedExtraWorkSlots.length === 0) {
-    alert("Seleziona almeno uno slot (trascina sulle celle vuote).");
+    alert('Seleziona almeno uno slot (trascina sulle celle vuote).');
     return;
   }
   try {
@@ -1944,8 +2138,3 @@ function exitExtraWorkMode() {
   // Triggera un renderCalendar() pulito per azzerare tutta la griglia fittizia
   renderCalendar();
 }
-
-
-
-
-

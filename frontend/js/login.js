@@ -4,9 +4,9 @@ if (urlParams.get('registered') === 'true') {
   showSuccess('success-message', 'Registrazione completata! Effettua il login.');
 }
 
-document.getElementById('login-form').addEventListener('submit', async (e) => {
+document.getElementById('login-form').addEventListener('submit', async e => {
   e.preventDefault();
-  
+
   hideMessage('error-message');
   hideMessage('success-message');
 

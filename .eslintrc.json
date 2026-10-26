@@ -1,23 +1,14 @@
 {
   "root": true,
-  "extends": [
-    "eslint:recommended",
-    "prettier"
-  ],
+  "extends": ["eslint:recommended", "prettier"],
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "script"
   },
   "rules": {
     "no-console": "off",
-    "eqeqeq": [
-      "error",
-      "always"
-    ],
-    "curly": [
-      "error",
-      "multi-line"
-    ],
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "multi-line"],
     "no-unused-vars": [
       "warn",
       {
@@ -30,21 +21,14 @@
   },
   "overrides": [
     {
-      "files": [
-        "server/**/*.js",
-        "config/**/*.js",
-        "ecosystem.config.js",
-        "test/**/*.js"
-      ],
+      "files": ["server/**/*.js", "config/**/*.js", "ecosystem.config.js", "test/**/*.js"],
       "env": {
         "node": true,
         "es2022": true
       }
     },
     {
-      "files": [
-        "frontend/js/**/*.js"
-      ],
+      "files": ["frontend/js/**/*.js"],
       "env": {
         "browser": true,
         "es2022": true

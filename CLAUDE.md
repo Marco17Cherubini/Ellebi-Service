@@ -29,6 +29,7 @@ npm run backup
 ## Environment Setup
 
 Copy `.env.example` to `.env` before starting. Required variables:
+
 - `JWT_SECRET` — must be set or server refuses to start
 - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — creates admin account on first run
 - `RESEND_API_KEY` — optional; email notifications are silently skipped if absent
@@ -60,6 +61,7 @@ Vanilla HTML/CSS/JS — no build step, no framework. Pages are served directly a
 **Theme** (`frontend/js/theme.js`): Manages `[data-theme="dark"]` attribute on `<html>` with localStorage persistence.
 
 **Styles architecture**: Layered CSS using design tokens:
+
 - `frontend/styles/tokens/global.css` — CSS custom properties for the entire design system (colors, spacing 8pt grid, typography, shadows, radii). Brand accent color is `--brand-accent: #FF6B00`.
 - `frontend/styles/tokens/admin.css` — admin-specific tokens
 - `frontend/styles/base/` — reset and typography
@@ -70,6 +72,7 @@ Vanilla HTML/CSS/JS — no build step, no framework. Pages are served directly a
 ### User Roles
 
 Three tiers:
+
 1. **Admin** — credentials in `admins` table, identified by `isAdmin: true` in JWT. Admin routes require `req.user.isAdmin` check.
 2. **VIP** — regular users with `vip = 1` in `users` table. Get extra time slots visible on the booking calendar.
 3. **Guest** — booking without account (`isGuest = 1`). No password, cannot log in, booking created via `POST /api/bookings/guest`.

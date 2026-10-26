@@ -30,7 +30,7 @@ function authenticateToken(req, res, next) {
     // Controlla se l'utente è bannato
     if (isBanned(decoded.email)) {
       res.clearCookie('token');
-      return res.status(403).json({ error: 'Account sospeso. Contattare l\'amministrazione.' });
+      return res.status(403).json({ error: "Account sospeso. Contattare l'amministrazione." });
     }
 
     req.user = { ...user, isAdmin: false };

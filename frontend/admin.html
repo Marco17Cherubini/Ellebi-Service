@@ -1,252 +1,355 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Ellebi Service SRL</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles/pages/admin.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Ellebi Service SRL</title>
-  <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/styles/pages/admin.css">
-</head>
+  <body>
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
-<body>
-  <!-- Sidebar Overlay -->
-  <div id="sidebar-overlay" class="sidebar-overlay"></div>
-
-  <!-- Sidebar Menu -->
-  <div id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-      <a href="/admin" class="sidebar-logo-link">
-        <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="sidebar-logo">
-      </a>
-      <button type="button" id="close-sidebar" class="sidebar-close">&times;</button>
-    </div>
-    <nav class="sidebar-nav">
-      <a href="/admin" class="sidebar-item active">
-        <span>Calendario Appuntamenti</span>
-      </a>
-      <a href="/admin/reports" class="sidebar-item">
-        <span>Resoconto Clientela</span>
-      </a>
-      <a href="/admin/clienti" class="sidebar-item">
-        <span>Gestione Clienti</span>
-      </a>
-      <a href="/admin/depositi" class="sidebar-item">
-        <span>Lavori Straordinari</span>
-      </a>
-      <a href="/admin/listino" class="sidebar-item">
-        <span>Listino Servizi</span>
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <button type="button" id="sidebar-logout" class="sidebar-item sidebar-logout">
-        <span>Logout</span>
-      </button>
-    </div>
-  </div>
-
-  <div class="header">
-    <div class="header-left">
-      <button type="button" id="hamburger-btn" class="hamburger-btn" aria-label="Apri menu">☰</button>
-    </div>
-    <div class="header-actions">
-      <select id="granularity-select" class="header-select hidden">
-        <option value="15" selected>15 minuti</option>
-        <option value="30">30 minuti</option>
-        <option value="60">1 ora</option>
-        <option value="120">2 ore</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="admin-calendar">
-
-      <!-- Legenda con selezione modalità ferie -->
-      <div class="admin-calendar__legend">
-        <div class="admin-calendar__legend-item">
-          <span class="admin-calendar__legend-box admin-calendar__legend-box--booking"></span>
-          <span>Prenotato</span>
-        </div>
-        <div class="admin-calendar__legend-item">
-          <span class="admin-calendar__legend-box admin-calendar__legend-box--deposit"></span>
-          <span>Deposito</span>
-        </div>
-        <div class="admin-calendar__legend-item admin-calendar__legend-item--selectable" id="holiday-mode-toggle">
-          <span class="admin-calendar__legend-box admin-calendar__legend-box--holiday"></span>
-          <span>Ferie (clicca per attivare)</span>
-        </div>
-        <div class="admin-calendar__legend-item">
-          <span class="admin-calendar__legend-box admin-calendar__legend-box--extrawork"></span>
-          <span>Ore Straordinarie</span>
-        </div>
-        <div class="admin-calendar__nav">
-          <button type="button" id="prev-week" class="admin-calendar__nav-btn">←</button>
-          <button type="button" id="next-week" class="admin-calendar__nav-btn">→</button>
-        </div>
-        <div id="holiday-mode-indicator" class="admin-calendar__holiday-mode hidden">
-          <span>MODALITÀ FERIE — Trascina per selezionare gli slot</span>
-          <button type="button" id="save-holidays-btn" class="btn admin-calendar__btn--holiday-save">Salva Ferie</button>
-          <button type="button" id="cancel-holidays-btn" class="btn admin-calendar__btn--holiday-cancel">Annulla</button>
-        </div>
-
-        <div id="extrawork-mode-indicator" class="admin-calendar__extrawork-mode hidden">
-          <div style="flex: 1 1 100%; text-align: center; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
-            <span id="extrawork-mode-text">LAVORO STRAORDINARIO — Ore da allocare: <strong id="extrawork-hours-left" style="font-size:1.1em;">0</strong></span>
-            <small style="font-size:0.8em; opacity:0.8;">Trascina per selezionare gli slot</small>
-          </div>
-          <div style="display: flex; gap: 0.5rem; width: 100%; justify-content: center;">
-            <button type="button" id="cancel-extrawork-btn" class="btn admin-calendar__btn--holiday-cancel" style="flex:1;">Annulla</button>
-            <button type="button" id="save-extrawork-btn" class="btn admin-calendar__btn--extrawork-save" style="flex:1;">Salva</button>
-          </div>
-        </div>
+    <!-- Sidebar Menu -->
+    <div id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <a href="/admin" class="sidebar-logo-link">
+          <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="sidebar-logo" />
+        </a>
+        <button type="button" id="close-sidebar" class="sidebar-close">&times;</button>
       </div>
-
-      <div id="admin-calendar-grid" class="admin-calendar__grid">
-        <!-- Header colonne: Orario + 6 giorni (Lun-Sab) -->
-        <div class="admin-calendar__header">ORARIO</div>
-        <div class="admin-calendar__header" id="day-header-0">LUNEDÌ</div>
-        <div class="admin-calendar__header" id="day-header-1">MARTEDÌ</div>
-        <div class="admin-calendar__header" id="day-header-2">MERCOLEDÌ</div>
-        <div class="admin-calendar__header" id="day-header-3">GIOVEDÌ</div>
-        <div class="admin-calendar__header" id="day-header-4">VENERDÌ</div>
-        <div class="admin-calendar__header" id="day-header-5">SABATO</div>
-        <!-- Le righe degli orari verranno generate da JavaScript -->
+      <nav class="sidebar-nav">
+        <a href="/admin" class="sidebar-item active">
+          <span>Calendario Appuntamenti</span>
+        </a>
+        <a href="/admin/reports" class="sidebar-item">
+          <span>Resoconto Clientela</span>
+        </a>
+        <a href="/admin/clienti" class="sidebar-item">
+          <span>Gestione Clienti</span>
+        </a>
+        <a href="/admin/depositi" class="sidebar-item">
+          <span>Lavori Straordinari</span>
+        </a>
+        <a href="/admin/listino" class="sidebar-item">
+          <span>Listino Servizi</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button type="button" id="sidebar-logout" class="sidebar-item sidebar-logout">
+          <span>Logout</span>
+        </button>
       </div>
     </div>
-  </div>
 
-  <!-- Modal Inserimento/Modifica Appuntamento -->
-  <div id="booking-modal" class="modal hidden">
-    <div class="modal-overlay"></div>
-    <div class="modal-content modal-large">
-      <h3 class="modal-title" id="modal-title">Nuovo Appuntamento</h3>
-      <p class="modal-subtitle">
-        <span id="modal-date-display"></span> alle <span id="modal-time-display"></span>
-      </p>
+    <div class="header">
+      <div class="header-left">
+        <button type="button" id="hamburger-btn" class="hamburger-btn" aria-label="Apri menu">
+          ☰
+        </button>
+      </div>
+      <div class="header-actions">
+        <select id="granularity-select" class="header-select hidden">
+          <option value="15" selected>15 minuti</option>
+          <option value="30">30 minuti</option>
+          <option value="60">1 ora</option>
+          <option value="120">2 ore</option>
+        </select>
+      </div>
+    </div>
 
-      <form id="booking-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Cognome *</label>
-            <input type="text" id="input-cognome" class="form-input" placeholder="Inserisci cognome" autocomplete="off"
-              required>
-            <div id="suggestions-list" class="suggestions-list hidden"></div>
+    <div class="container">
+      <div class="admin-calendar">
+        <!-- Legenda con selezione modalità ferie -->
+        <div class="admin-calendar__legend">
+          <div class="admin-calendar__legend-item">
+            <span class="admin-calendar__legend-box admin-calendar__legend-box--booking"></span>
+            <span>Prenotato</span>
           </div>
-          <div class="form-group">
-            <label class="form-label">Nome</label>
-            <input type="text" id="input-nome" class="form-input" placeholder="Inserisci nome">
+          <div class="admin-calendar__legend-item">
+            <span class="admin-calendar__legend-box admin-calendar__legend-box--deposit"></span>
+            <span>Deposito</span>
           </div>
-        </div>
+          <div
+            class="admin-calendar__legend-item admin-calendar__legend-item--selectable"
+            id="holiday-mode-toggle"
+          >
+            <span class="admin-calendar__legend-box admin-calendar__legend-box--holiday"></span>
+            <span>Ferie (clicca per attivare)</span>
+          </div>
+          <div class="admin-calendar__legend-item">
+            <span class="admin-calendar__legend-box admin-calendar__legend-box--extrawork"></span>
+            <span>Ore Straordinarie</span>
+          </div>
+          <div class="admin-calendar__nav">
+            <button type="button" id="prev-week" class="admin-calendar__nav-btn">←</button>
+            <button type="button" id="next-week" class="admin-calendar__nav-btn">→</button>
+          </div>
+          <div id="holiday-mode-indicator" class="admin-calendar__holiday-mode hidden">
+            <span>MODALITÀ FERIE — Trascina per selezionare gli slot</span>
+            <button
+              type="button"
+              id="save-holidays-btn"
+              class="btn admin-calendar__btn--holiday-save"
+            >
+              Salva Ferie
+            </button>
+            <button
+              type="button"
+              id="cancel-holidays-btn"
+              class="btn admin-calendar__btn--holiday-cancel"
+            >
+              Annulla
+            </button>
+          </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" id="input-email" class="form-input" placeholder="email@esempio.it">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Telefono</label>
-            <input type="tel" id="input-telefono" class="form-input" placeholder="+39 123 456 7890">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Servizio</label>
-            <!-- Hidden input che porta il valore al form-submit -->
-            <input type="hidden" id="input-servizio" value="">
-            <!-- Trigger visibile -->
-            <div class="svc-picker" id="svc-picker">
-              <div class="svc-picker-trigger" id="svc-picker-trigger" tabindex="0" role="combobox"
-                aria-haspopup="listbox" aria-expanded="false">
-                <span class="svc-picker-label" id="svc-picker-label">— Seleziona servizio —</span>
-                <svg class="svc-picker-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
-                  <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                    stroke-linejoin="round" />
-                </svg>
-              </div>
-              <!-- Pannello a tendina -->
-              <div class="svc-picker-panel" id="svc-picker-panel" role="listbox" aria-hidden="true">
-                <!-- Popolato da admin.js → buildServicePicker() -->
-              </div>
+          <div id="extrawork-mode-indicator" class="admin-calendar__extrawork-mode hidden">
+            <div
+              style="
+                flex: 1 1 100%;
+                text-align: center;
+                margin-bottom: 0.5rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+              "
+            >
+              <span id="extrawork-mode-text"
+                >LAVORO STRAORDINARIO — Ore da allocare:
+                <strong id="extrawork-hours-left" style="font-size: 1.1em">0</strong></span
+              >
+              <small style="font-size: 0.8em; opacity: 0.8"
+                >Trascina per selezionare gli slot</small
+              >
+            </div>
+            <div style="display: flex; gap: 0.5rem; width: 100%; justify-content: center">
+              <button
+                type="button"
+                id="cancel-extrawork-btn"
+                class="btn admin-calendar__btn--holiday-cancel"
+                style="flex: 1"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                id="save-extrawork-btn"
+                class="btn admin-calendar__btn--extrawork-save"
+                style="flex: 1"
+              >
+                Salva
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Campi veicolo: sempre obbligatori -->
-        <div id="consegna-fields">
+        <div id="admin-calendar-grid" class="admin-calendar__grid">
+          <!-- Header colonne: Orario + 6 giorni (Lun-Sab) -->
+          <div class="admin-calendar__header">ORARIO</div>
+          <div class="admin-calendar__header" id="day-header-0">LUNEDÌ</div>
+          <div class="admin-calendar__header" id="day-header-1">MARTEDÌ</div>
+          <div class="admin-calendar__header" id="day-header-2">MERCOLEDÌ</div>
+          <div class="admin-calendar__header" id="day-header-3">GIOVEDÌ</div>
+          <div class="admin-calendar__header" id="day-header-4">VENERDÌ</div>
+          <div class="admin-calendar__header" id="day-header-5">SABATO</div>
+          <!-- Le righe degli orari verranno generate da JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Inserimento/Modifica Appuntamento -->
+    <div id="booking-modal" class="modal hidden">
+      <div class="modal-overlay"></div>
+      <div class="modal-content modal-large">
+        <h3 class="modal-title" id="modal-title">Nuovo Appuntamento</h3>
+        <p class="modal-subtitle">
+          <span id="modal-date-display"></span> alle <span id="modal-time-display"></span>
+        </p>
+
+        <form id="booking-form">
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Targa *</label>
-              <input type="text" id="input-targa-admin" class="form-input text-uppercase required" placeholder="Es. AB123CD" required="required" autocomplete="off" minlength="4" maxlength="10">
+              <label class="form-label">Cognome *</label>
+              <input
+                type="text"
+                id="input-cognome"
+                class="form-input"
+                placeholder="Inserisci cognome"
+                autocomplete="off"
+                required
+              />
+              <div id="suggestions-list" class="suggestions-list hidden"></div>
             </div>
-            <div class="col-modello">
-              <label class="form-label">Modello veicolo *</label>
-              <input type="text" id="input-modello-admin" class="form-input required" placeholder="Es. Volkswagen Golf" required="required"
-                autocomplete="off" minlength="2" maxlength="15">
+            <div class="form-group">
+              <label class="form-label">Nome</label>
+              <input type="text" id="input-nome" class="form-input" placeholder="Inserisci nome" />
             </div>
           </div>
+
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Note cliente</label>
-              <input type="text" id="input-note-admin" class="form-input"
-                placeholder="Problema riscontrato, richieste..." autocomplete="off" maxlength="30">
+              <label class="form-label">Email</label>
+              <input
+                type="email"
+                id="input-email"
+                class="form-input"
+                placeholder="email@esempio.it"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefono</label>
+              <input
+                type="tel"
+                id="input-telefono"
+                class="form-input"
+                placeholder="+39 123 456 7890"
+              />
             </div>
           </div>
-          <div id="consegna-banner" class="hidden box-special">
-            Lavoro Straordinario — verranno bloccati 30 min nel calendario e un posto nel deposito
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Servizio</label>
+              <!-- Hidden input che porta il valore al form-submit -->
+              <input type="hidden" id="input-servizio" value="" />
+              <!-- Trigger visibile -->
+              <div class="svc-picker" id="svc-picker">
+                <div
+                  class="svc-picker-trigger"
+                  id="svc-picker-trigger"
+                  tabindex="0"
+                  role="combobox"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                >
+                  <span class="svc-picker-label" id="svc-picker-label">— Seleziona servizio —</span>
+                  <svg
+                    class="svc-picker-arrow"
+                    width="12"
+                    height="8"
+                    viewBox="0 0 12 8"
+                    fill="none"
+                  >
+                    <path
+                      d="M1 1l5 5 5-5"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </div>
+                <!-- Pannello a tendina -->
+                <div
+                  class="svc-picker-panel"
+                  id="svc-picker-panel"
+                  role="listbox"
+                  aria-hidden="true"
+                >
+                  <!-- Popolato da admin.js → buildServicePicker() -->
+                </div>
+              </div>
+            </div>
           </div>
+
+          <!-- Campi veicolo: sempre obbligatori -->
+          <div id="consegna-fields">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Targa *</label>
+                <input
+                  type="text"
+                  id="input-targa-admin"
+                  class="form-input text-uppercase required"
+                  placeholder="Es. AB123CD"
+                  required="required"
+                  autocomplete="off"
+                  minlength="4"
+                  maxlength="10"
+                />
+              </div>
+              <div class="col-modello">
+                <label class="form-label">Modello veicolo *</label>
+                <input
+                  type="text"
+                  id="input-modello-admin"
+                  class="form-input required"
+                  placeholder="Es. Volkswagen Golf"
+                  required="required"
+                  autocomplete="off"
+                  minlength="2"
+                  maxlength="15"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Note cliente</label>
+                <input
+                  type="text"
+                  id="input-note-admin"
+                  class="form-input"
+                  placeholder="Problema riscontrato, richieste..."
+                  autocomplete="off"
+                  maxlength="30"
+                />
+              </div>
+            </div>
+            <div id="consegna-banner" class="hidden box-special">
+              Lavoro Straordinario — verranno bloccati 30 min nel calendario e un posto nel deposito
+            </div>
+          </div>
+
+          <div id="form-error" class="form-error hidden"></div>
+
+          <div class="modal-buttons">
+            <button type="button" id="modal-cancel" class="btn modal-btn-cancel">Annulla</button>
+            <button type="submit" id="modal-save" class="btn modal-btn-confirm">Conferma</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Dettaglio/Cancella Appuntamento -->
+    <div id="detail-modal" class="modal hidden">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <h3 class="modal-title">Dettaglio Appuntamento</h3>
+        <div class="modal-details" id="detail-content">
+          <!-- Dettagli inseriti via JS -->
         </div>
-
-        <div id="form-error" class="form-error hidden"></div>
-
         <div class="modal-buttons">
-          <button type="button" id="modal-cancel" class="btn modal-btn-cancel">Annulla</button>
-          <button type="submit" id="modal-save" class="btn modal-btn-confirm">Conferma</button>
+          <button type="button" id="detail-close" class="btn modal-btn-cancel">Chiudi</button>
+          <button type="button" id="detail-delete" class="btn modal-btn-delete">Cancella</button>
         </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal Dettaglio/Cancella Appuntamento -->
-  <div id="detail-modal" class="modal hidden">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <h3 class="modal-title">Dettaglio Appuntamento</h3>
-      <div class="modal-details" id="detail-content">
-        <!-- Dettagli inseriti via JS -->
-      </div>
-      <div class="modal-buttons">
-        <button type="button" id="detail-close" class="btn modal-btn-cancel">Chiudi</button>
-        <button type="button" id="detail-delete" class="btn modal-btn-delete">Cancella</button>
       </div>
     </div>
-  </div>
 
-  <!-- Modal Conferma Cancellazione -->
-  <div id="delete-confirm-modal" class="modal hidden">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <h3 class="modal-title">Conferma Cancellazione</h3>
-      <p class="modal-text">
-        Stai per cancellare l'appuntamento di:<br>
-        <strong id="delete-client-name"></strong>
-      </p>
-      <div class="modal-details" id="delete-booking-details">
-        <!-- Dettagli inseriti via JS -->
-      </div>
-      <p class="modal-question">Sei sicuro di voler procedere?</p>
-      <div class="modal-buttons">
-        <button type="button" id="delete-cancel" class="btn modal-btn-cancel">No</button>
-        <button type="button" id="delete-confirm" class="btn modal-btn-delete">Sì</button>
+    <!-- Modal Conferma Cancellazione -->
+    <div id="delete-confirm-modal" class="modal hidden">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <h3 class="modal-title">Conferma Cancellazione</h3>
+        <p class="modal-text">
+          Stai per cancellare l'appuntamento di:<br />
+          <strong id="delete-client-name"></strong>
+        </p>
+        <div class="modal-details" id="delete-booking-details">
+          <!-- Dettagli inseriti via JS -->
+        </div>
+        <p class="modal-question">Sei sicuro di voler procedere?</p>
+        <div class="modal-buttons">
+          <button type="button" id="delete-cancel" class="btn modal-btn-cancel">No</button>
+          <button type="button" id="delete-confirm" class="btn modal-btn-delete">Sì</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="/js/theme.js"></script>
-  <script src="/js/utils.js"></script>
-  <script src="/js/components/Modal.js"></script>
-  <script src="/js/admin.js"></script>
-</body>
-
+    <script src="/js/theme.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/components/Modal.js"></script>
+    <script src="/js/admin.js"></script>
+  </body>
 </html>

@@ -11,7 +11,10 @@ var deleteTarget = null;
 async function init() {
   try {
     var res = await apiRequest('/auth/me');
-    if (!res.success || !res.user.isAdmin) { window.location.href = '/login'; return; }
+    if (!res.success || !res.user.isAdmin) {
+      window.location.href = '/login';
+      return;
+    }
     await loadServices();
   } catch (e) {
     console.error('Errore init listino:', e);
@@ -62,27 +65,55 @@ function buildRow(s) {
   var tipoVeicoloLabel = s.tipo_veicolo === 'moto' ? 'Moto' : 'Auto';
   var tipoServizioLabel = s.tipo_servizio === 'consegna' ? 'Consegna' : 'Appuntamento';
 
-  var stagBadge = stagionale
-    ? '<span class="stagionale-badge">Stag.</span>'
-    : '';
+  var stagBadge = stagionale ? '<span class="stagionale-badge">Stag.</span>' : '';
 
-  return '<tr class="' + (attivo ? '' : 'row-inactive') + '">' +
-    '<td class="td-nome"><strong>' + escHtml(s.nome || '—') + '</strong>' + stagBadge + '</td>' +
-    '<td><span class="tipo-badge tipo-' + escHtml(s.tipo_veicolo || 'auto') + '">' + tipoVeicoloLabel + '</span></td>' +
-    '<td>' + tipoServizioLabel + '</td>' +
-    '<td class="td-center">' + durata + '</td>' +
-    '<td class="td-center">' + prezzo + '</td>' +
+  return (
+    '<tr class="' +
+    (attivo ? '' : 'row-inactive') +
+    '">' +
+    '<td class="td-nome"><strong>' +
+    escHtml(s.nome || '—') +
+    '</strong>' +
+    stagBadge +
+    '</td>' +
+    '<td><span class="tipo-badge tipo-' +
+    escHtml(s.tipo_veicolo || 'auto') +
+    '">' +
+    tipoVeicoloLabel +
+    '</span></td>' +
+    '<td>' +
+    tipoServizioLabel +
+    '</td>' +
     '<td class="td-center">' +
-    '<label class="toggle-switch" title="' + (attivo ? 'Disattiva' : 'Attiva') + '">' +
-    '<input type="checkbox" class="toggle-attivo" data-id="' + s.id + '"' + (attivo ? ' checked' : '') + '>' +
+    durata +
+    '</td>' +
+    '<td class="td-center">' +
+    prezzo +
+    '</td>' +
+    '<td class="td-center">' +
+    '<label class="toggle-switch" title="' +
+    (attivo ? 'Disattiva' : 'Attiva') +
+    '">' +
+    '<input type="checkbox" class="toggle-attivo" data-id="' +
+    s.id +
+    '"' +
+    (attivo ? ' checked' : '') +
+    '>' +
     '<span class="toggle-slider"></span>' +
     '</label>' +
     '</td>' +
     '<td class="td-actions">' +
-    '<button class="action-btn btn-edit" data-id="' + s.id + '">Modifica</button>' +
-    '<button class="action-btn btn-delete" data-id="' + s.id + '" data-nome="' + escHtml(s.nome || '') + '">Elimina</button>' +
+    '<button class="action-btn btn-edit" data-id="' +
+    s.id +
+    '">Modifica</button>' +
+    '<button class="action-btn btn-delete" data-id="' +
+    s.id +
+    '" data-nome="' +
+    escHtml(s.nome || '') +
+    '">Elimina</button>' +
     '</td>' +
-    '</tr>';
+    '</tr>'
+  );
 }
 
 function escHtml(str) {
@@ -95,12 +126,16 @@ function escHtml(str) {
 
 function attachRowListeners() {
   document.querySelectorAll('.toggle-attivo').forEach(function (cb) {
-    cb.addEventListener('change', function () { toggleActive(cb.dataset.id, cb.checked); });
+    cb.addEventListener('change', function () {
+      toggleActive(cb.dataset.id, cb.checked);
+    });
   });
 
   document.querySelectorAll('.btn-edit').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var s = allServices.find(function (x) { return String(x.id) === btn.dataset.id; });
+      var s = allServices.find(function (x) {
+        return String(x.id) === btn.dataset.id;
+      });
       if (s) openEditModal(s);
     });
   });
@@ -121,7 +156,9 @@ async function toggleActive(id, checked) {
       body: JSON.stringify({ attivo: checked ? 1 : 0 })
     });
     // Update local state — no full reload needed
-    var s = allServices.find(function (x) { return String(x.id) === String(id); });
+    var s = allServices.find(function (x) {
+      return String(x.id) === String(id);
+    });
     if (s) s.attivo = checked ? 1 : 0;
     // Sync row opacity
     document.querySelectorAll('#services-tbody tr').forEach(function (tr, i) {
@@ -199,7 +236,7 @@ function closeModal() {
 
 function updateDurataState() {
   var tipoServizio = document.getElementById('f-tipo-servizio').value;
-  document.getElementById('f-durata').disabled = (tipoServizio === 'consegna');
+  document.getElementById('f-durata').disabled = tipoServizio === 'consegna';
 }
 
 // ── Save ──────────────────────────────────────────────────────
@@ -214,7 +251,14 @@ async function saveService() {
   // Comma-separated campi_extra → JSON array string
   var campiStr = (document.getElementById('f-campi-extra').value || '').trim();
   var campiExtra = campiStr
-    ? JSON.stringify(campiStr.split(',').map(function (c) { return c.trim(); }).filter(Boolean))
+    ? JSON.stringify(
+        campiStr
+          .split(',')
+          .map(function (c) {
+            return c.trim();
+          })
+          .filter(Boolean)
+      )
     : '[]';
 
   var stagionale = document.getElementById('f-stagionale').checked;
@@ -228,8 +272,8 @@ async function saveService() {
     campi_extra: campiExtra,
     attivo: document.getElementById('f-attivo').checked ? 1 : 0,
     stagionale: stagionale ? 1 : 0,
-    data_inizio_stagione: stagionale ? (document.getElementById('f-data-inizio').value || '') : '',
-    data_fine_stagione: stagionale ? (document.getElementById('f-data-fine').value || '') : ''
+    data_inizio_stagione: stagionale ? document.getElementById('f-data-inizio').value || '' : '',
+    data_fine_stagione: stagionale ? document.getElementById('f-data-fine').value || '' : ''
   };
 
   var saveBtn = document.getElementById('modal-save');
@@ -329,14 +373,22 @@ document.getElementById('confirm-overlay').addEventListener('click', function (e
   var closeBtn = document.getElementById('close-sidebar');
   var logoutBtn = document.getElementById('sidebar-logout');
 
-  function open() { sidebar.classList.add('active'); overlay.classList.add('active'); }
-  function close() { sidebar.classList.remove('active'); overlay.classList.remove('active'); }
+  function open() {
+    sidebar.classList.add('active');
+    overlay.classList.add('active');
+  }
+  function close() {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+  }
 
   ham.addEventListener('click', open);
   closeBtn.addEventListener('click', close);
   overlay.addEventListener('click', close);
   logoutBtn.addEventListener('click', async function () {
-    try { await apiRequest('/auth/logout', { method: 'POST' }); } catch (e) { }
+    try {
+      await apiRequest('/auth/logout', { method: 'POST' });
+    } catch (e) {}
     window.location.href = '/';
   });
 })();

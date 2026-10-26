@@ -2,16 +2,28 @@
 // Flusso: Veicolo → Servizio → Calendario → Riepilogo
 
 let currentUser = null;
-let selectedVehicleType = null;  // 'auto' | 'moto'
-let selectedService = null;      // oggetto servizio completo
+let selectedVehicleType = null; // 'auto' | 'moto'
+let selectedService = null; // oggetto servizio completo
 let selectedDate = null;
 let selectedTime = null;
 let currentMonth = new Date();
 let daysOpen = [1, 2, 3, 4, 5, 6]; // Default, aggiornato da API
 
 const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
-const calendarMonthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-  'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+const calendarMonthNames = [
+  'Gennaio',
+  'Febbraio',
+  'Marzo',
+  'Aprile',
+  'Maggio',
+  'Giugno',
+  'Luglio',
+  'Agosto',
+  'Settembre',
+  'Ottobre',
+  'Novembre',
+  'Dicembre'
+];
 
 // ==================== INIT ====================
 
@@ -23,8 +35,7 @@ async function init() {
       return;
     }
 
-    document.getElementById('welcome-message').textContent =
-      'Bentornato, ' + currentUser.nome;
+    document.getElementById('welcome-message').textContent = 'Bentornato, ' + currentUser.nome;
 
     // Carica giorni aperti dalla config
     try {
@@ -32,11 +43,12 @@ async function init() {
       if (cfgRes.success && cfgRes.daysOpen) {
         daysOpen = cfgRes.daysOpen;
       }
-    } catch (e) { /* usa default */ }
+    } catch (e) {
+      /* usa default */
+    }
 
     // Mostra Step 1 (vehicle)
     goToStep(1);
-
   } catch (error) {
     console.error('Errore inizializzazione:', error);
     redirectToLogin();
@@ -73,7 +85,9 @@ function goToStep(step) {
 
 document.querySelectorAll('.vehicle-card').forEach(function (card) {
   card.addEventListener('click', function () {
-    document.querySelectorAll('.vehicle-card').forEach(function (c) { c.classList.remove('selected'); });
+    document.querySelectorAll('.vehicle-card').forEach(function (c) {
+      c.classList.remove('selected');
+    });
     card.classList.add('selected');
     selectedVehicleType = card.dataset.type;
     // Resetta selezioni successive
@@ -81,7 +95,10 @@ document.querySelectorAll('.vehicle-card').forEach(function (card) {
     selectedDate = null;
     selectedTime = null;
     // Vai a step 2 dopo breve delay
-    setTimeout(function () { goToStep(2); loadServices(); }, 200);
+    setTimeout(function () {
+      goToStep(2);
+      loadServices();
+    }, 200);
   });
 });
 
@@ -107,18 +124,23 @@ async function loadServices() {
       card.className = 'service-card';
       card.dataset.serviceId = svc.id;
 
-      var durataLabel = svc.durata_minuti ? (svc.durata_minuti + ' min') : '';
-      var prezzoLabel = svc.prezzo ? ('€ ' + parseFloat(svc.prezzo).toFixed(2)) : '';
-      var isConsegna = svc.tipo_servizio === 'consegna' || (svc.nome || '').toLowerCase().includes('consegna');
+      var durataLabel = svc.durata_minuti ? svc.durata_minuti + ' min' : '';
+      var prezzoLabel = svc.prezzo ? '€ ' + parseFloat(svc.prezzo).toFixed(2) : '';
+      var isConsegna =
+        svc.tipo_servizio === 'consegna' || (svc.nome || '').toLowerCase().includes('consegna');
 
       card.innerHTML =
-        '<div class="service-card-name">' + (svc.nome || 'Servizio') + '</div>' +
+        '<div class="service-card-name">' +
+        (svc.nome || 'Servizio') +
+        '</div>' +
         (durataLabel ? '<div class="service-card-detail">' + durataLabel + '</div>' : '') +
         (prezzoLabel ? '<div class="service-card-detail">' + prezzoLabel + '</div>' : '') +
         (svc.descrizione ? '<div class="service-card-desc">' + svc.descrizione + '</div>' : '');
 
       card.addEventListener('click', function () {
-        document.querySelectorAll('.service-card').forEach(function (c) { c.classList.remove('selected'); });
+        document.querySelectorAll('.service-card').forEach(function (c) {
+          c.classList.remove('selected');
+        });
         card.classList.add('selected');
         selectedService = svc;
         document.getElementById('service-next-btn').disabled = false;
@@ -135,7 +157,6 @@ async function loadServices() {
     });
 
     document.getElementById('service-next-btn').disabled = true;
-
   } catch (error) {
     console.error('Errore caricamento servizi:', error);
     grid.innerHTML = '<div class="no-slots-message">Errore nel caricamento dei servizi</div>';
@@ -150,43 +171,54 @@ document.getElementById('service-next-btn').addEventListener('click', function (
 
   // Mostra recap servizio in step 3
   var recap = document.getElementById('selected-service-recap');
-  if (recap) recap.textContent = selectedService.nome + (selectedService.durata_minuti ? ' (' + selectedService.durata_minuti + ' min)' : '');
+  if (recap)
+    recap.textContent =
+      selectedService.nome +
+      (selectedService.durata_minuti ? ' (' + selectedService.durata_minuti + ' min)' : '');
 
   goToStep(3);
   renderCalendar();
 });
 
 // Back buttons
-document.getElementById('back-to-step1').addEventListener('click', function () { goToStep(1); });
-document.getElementById('back-to-step2').addEventListener('click', function () { goToStep(2); });
-document.getElementById('back-to-step3').addEventListener('click', function () { goToStep(3); });
+document.getElementById('back-to-step1').addEventListener('click', function () {
+  goToStep(1);
+});
+document.getElementById('back-to-step2').addEventListener('click', function () {
+  goToStep(2);
+});
+document.getElementById('back-to-step3').addEventListener('click', function () {
+  goToStep(3);
+});
 
-  // Rendi interattivi i Breadcrumb (solo per i passi completati)
-  [1, 2, 3, 4].forEach(function(i) {
-    var bc = document.getElementById('bc-' + i);
-    if (bc) {
-      bc.addEventListener('click', function() {
-        if (this.classList.contains('completed')) {
-          goToStep(i);
-        }
-      });
-      bc.addEventListener('mouseover', function() {
-        if (this.classList.contains('completed')) {
-          this.style.cursor = 'pointer';
-        } else {
-          this.style.cursor = 'default';
-        }
-      });
-    }
-  });
+// Rendi interattivi i Breadcrumb (solo per i passi completati)
+[1, 2, 3, 4].forEach(function (i) {
+  var bc = document.getElementById('bc-' + i);
+  if (bc) {
+    bc.addEventListener('click', function () {
+      if (this.classList.contains('completed')) {
+        goToStep(i);
+      }
+    });
+    bc.addEventListener('mouseover', function () {
+      if (this.classList.contains('completed')) {
+        this.style.cursor = 'pointer';
+      } else {
+        this.style.cursor = 'default';
+      }
+    });
+  }
+});
 
-  // Renderizza il calendario per la selezione della data
-  function renderCalendar() {
-    var year = currentMonth.getFullYear();
-    var month = currentMonth.getMonth();
+// Renderizza il calendario per la selezione della data
+function renderCalendar() {
+  var year = currentMonth.getFullYear();
+  var month = currentMonth.getMonth();
   var calendarGrid = document.getElementById('calendar-grid');
   var existingDays = calendarGrid.querySelectorAll('.calendar-day');
-  existingDays.forEach(function (day) { day.remove(); });
+  existingDays.forEach(function (day) {
+    day.remove();
+  });
 
   var firstDay = new Date(year, month, 1).getDay();
   var daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -222,7 +254,9 @@ document.getElementById('back-to-step3').addEventListener('click', function () {
       dayElement.classList.add('disabled');
     } else {
       (function (ds, el) {
-        el.addEventListener('click', function () { selectDate(ds, el); });
+        el.addEventListener('click', function () {
+          selectDate(ds, el);
+        });
       })(dateString, dayElement);
     }
 
@@ -255,7 +289,11 @@ async function loadTimeSlots(date) {
       try {
         var editingB = JSON.parse(editingBookingStr);
         if (editingB.giorno && editingB.ora) {
-          excludeParams = '?excludeGiorno=' + encodeURIComponent(editingB.giorno) + '&excludeOra=' + encodeURIComponent(editingB.ora);
+          excludeParams =
+            '?excludeGiorno=' +
+            encodeURIComponent(editingB.giorno) +
+            '&excludeOra=' +
+            encodeURIComponent(editingB.ora);
         }
       } catch (e) {}
     }
@@ -273,7 +311,8 @@ async function loadTimeSlots(date) {
     });
 
     if (availableSlots.length === 0) {
-      timeSlotsGrid.innerHTML = '<div class="no-slots-message">Nessun orario disponibile per questa data</div>';
+      timeSlotsGrid.innerHTML =
+        '<div class="no-slots-message">Nessun orario disponibile per questa data</div>';
       document.getElementById('confirm-datetime-btn').disabled = true;
       return;
     }
@@ -284,7 +323,9 @@ async function loadTimeSlots(date) {
       slotEl.className = 'time-slot';
       slotEl.textContent = slot.time;
       slotEl.dataset.time = slot.time;
-      slotEl.addEventListener('click', function () { selectTimeSlot(slotEl); });
+      slotEl.addEventListener('click', function () {
+        selectTimeSlot(slotEl);
+      });
       timeSlotsGrid.appendChild(slotEl);
     });
 
@@ -334,12 +375,17 @@ document.getElementById('confirm-datetime-btn').addEventListener('click', functi
 // ==================== STEP 4: RIEPILOGO + CONFERMA ====================
 
 function populateSummary() {
-  document.getElementById('booking-service').textContent = selectedService ? selectedService.nome : '—';
-  document.getElementById('booking-duration').textContent = selectedService && selectedService.durata_minuti
-    ? selectedService.durata_minuti + ' min' : '—';
-  document.getElementById('booking-date').textContent = selectedDate ? formatDateDisplay(selectedDate) : '—';
+  document.getElementById('booking-service').textContent = selectedService
+    ? selectedService.nome
+    : '—';
+  document.getElementById('booking-duration').textContent =
+    selectedService && selectedService.durata_minuti ? selectedService.durata_minuti + ' min' : '—';
+  document.getElementById('booking-date').textContent = selectedDate
+    ? formatDateDisplay(selectedDate)
+    : '—';
   document.getElementById('booking-time').textContent = selectedTime || '—';
-  document.getElementById('customer-name').textContent = currentUser.nome + ' ' + currentUser.cognome;
+  document.getElementById('customer-name').textContent =
+    currentUser.nome + ' ' + currentUser.cognome;
   document.getElementById('customer-email').textContent = currentUser.email;
   document.getElementById('customer-phone').textContent = currentUser.telefono || '';
 
@@ -348,8 +394,10 @@ function populateSummary() {
   if (savedPicker) savedPicker.classList.add('hidden');
 
   // Determina se è consegna per rendere targa/modello obbligatori visivamente
-  var isConsegna = selectedService && (selectedService.tipo_servizio === 'consegna' ||
-    (selectedService.nome || '').toLowerCase().includes('consegna'));
+  var isConsegna =
+    selectedService &&
+    (selectedService.tipo_servizio === 'consegna' ||
+      (selectedService.nome || '').toLowerCase().includes('consegna'));
 
   var targaInput = document.getElementById('input-targa');
   var modelloInput = document.getElementById('input-modello');
@@ -371,14 +419,22 @@ function populateSummary() {
       if (noteInput && !noteInput.value && editingB.note_cliente) {
         noteInput.value = editingB.note_cliente;
       }
-    } catch(e) {}
+    } catch (e) {}
   }
 }
 
 function formatDateDisplay(dateStr) {
   var parts = dateStr.split('-');
   var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-  return dayNames[d.getDay()] + ' ' + d.getDate() + ' ' + calendarMonthNames[d.getMonth()].toLowerCase() + ' ' + d.getFullYear();
+  return (
+    dayNames[d.getDay()] +
+    ' ' +
+    d.getDate() +
+    ' ' +
+    calendarMonthNames[d.getMonth()].toLowerCase() +
+    ' ' +
+    d.getFullYear()
+  );
 }
 
 // Conferma prenotazione
@@ -394,25 +450,25 @@ document.getElementById('complete-booking-btn').addEventListener('click', functi
     errorEl.classList.remove('hidden');
     return;
   }
-  
+
   if (targa.length < 4 || targa.length > 10) {
     errorEl.textContent = 'La targa deve avere tra 4 e 10 caratteri.';
     errorEl.classList.remove('hidden');
     return;
   }
-  
+
   if (modello.length < 2 || modello.length > 15) {
     errorEl.textContent = 'Il modello deve avere tra 2 e 15 caratteri.';
     errorEl.classList.remove('hidden');
     return;
   }
-  
+
   if (note.length > 30) {
     errorEl.textContent = 'Le note non possono superare i 30 caratteri.';
     errorEl.classList.remove('hidden');
     return;
   }
-  
+
   errorEl.classList.add('hidden');
 
   // Popola modal di conferma
@@ -453,7 +509,7 @@ document.getElementById('modal-confirm').addEventListener('click', async functio
     data: selectedDate,
     orario: selectedTime,
     serviceId: selectedService ? selectedService.id : null,
-    durata_minuti: selectedService ? (selectedService.durata_minuti || 60) : 60,
+    durata_minuti: selectedService ? selectedService.durata_minuti || 60 : 60,
     targa: targa,
     modello: modello,
     note_cliente: note

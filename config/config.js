@@ -18,9 +18,7 @@ function generateSlots(startH, startM, endH, endM, intervalMins) {
   let m = startM;
   const endMinutes = endH * 60 + endM;
   while (h * 60 + m < endMinutes) {
-    slots.push(
-      String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0')
-    );
+    slots.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'));
     m += intervalMins;
     if (m >= 60) {
       h += Math.floor(m / 60);
@@ -52,9 +50,7 @@ const config = {
   studio: {
     name: process.env.STUDIO_NAME || 'Ellebi Service SRL',
     phone: process.env.STUDIO_PHONE || '+39 366 304 3908',
-    address:
-      process.env.STUDIO_ADDRESS ||
-      'Via Zerbi 21, San Giuliano Vecchio, Alessandria'
+    address: process.env.STUDIO_ADDRESS || 'Via Zerbi 21, San Giuliano Vecchio, Alessandria'
   },
 
   // ─── Orari di apertura ─────────────────────────────────────────────────────

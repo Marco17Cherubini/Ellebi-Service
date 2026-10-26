@@ -11,7 +11,7 @@
    ============================================================================ */
 
 :root {
-    /* ============================================================
+  /* ============================================================
        🎨 BRAND COLORS — MODIFICA QUI I COLORI SOCIALI DEL BRAND
        ============================================================
        Queste variabili controllano l'aspetto visivo dell'intera
@@ -20,256 +20,258 @@
 
        ✅ COLORI PRINCIPALI (pulsanti CTA, accenti, link attivi)
     */
-    --brand-accent: #FF6B00;
-    /* Colore principale (CTA, bottoni primari)    */
-    --brand-accent-hover: #cc5500;
-    /* Hover del colore principale (light mode)    */
-    --brand-accent-dark: #ff8c33;
-    /* Hover del colore principale (dark mode)     */
+  --brand-accent: #ff6b00;
+  /* Colore principale (CTA, bottoni primari)    */
+  --brand-accent-hover: #cc5500;
+  /* Hover del colore principale (light mode)    */
+  --brand-accent-dark: #ff8c33;
+  /* Hover del colore principale (dark mode)     */
 
-    /*
+  /*
        ✅ OMBRE PULSANTI E UI
        Usa rgba con il colore brand per ombre "colorate",
        oppure rgba(0,0,0,...) per ombre neutre classiche.
     */
-    --brand-shadow-color: rgba(0, 0, 0, 0.15);
-    /* Colore base ombre (light mode)              */
-    --brand-shadow-color-dark: rgba(0, 0, 0, 0.5);
-    /* Colore base ombre (dark mode)               */
+  --brand-shadow-color: rgba(0, 0, 0, 0.15);
+  /* Colore base ombre (light mode)              */
+  --brand-shadow-color-dark: rgba(0, 0, 0, 0.5);
+  /* Colore base ombre (dark mode)               */
 
-    /*
+  /*
        ✅ TESTO
        Cambia solo se il brand usa un colore di testo personalizzato.
     */
-    --brand-text-primary: #000000;
-    /* Testo principale (light mode)               */
-    --brand-text-on-accent: #ffffff;
-    /* Testo sopra i pulsanti colorati             */
+  --brand-text-primary: #000000;
+  /* Testo principale (light mode)               */
+  --brand-text-on-accent: #ffffff;
+  /* Testo sopra i pulsanti colorati             */
 
-    /* ============================================================
+  /* ============================================================
        Fine sezione BRAND COLORS. Non toccare il resto del file.
        ============================================================ */
-    /* ==================== 8-POINT GRID SYSTEM ==================== */
-    --space-1: 0.25rem;
-    --space-2: 0.5rem;
-    --space-3: 0.75rem;
-    --space-4: 1rem;
-    --space-5: 1.25rem;
-    --space-6: 1.5rem;
-    --space-7: 1.75rem;
-    --space-8: 2rem;
-    --space-10: 2.5rem;
-    --space-12: 3rem;
-    --space-16: 4rem;
-    --space-20: 5rem;
+  /* ==================== 8-POINT GRID SYSTEM ==================== */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
 
-    /* ==================== TYPOGRAPHY ==================== */
-    --font-primary: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif;
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 2rem;
-    --font-size-4xl: 2.5rem;
+  /* ==================== TYPOGRAPHY ==================== */
+  --font-primary:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue',
+    'Segoe UI', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
 
-    --font-weight-light: 300;
-    --font-weight-regular: 400;
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
-    --line-height-tight: 1.2;
-    --line-height-normal: 1.5;
-    --line-height-relaxed: 1.7;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
 
-    --letter-spacing-tight: -0.02em;
-    --letter-spacing-normal: 0;
-    --letter-spacing-wide: 0.02em;
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.02em;
 
-    /* ==================== CORNER RADIUS (Squircle System) ==================== */
-    --radius-xs: 4px;
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
-    --radius-2xl: 24px;
-    --radius-full: 9999px;
+  /* ==================== CORNER RADIUS (Squircle System) ==================== */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
 
-    /* ==================== SHADOWS (Apple Formula) ==================== */
-    --shadow-xs: 0 1px 2px var(--brand-shadow-color);
-    --shadow-sm: 0 2px 4px var(--brand-shadow-color);
-    --shadow-md: 0 4px 8px var(--brand-shadow-color);
-    --shadow-lg: 0 8px 16px var(--brand-shadow-color);
-    --shadow-xl: 0 12px 24px var(--brand-shadow-color);
-    --shadow-2xl: 0 20px 40px var(--brand-shadow-color);
+  /* ==================== SHADOWS (Apple Formula) ==================== */
+  --shadow-xs: 0 1px 2px var(--brand-shadow-color);
+  --shadow-sm: 0 2px 4px var(--brand-shadow-color);
+  --shadow-md: 0 4px 8px var(--brand-shadow-color);
+  --shadow-lg: 0 8px 16px var(--brand-shadow-color);
+  --shadow-xl: 0 12px 24px var(--brand-shadow-color);
+  --shadow-2xl: 0 20px 40px var(--brand-shadow-color);
 
-    /* ==================== TRANSITIONS ==================== */
-    --transition-fast: 150ms ease;
-    --transition-normal: 250ms ease;
-    --transition-slow: 350ms ease;
-    --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* ==================== TRANSITIONS ==================== */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
-    /* ==================== Z-INDEX SCALE ==================== */
-    --z-dropdown: 100;
-    --z-sticky: 200;
-    --z-fixed: 300;
-    --z-modal-backdrop: 400;
-    --z-modal: 500;
-    --z-popover: 600;
-    --z-tooltip: 700;
+  /* ==================== Z-INDEX SCALE ==================== */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
 
-    /* ==================== APPLE SYSTEM COLORS (Light Mode) ==================== */
-    --system-blue: #007AFF;
-    --system-green: #34C759;
-    --system-red: #FF3B30;
-    --system-yellow: #FFCC00;
-    --system-orange: #FF9500;
-    --system-pink: #FF2D55;
-    --system-purple: #AF52DE;
-    --system-indigo: #5856D6;
-    --system-teal: #5AC8FA;
-    --system-brown: #A2845E;
+  /* ==================== APPLE SYSTEM COLORS (Light Mode) ==================== */
+  --system-blue: #007aff;
+  --system-green: #34c759;
+  --system-red: #ff3b30;
+  --system-yellow: #ffcc00;
+  --system-orange: #ff9500;
+  --system-pink: #ff2d55;
+  --system-purple: #af52de;
+  --system-indigo: #5856d6;
+  --system-teal: #5ac8fa;
+  --system-brown: #a2845e;
 
-    /* ==================== APPLE GRAY SCALE (Light Mode) ==================== */
-    --system-gray: #8E8E93;
-    --system-gray2: #AEAEB2;
-    --system-gray3: #C7C7CC;
-    --system-gray4: #D1D1D6;
-    --system-gray5: #E5E5EA;
-    --system-gray6: #F2F2F7;
+  /* ==================== APPLE GRAY SCALE (Light Mode) ==================== */
+  --system-gray: #8e8e93;
+  --system-gray2: #aeaeb2;
+  --system-gray3: #c7c7cc;
+  --system-gray4: #d1d1d6;
+  --system-gray5: #e5e5ea;
+  --system-gray6: #f2f2f7;
 
-    /* ==================== APPLE BACKGROUNDS (Light Mode) ==================== */
-    --system-background: #FFFFFF;
-    --secondary-system-background: #F2F2F7;
-    --tertiary-system-background: #FFFFFF;
-    --system-grouped-background: #F2F2F7;
-    --secondary-system-grouped-background: #FFFFFF;
-    --tertiary-system-grouped-background: #F2F2F7;
+  /* ==================== APPLE BACKGROUNDS (Light Mode) ==================== */
+  --system-background: #ffffff;
+  --secondary-system-background: #f2f2f7;
+  --tertiary-system-background: #ffffff;
+  --system-grouped-background: #f2f2f7;
+  --secondary-system-grouped-background: #ffffff;
+  --tertiary-system-grouped-background: #f2f2f7;
 
-    /* ==================== APPLE LABELS (Light Mode) ==================== */
-    --label: #000000;
-    --secondary-label: rgba(60, 60, 67, 0.6);
-    --tertiary-label: rgba(60, 60, 67, 0.3);
-    --quaternary-label: rgba(60, 60, 67, 0.18);
-    --placeholder-text: rgba(60, 60, 67, 0.3);
+  /* ==================== APPLE LABELS (Light Mode) ==================== */
+  --label: #000000;
+  --secondary-label: rgba(60, 60, 67, 0.6);
+  --tertiary-label: rgba(60, 60, 67, 0.3);
+  --quaternary-label: rgba(60, 60, 67, 0.18);
+  --placeholder-text: rgba(60, 60, 67, 0.3);
 
-    /* ==================== APPLE FILLS (Light Mode) ==================== */
-    --system-fill: rgba(120, 120, 128, 0.2);
-    --secondary-system-fill: rgba(120, 120, 128, 0.16);
-    --tertiary-system-fill: rgba(118, 118, 128, 0.12);
-    --quaternary-system-fill: rgba(116, 116, 128, 0.08);
+  /* ==================== APPLE FILLS (Light Mode) ==================== */
+  --system-fill: rgba(120, 120, 128, 0.2);
+  --secondary-system-fill: rgba(120, 120, 128, 0.16);
+  --tertiary-system-fill: rgba(118, 118, 128, 0.12);
+  --quaternary-system-fill: rgba(116, 116, 128, 0.08);
 
-    /* ==================== APPLE SEPARATORS (Light Mode) ==================== */
-    --separator: rgba(60, 60, 67, 0.29);
-    --opaque-separator: #C6C6C8;
+  /* ==================== APPLE SEPARATORS (Light Mode) ==================== */
+  --separator: rgba(60, 60, 67, 0.29);
+  --opaque-separator: #c6c6c8;
 
-    /* ==================== SEMANTIC COLORS (Light Mode) ==================== */
-    --color-bg-primary: var(--system-background);
-    --color-bg-secondary: var(--secondary-system-background);
-    --color-bg-tertiary: var(--system-gray5);
-    --color-bg-elevated: var(--system-background);
+  /* ==================== SEMANTIC COLORS (Light Mode) ==================== */
+  --color-bg-primary: var(--system-background);
+  --color-bg-secondary: var(--secondary-system-background);
+  --color-bg-tertiary: var(--system-gray5);
+  --color-bg-elevated: var(--system-background);
 
-    --color-text-primary: var(--label);
-    --color-text-secondary: var(--secondary-label);
-    --color-text-tertiary: var(--tertiary-label);
-    --color-text-disabled: var(--quaternary-label);
+  --color-text-primary: var(--label);
+  --color-text-secondary: var(--secondary-label);
+  --color-text-tertiary: var(--tertiary-label);
+  --color-text-disabled: var(--quaternary-label);
 
-    --color-border-primary: var(--opaque-separator);
-    --color-border-secondary: var(--system-gray5);
-    --color-border-strong: var(--label);
+  --color-border-primary: var(--opaque-separator);
+  --color-border-secondary: var(--system-gray5);
+  --color-border-strong: var(--label);
 
-    --color-special-bg: #EED4FF;
-    --color-special-text: #7B00C8;
-    --color-special-border: #C800FF;
+  --color-special-bg: #eed4ff;
+  --color-special-text: #7b00c8;
+  --color-special-border: #c800ff;
 
-    --color-accent: var(--brand-accent);
-    --color-accent-hover: var(--brand-accent-hover);
-    --color-success: var(--system-green);
-    --color-warning: var(--system-orange);
-    --color-error: var(--system-red);
+  --color-accent: var(--brand-accent);
+  --color-accent-hover: var(--brand-accent-hover);
+  --color-success: var(--system-green);
+  --color-warning: var(--system-orange);
+  --color-error: var(--system-red);
 
-    --color-overlay: rgba(0, 0, 0, 0.4);
-    --color-shadow: var(--brand-shadow-color);
+  --color-overlay: rgba(0, 0, 0, 0.4);
+  --color-shadow: var(--brand-shadow-color);
 }
 
 /* ==================== DARK THEME (Apple Specifications) ==================== */
-[data-theme="dark"] {
-    /* === APPLE SYSTEM COLORS (Dark Mode) === */
-    --system-blue: #0A84FF;
-    --system-green: #30D158;
-    --system-red: #FF453A;
-    --system-yellow: #FFD60A;
-    --system-orange: #FF9F0A;
-    --system-pink: #FF375F;
-    --system-purple: #BF5AF2;
-    --system-indigo: #5E5CE6;
-    --system-teal: #64D2FF;
-    --system-brown: #AC8E68;
+[data-theme='dark'] {
+  /* === APPLE SYSTEM COLORS (Dark Mode) === */
+  --system-blue: #0a84ff;
+  --system-green: #30d158;
+  --system-red: #ff453a;
+  --system-yellow: #ffd60a;
+  --system-orange: #ff9f0a;
+  --system-pink: #ff375f;
+  --system-purple: #bf5af2;
+  --system-indigo: #5e5ce6;
+  --system-teal: #64d2ff;
+  --system-brown: #ac8e68;
 
-    /* === APPLE GRAY SCALE (Dark Mode) === */
-    --system-gray: #8E8E93;
-    --system-gray2: #636366;
-    --system-gray3: #48484A;
-    --system-gray4: #3A3A3C;
-    --system-gray5: #2C2C2E;
-    --system-gray6: #1C1C1E;
+  /* === APPLE GRAY SCALE (Dark Mode) === */
+  --system-gray: #8e8e93;
+  --system-gray2: #636366;
+  --system-gray3: #48484a;
+  --system-gray4: #3a3a3c;
+  --system-gray5: #2c2c2e;
+  --system-gray6: #1c1c1e;
 
-    /* === APPLE BACKGROUNDS (Dark Mode) === */
-    --system-background: #000000;
-    --secondary-system-background: #1C1C1E;
-    --tertiary-system-background: #2C2C2E;
-    --system-grouped-background: #000000;
-    --secondary-system-grouped-background: #1C1C1E;
-    --tertiary-system-grouped-background: #2C2C2E;
+  /* === APPLE BACKGROUNDS (Dark Mode) === */
+  --system-background: #000000;
+  --secondary-system-background: #1c1c1e;
+  --tertiary-system-background: #2c2c2e;
+  --system-grouped-background: #000000;
+  --secondary-system-grouped-background: #1c1c1e;
+  --tertiary-system-grouped-background: #2c2c2e;
 
-    /* === APPLE LABELS (Dark Mode) === */
-    --label: #FFFFFF;
-    --secondary-label: rgba(235, 235, 245, 0.6);
-    --tertiary-label: rgba(235, 235, 245, 0.3);
-    --quaternary-label: rgba(235, 235, 245, 0.18);
-    --placeholder-text: rgba(235, 235, 245, 0.3);
+  /* === APPLE LABELS (Dark Mode) === */
+  --label: #ffffff;
+  --secondary-label: rgba(235, 235, 245, 0.6);
+  --tertiary-label: rgba(235, 235, 245, 0.3);
+  --quaternary-label: rgba(235, 235, 245, 0.18);
+  --placeholder-text: rgba(235, 235, 245, 0.3);
 
-    /* === APPLE FILLS (Dark Mode) === */
-    --system-fill: rgba(120, 120, 128, 0.36);
-    --secondary-system-fill: rgba(120, 120, 128, 0.32);
-    --tertiary-system-fill: rgba(118, 118, 128, 0.24);
-    --quaternary-system-fill: rgba(116, 116, 128, 0.18);
+  /* === APPLE FILLS (Dark Mode) === */
+  --system-fill: rgba(120, 120, 128, 0.36);
+  --secondary-system-fill: rgba(120, 120, 128, 0.32);
+  --tertiary-system-fill: rgba(118, 118, 128, 0.24);
+  --quaternary-system-fill: rgba(116, 116, 128, 0.18);
 
-    /* === APPLE SEPARATORS (Dark Mode) === */
-    --separator: #FFFFFF;
-    --opaque-separator: #FFFFFF;
+  /* === APPLE SEPARATORS (Dark Mode) === */
+  --separator: #ffffff;
+  --opaque-separator: #ffffff;
 
-    /* === SEMANTIC COLORS (Dark Mode) === */
-    --color-bg-primary: var(--system-background);
-    --color-bg-secondary: var(--secondary-system-background);
-    --color-bg-tertiary: var(--tertiary-system-background);
-    --color-bg-elevated: var(--secondary-system-background);
+  /* === SEMANTIC COLORS (Dark Mode) === */
+  --color-bg-primary: var(--system-background);
+  --color-bg-secondary: var(--secondary-system-background);
+  --color-bg-tertiary: var(--tertiary-system-background);
+  --color-bg-elevated: var(--secondary-system-background);
 
-    --color-text-primary: var(--label);
-    --color-text-secondary: var(--secondary-label);
-    --color-text-tertiary: var(--tertiary-label);
-    --color-text-disabled: var(--quaternary-label);
+  --color-text-primary: var(--label);
+  --color-text-secondary: var(--secondary-label);
+  --color-text-tertiary: var(--tertiary-label);
+  --color-text-disabled: var(--quaternary-label);
 
-    --color-border-primary: var(--opaque-separator);
-    --color-border-secondary: #FFFFFF;
-    --color-border-strong: var(--label);
+  --color-border-primary: var(--opaque-separator);
+  --color-border-secondary: #ffffff;
+  --color-border-strong: var(--label);
 
-    --color-accent: var(--brand-accent);
-    --color-accent-hover: var(--brand-accent-dark);
-    --color-success: var(--system-green);
-    --color-warning: var(--system-orange);
-    --color-error: var(--system-red);
+  --color-accent: var(--brand-accent);
+  --color-accent-hover: var(--brand-accent-dark);
+  --color-success: var(--system-green);
+  --color-warning: var(--system-orange);
+  --color-error: var(--system-red);
 
-    --color-overlay: rgba(0, 0, 0, 0.6);
-    --color-shadow: var(--brand-shadow-color-dark);
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-shadow: var(--brand-shadow-color-dark);
 
-    /* Dark mode shadows */
-    --shadow-xs: 0 1px 2px var(--brand-shadow-color-dark);
-    --shadow-sm: 0 2px 4px var(--brand-shadow-color-dark);
-    --shadow-md: 0 4px 8px var(--brand-shadow-color-dark);
-    --shadow-lg: 0 8px 16px var(--brand-shadow-color-dark);
-    --shadow-xl: 0 12px 24px var(--brand-shadow-color-dark);
-    --shadow-2xl: 0 20px 40px var(--brand-shadow-color-dark);
+  /* Dark mode shadows */
+  --shadow-xs: 0 1px 2px var(--brand-shadow-color-dark);
+  --shadow-sm: 0 2px 4px var(--brand-shadow-color-dark);
+  --shadow-md: 0 4px 8px var(--brand-shadow-color-dark);
+  --shadow-lg: 0 8px 16px var(--brand-shadow-color-dark);
+  --shadow-xl: 0 12px 24px var(--brand-shadow-color-dark);
+  --shadow-2xl: 0 20px 40px var(--brand-shadow-color-dark);
 }

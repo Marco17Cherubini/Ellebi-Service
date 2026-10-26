@@ -24,7 +24,7 @@ async function verifyAdminPassword(email, password) {
     // 🛡️ FASE 3 Sicurezza: Graceful Upgrade per l'Admin
     if (admin.password.startsWith('$argon2')) {
       return await argon2.verify(admin.password, password);
-    } 
+    }
     // Fallback locale per vecchi DB basati su bcryptjs (necessario per non lockare fuori gli utenti)
     else if (admin.password.startsWith('$2')) {
       const isValid = await bcrypt.compare(password, admin.password);
@@ -37,11 +37,15 @@ async function verifyAdminPassword(email, password) {
     }
     // Se la password nel file non è hashata, rifiuta il login e logga il warning
     else {
-      console.error('⚠️ Password admin non hashata rilevata per:', admin.email, '— login rifiutato.');
+      console.error(
+        '⚠️ Password admin non hashata rilevata per:',
+        admin.email,
+        '— login rifiutato.'
+      );
       return false;
     }
   } catch (err) {
-    console.error("Errore verifica admin:", err);
+    console.error('Errore verifica admin:', err);
     return false;
   }
 }
@@ -53,10 +57,7 @@ function touchUserActivity(email) {
   const user = usersDB.findOne(u => u.email === emailLower);
   if (!user) return;
 
-  usersDB.update(
-    u => u.email === emailLower,
-    { last_active_at: new Date().toISOString() }
-  );
+  usersDB.update(u => u.email === emailLower, { last_active_at: new Date().toISOString() });
 }
 
 // Registrazione utente
@@ -81,9 +82,9 @@ async function registerUser(userData) {
   // 🛡️ FASE 3 Sicurezza: Argon2id (OWASP 2025 Standard)
   const hashedPassword = await argon2.hash(password, {
     type: argon2.argon2id,
-    memoryCost: 15360,     // 15 MiB mem
-    timeCost: 2,           // 2 iterations
-    parallelism: 1         // 1 thread
+    memoryCost: 15360, // 15 MiB mem
+    timeCost: 2, // 2 iterations
+    parallelism: 1 // 1 thread
   });
 
   // Crea utente (solo campi: nome, cognome, email, telefono, password)
@@ -118,11 +119,9 @@ async function loginUser(email, password) {
   const adminCheck = await verifyAdminPassword(emailLower, password);
   if (adminCheck) {
     // È un admin - genera token con flag isAdmin
-    const token = jwt.sign(
-      { email: emailLower, isAdmin: true },
-      config.jwt.secret,
-      { expiresIn: config.jwt.expiresIn }
-    );
+    const token = jwt.sign({ email: emailLower, isAdmin: true }, config.jwt.secret, {
+      expiresIn: config.jwt.expiresIn
+    });
 
     return {
       user: { email: emailLower, isAdmin: true },
@@ -156,7 +155,7 @@ async function loginUser(email, password) {
       }
     }
   } catch (err) {
-    console.error("Errore verifica password utente:", err);
+    console.error('Errore verifica password utente:', err);
     throw new Error('Credenziali non valide');
   }
 
@@ -167,11 +166,9 @@ async function loginUser(email, password) {
   touchUserActivity(user.email);
 
   // Genera JWT token (utente normale)
-  const token = jwt.sign(
-    { email: user.email, isAdmin: false },
-    config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn }
-  );
+  const token = jwt.sign({ email: user.email, isAdmin: false }, config.jwt.secret, {
+    expiresIn: config.jwt.expiresIn
+  });
 
   const { password: _, ...userWithoutPassword } = user;
   return { user: { ...userWithoutPassword, isAdmin: false }, token, isAdmin: false };
@@ -261,11 +258,9 @@ function generateResetToken(email) {
   }
 
   // Genera token con email e timestamp per invalidazione automatica
-  const token = jwt.sign(
-    { email: emailLower, purpose: 'password-reset' },
-    config.jwt.secret,
-    { expiresIn: '1h' }
-  );
+  const token = jwt.sign({ email: emailLower, purpose: 'password-reset' }, config.jwt.secret, {
+    expiresIn: '1h'
+  });
 
   return token;
 }
