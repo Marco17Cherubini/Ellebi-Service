@@ -1,117 +1,88 @@
 {
-    "env": {
-        "browser": true,
-        "es2021": true,
-        "node": true
-    },
-    "extends": [
-        "eslint:recommended"
+  "root": true,
+  "extends": [
+    "eslint:recommended",
+    "prettier"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "script"
+  },
+  "rules": {
+    "no-console": "off",
+    "eqeqeq": [
+      "error",
+      "always"
     ],
-    "parserOptions": {
-        "ecmaVersion": "latest",
-        "sourceType": "module"
+    "curly": [
+      "error",
+      "multi-line"
+    ],
+    "no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true,
+        "caughtErrors": "none"
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "server/**/*.js",
+        "config/**/*.js",
+        "ecosystem.config.js",
+        "test/**/*.js"
+      ],
+      "env": {
+        "node": true,
+        "es2022": true
+      }
     },
-    "rules": {
-        "indent": [
-            "error",
-            2
-        ],
-        "linebreak-style": [
-            "error",
-            "windows"
-        ],
-        "quotes": [
-            "error",
-            "single",
-            {
-                "avoidEscape": true
-            }
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
+    {
+      "files": [
+        "frontend/js/**/*.js"
+      ],
+      "env": {
+        "browser": true,
+        "es2022": true
+      },
+      "rules": {
         "no-unused-vars": [
-            "warn",
-            {
-                "argsIgnorePattern": "^_"
-            }
+          "warn",
+          {
+            "vars": "local",
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_",
+            "ignoreRestSiblings": true,
+            "caughtErrors": "none"
+          }
         ],
-        "no-console": "off",
-        "eqeqeq": [
-            "error",
-            "always"
-        ],
-        "curly": [
-            "error",
-            "all"
-        ],
-        "brace-style": [
-            "error",
-            "1tbs"
-        ],
-        "comma-dangle": [
-            "error",
-            "never"
-        ],
-        "no-multiple-empty-lines": [
-            "error",
-            {
-                "max": 2,
-                "maxEOF": 1
-            }
-        ],
-        "no-trailing-spaces": "error",
-        "space-before-function-paren": [
-            "error",
-            {
-                "anonymous": "always",
-                "named": "never",
-                "asyncArrow": "always"
-            }
+        "no-redeclare": [
+          "error",
+          {
+            "builtinGlobals": false
+          }
         ]
-    },
-    "globals": {
-        "apiRequest": "writable",
-        "showSuccessMessage": "readonly",
-        "showErrorMessage": "readonly",
-        "formatDateDisplay": "writable",
+      },
+      "globals": {
+        "module": "readonly",
+        "apiRequest": "readonly",
+        "escapeHTML": "readonly",
+        "showError": "readonly",
+        "showSuccess": "readonly",
+        "hideMessage": "readonly",
+        "formatDate": "readonly",
+        "formatDateShort": "readonly",
         "getCurrentUser": "readonly",
         "redirectToLogin": "readonly",
-        "Modal": "writable",
-        "currentWeekStart": "writable",
-        "allBookings": "writable",
-        "allUsers": "writable",
-        "allHolidays": "writable",
-        "selectedSlot": "writable",
-        "selectedBooking": "writable",
-        "holidayMode": "writable",
-        "selectedHolidaySlots": "writable",
-        "extraWorkMode": "writable",
-        "currentAssignDepositId": "writable",
-        "extraWorkHoursTotal": "writable",
-        "selectedExtraWorkSlots": "writable",
-        "bookingModal": "writable",
-        "detailModal": "writable",
-        "deleteConfirmModal": "writable",
-        "isDragging": "writable",
-        "dragStartCell": "writable",
-        "dragMode": "writable",
-        "isDraggingBooking": "writable",
-        "draggedBooking": "writable",
-        "dragGhostElement": "writable",
-        "longPressTimer": "writable",
-        "touchStartX": "writable",
-        "touchStartY": "writable",
-        "timeSlotsWeekday": "writable",
-        "timeSlotsSaturday": "writable",
-        "allTimeSlots": "writable",
-        "allServices": "writable",
-        "workDays": "writable",
-        "getTimeSlotsForDate": "writable",
-        "getMonday": "writable",
-        "formatDate": "writable",
-        "formatDateStringDisplay": "writable",
-        "Chart": "writable"
+        "redirectToDashboard": "readonly",
+        "Modal": "readonly",
+        "goToStep": "readonly",
+        "Chart": "readonly"
+      }
     }
+  ]
 }

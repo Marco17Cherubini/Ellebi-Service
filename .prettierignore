@@ -14,3 +14,8 @@ build/
 # Ignore database files
 *.db
 data/
+
+# Lockfile, documenti e file di verifica da servire byte per byte
+package-lock.json
+docs/
+frontend/googlef402c97bc491dc73.html
