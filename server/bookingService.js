@@ -7,7 +7,12 @@ const {
   withTransaction
 } = require('./database');
 const { badRequest } = require('./errors');
-const { findService, isConsegnaService } = require('./catalogService');
+const {
+  CONSEGNA_DURATION,
+  findService,
+  isConsegnaService,
+  getServiceDuration
+} = require('./catalogService');
 const depositService = require('./depositService');
 const config = require('../config/config');
 const crypto = require('crypto');
@@ -16,9 +21,6 @@ const crypto = require('crypto');
 function generateBookingToken() {
   return crypto.randomBytes(16).toString('hex');
 }
-
-// Durata standard appuntamento (minuti)
-const APPOINTMENT_DURATION = config.appointmentDuration || 45;
 
 // 🛡️ Validazione lunghezza input: tronca campi di testo a lunghezze sicure
 function sanitizeText(value, maxLen) {
@@ -237,22 +239,9 @@ function getAvailableSlotsForService(
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 
-// Crea una nuova prenotazione (supporta campi v2)
-function createBooking(userEmail, bookingData) {
-  const {
-    data,
-    orario,
-    numPersone,
-    // Campi v2
-    serviceId,
-    service_id,
-    targa,
-    modello,
-    durata_minuti,
-    note_cliente
-  } = bookingData;
-
-  // Validazione Pragmatic Security (Blocca input corrotti, SQLi bypass, o malformattazioni)
+// Valida data/ora e verifica che l'intervallo [orario, orario + durata) sia prenotabile.
+// extendedHours: orari estesi (pre-apertura, serali, senza pausa pranzo) solo per VIP e admin.
+function assertBookable(data, orario, durata, extendedHours) {
   if (!data || !orario) {
     throw badRequest('Data e orario sono obbligatori');
   }
@@ -263,41 +252,43 @@ function createBooking(userEmail, bookingData) {
     throw badRequest('Formato ora non valido (atteso HH:MM)');
   }
 
-  // Risoluzione del vecchio concetto di "numPersone" in una pura durata temporale
-  const hasDuration = durata_minuti || serviceId || service_id;
-  let effectiveDurata = 15;
-
-  if (hasDuration) {
-    effectiveDurata = parseInt(durata_minuti, 10) || APPOINTMENT_DURATION;
-  } else {
-    // Legacy support: 1 persona = 15 min, 2 persone = 30 min...
-    const validNumPersone = Math.min(Math.max(parseInt(numPersone, 10) || 1, 1), 3);
-    effectiveDurata = validNumPersone * 15;
-  }
-
-  // Deleghiamo interamente il controllo di validità al Core Matematico
-  const availableSlots = computeAvailableSlots(data, effectiveDurata, true);
-  const targetSlotObj = availableSlots.find(s => s.time === orario);
-
-  if (!targetSlotObj) {
+  const slot = computeAvailableSlots(data, durata, extendedHours).find(s => s.time === orario);
+  if (!slot) {
     throw badRequest('Orario non valido o non selezionabile per questa data');
   }
-
-  if (!targetSlotObj.available) {
+  if (!slot.available) {
     throw badRequest(
       "Lo slot o l'intervallo richiesto non è disponibile (conflitto o pausa pranzo)"
     );
   }
+}
 
-  // Ottieni dati utente
+// Servizio scelto dal cliente: deve esistere ed essere attivo. La durata viene dal listino,
+// mai dal client.
+function requireBookableService(serviceId) {
+  if (!serviceId) throw badRequest('Seleziona un servizio');
+  const service = findService(serviceId);
+  if (!service || !(service.attivo === 1 || service.attivo === '1')) {
+    throw badRequest('Servizio non disponibile');
+  }
+  return service;
+}
+
+// Crea una prenotazione cliente per un servizio a appuntamento
+function createBooking(userEmail, bookingData, { extendedHours = false } = {}) {
+  const { data, orario, targa, modello, note_cliente } = bookingData;
+  const service = requireBookableService(bookingData.serviceId || bookingData.service_id);
+  const durata = getServiceDuration(service);
+
+  assertBookable(data, orario, durata, extendedHours);
+
   const user = usersDB.findOne(u => u.email === userEmail);
   if (!user) {
     throw badRequest('Utente non trovato');
   }
 
-  // Inserimento a Singolo Record
   const bookingToken = generateBookingToken();
-  const singleBookingRecord = {
+  bookingsDB.insert({
     nome: user.nome,
     cognome: user.cognome,
     email: user.email,
@@ -305,103 +296,50 @@ function createBooking(userEmail, bookingData) {
     giorno: data,
     ora: orario,
     token: bookingToken,
-    // Campi v2
-    service_id: service_id || serviceId || null,
+    service_id: service.id,
     targa: sanitizeText(targa, 10).toUpperCase(),
     modello: sanitizeText(modello, 100),
-    durata_minuti: effectiveDurata,
+    durata_minuti: durata,
     tipo: 'cliente',
     note_cliente: sanitizeText(note_cliente, 1000)
-  };
+  });
 
-  bookingsDB.insert(singleBookingRecord);
-
-  // Ritorna la prenotazione creata per consentire il fetch dell'id
-  const savedBooking = bookingsDB.findOne(
-    b => b.giorno === data && b.ora === orario && b.token === bookingToken
-  );
-  return savedBooking || singleBookingRecord;
+  return bookingsDB.findOne(b => b.token === bookingToken);
 }
 
-// Crea prenotazione di consegna veicolo (accoglienza 30 min = Single-Record strutturato)
-function createConsegnaBooking(userEmail, bookingData) {
-  const {
-    data,
-    orario,
-    serviceId,
-    service_id,
-    targa,
-    modello,
-    note_cliente,
-    nome,
-    cognome,
-    telefono
-  } = bookingData;
+// Crea la prenotazione di accoglienza per una consegna veicolo (durata fissa di 30 minuti)
+function createConsegnaBooking(userEmail, bookingData, { extendedHours = false } = {}) {
+  const { data, orario, targa, modello, note_cliente, nome, cognome, telefono } = bookingData;
+  const service = requireBookableService(bookingData.serviceId || bookingData.service_id);
 
-  // Validazione Pragmatic Security campi obbligatori e formati
-  if (!data || !orario) {
-    throw badRequest('Data e orario sono obbligatori');
-  }
-  if (!DATE_REGEX.test(data)) {
-    throw badRequest('Formato data non valido (atteso YYYY-MM-DD)');
-  }
-  if (!TIME_REGEX.test(orario)) {
-    throw badRequest('Formato ora non valido (atteso HH:MM)');
-  }
   if (!targa || !targa.toString().trim()) {
     throw badRequest('La targa del veicolo è obbligatoria per le consegne');
   }
   if (!modello || !modello.toString().trim()) {
     throw badRequest('Il modello del veicolo è obbligatorio per le consegne');
   }
+  assertBookable(data, orario, CONSEGNA_DURATION, extendedHours);
 
-  // Durata fissa accoglienza consegna: 30 minuti singoli
-  const CONSEGNA_DURATION = 30;
-
-  // Deleghiamo interamente il controllo di validità al Core Matematico
-  const availableSlots = computeAvailableSlots(data, CONSEGNA_DURATION, true);
-  const targetSlotObj = availableSlots.find(s => s.time === orario);
-
-  if (!targetSlotObj) {
-    throw badRequest('Orario non valido o non selezionabile per questa data');
-  }
-
-  if (!targetSlotObj.available) {
-    throw badRequest("L'intervallo richiesto non è disponibile (conflitto o pausa pranzo)");
-  }
-
-  // Ottieni dati utente (registrato o guest)
+  // Dati utente (registrato o ospite)
   const user = usersDB.findOne(u => u.email === userEmail);
-  const userName = user ? user.nome : nome || '';
-  const userSurname = user ? user.cognome : cognome || '';
-  const userPhone = user ? user.telefono : telefono || '';
-
-  // Crea l'unico record Single-Record
   const bookingToken = generateBookingToken();
-  const singleBookingRecord = {
-    nome: userName,
-    cognome: userSurname,
+  bookingsDB.insert({
+    nome: user ? user.nome : nome || '',
+    cognome: user ? user.cognome : cognome || '',
     email: userEmail,
-    telefono: userPhone,
+    telefono: user ? user.telefono : telefono || '',
     giorno: data,
     ora: orario,
     token: bookingToken,
-    service_id: service_id || serviceId || null,
+    service_id: service.id,
     targa: sanitizeText(targa, 10).toUpperCase(),
     modello: sanitizeText(modello, 100),
     tipo: 'deposito',
     durata_minuti: CONSEGNA_DURATION,
     note_cliente: sanitizeText(note_cliente, 1000)
-  };
+  });
 
-  bookingsDB.insert(singleBookingRecord);
-
-  // Ritorna il primo booking (quello principale per collegare il deposito)
-  const savedBooking = bookingsDB.findOne(
-    b => b.giorno === data && b.ora === orario && b.token === bookingToken
-  );
-
-  return savedBooking || singleBookingRecord;
+  return bookingsDB.findOne(b => b.token === bookingToken);
 }
 
 // Ottieni prenotazioni attive di un utente (future + non annullate, escluse extra_work)
@@ -475,8 +413,9 @@ function createAdminBooking(bookingData) {
   // Determina se è una consegna (per il caller in server.js che controlla booking.isConsegna)
   const isConsegna = tipo === 'deposito' || tipo === 'consegna';
 
-  // Calcola durata effettiva
-  const effectiveDurata = durata_minuti ? parseInt(durata_minuti, 10) || 15 : 15;
+  // Durata: dal listino se il servizio è indicato, altrimenti quella scelta dall'admin (default 15)
+  const service = findService(service_id || serviceId);
+  const effectiveDurata = service ? getServiceDuration(service) : parseInt(durata_minuti, 10) || 15;
 
   // Deleghiamo il controllo al Validatore temporale (admin include extraSlots = true)
   const availableSlots = computeAvailableSlots(giorno, effectiveDurata, true);
@@ -637,10 +576,10 @@ function moveBooking(oldGiorno, oldOra, newGiorno, newOra) {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Consegna veicolo: prenotazione di accoglienza + deposito collegato (da eseguire in transazione)
-function createDropOff(email, payload, depositData, limitMessage) {
+function createDropOff(email, payload, depositData, limitMessage, options) {
   if (!depositService.canAcceptDeposit()) throw badRequest(limitMessage);
 
-  const booking = createConsegnaBooking(email, payload);
+  const booking = createConsegnaBooking(email, payload, options);
   const deposit = depositService.createDeposit(booking.id, depositData);
   bookingsDB.update(b => String(b.id) === String(booking.id), { deposit_id: deposit.id });
   booking.deposit_id = deposit.id;
@@ -663,7 +602,7 @@ function depositFields(data, service, person) {
  * prenotazione (modifica): tutto in una transazione, se la nuova non è valida la vecchia resta.
  * Restituisce { booking, deposit, isConsegna }.
  */
-function createCustomerBooking(email, data) {
+function createCustomerBooking(email, data, options = {}) {
   return withTransaction(() => {
     if (data.old_giorno && data.old_ora) {
       const old = getUserBookings(email).find(
@@ -677,7 +616,7 @@ function createCustomerBooking(email, data) {
 
     const service = findService(data.serviceId);
     if (!isConsegnaService(service)) {
-      return { booking: createBooking(email, data), deposit: null, isConsegna: false };
+      return { booking: createBooking(email, data, options), deposit: null, isConsegna: false };
     }
 
     const user = usersDB.findOne(u => u.email === email) || {};
@@ -691,7 +630,8 @@ function createCustomerBooking(email, data) {
       email,
       data,
       depositFields(data, service, person),
-      depositService.depositLimitMessage('Contattare il laboratorio.')
+      depositService.depositLimitMessage('Contattare il laboratorio.'),
+      options
     );
     return { ...result, isConsegna: true };
   });

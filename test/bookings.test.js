@@ -87,6 +87,20 @@ test('richieste parallele sullo stesso slot: ne passa una sola', async () => {
   assert.equal(bookingsDB().findMany(b => b.giorno === day).length, 1);
 });
 
+test('una prenotazione senza servizio o con un servizio inesistente viene rifiutata', async () => {
+  const day = futureWeekday(1, 8);
+  const noService = await api.request('POST', '/api/bookings', {
+    cookie: mario,
+    body: { data: day, orario: '09:00' }
+  });
+  assert.equal(noService.status, 400);
+  const unknown = await api.request('POST', '/api/bookings', {
+    cookie: mario,
+    body: { data: day, orario: '09:00', serviceId: 9999 }
+  });
+  assert.equal(unknown.status, 400);
+});
+
 test('dati mancanti o malformati: 400', async () => {
   const olio = findService('Tagliando olio + filtro');
   const day = futureWeekday(2, 4);
@@ -251,64 +265,52 @@ test(
   }
 );
 
-test(
-  'la durata viene dal listino, non dal client',
-  { todo: 'P05: durata_minuti inviata dal client viene accettata' },
-  async () => {
-    const day = futureWeekday(5, 6);
-    const completo = findService('Tagliando completo'); // 120 minuti
-    const res = await book(mario, completo, day, '08:30', { durata_minuti: 15 });
-    assert.equal(res.status, 201);
-    assert.equal(res.data.booking.durata_minuti, '120');
-    const slots = await api.request('GET', `/api/slots/${day}`);
-    assert.equal(slotAt(slots.data.slots, '10:00').available, false);
-  }
-);
+test('la durata viene dal listino, non dal client', async () => {
+  const day = futureWeekday(5, 6);
+  const completo = findService('Tagliando completo'); // 120 minuti
+  const res = await book(mario, completo, day, '08:30', { durata_minuti: 15 });
+  assert.equal(res.status, 201);
+  assert.equal(res.data.booking.durata_minuti, '120');
+  const slots = await api.request('GET', `/api/slots/${day}`);
+  assert.equal(slotAt(slots.data.slots, '10:00').available, false);
+});
 
-test(
-  'un servizio disattivato non è prenotabile',
-  { todo: 'P05: il server non verifica che il servizio esista e sia attivo' },
-  async () => {
-    const freni = findService('Freni');
+test('un servizio disattivato non è prenotabile', async () => {
+  const freni = findService('Freni');
+  await api.request('PUT', `/api/admin/services/${freni.id}`, {
+    cookie: admin,
+    body: { attivo: 0 }
+  });
+  try {
+    const res = await book(mario, freni, futureWeekday(1, 7), '09:00');
+    assert.equal(res.status, 400);
+  } finally {
     await api.request('PUT', `/api/admin/services/${freni.id}`, {
       cookie: admin,
-      body: { attivo: 0 }
+      body: { attivo: 1 }
     });
-    try {
-      const res = await book(mario, freni, futureWeekday(1, 7), '09:00');
-      assert.equal(res.status, 400);
-    } finally {
-      await api.request('PUT', `/api/admin/services/${freni.id}`, {
-        cookie: admin,
-        body: { attivo: 1 }
-      });
-    }
   }
-);
+});
 
-test(
-  'clienti e ospiti non possono prenotare fuori orario né scavalcare la pausa pranzo',
-  { todo: 'P06: il server applica a tutti gli orari estesi di VIP e admin' },
-  async () => {
-    const day = futureWeekday(2, 7);
-    const olio = findService('Tagliando olio + filtro');
-    assert.equal((await book(mario, olio, day, '21:00')).status, 400);
-    assert.equal((await book(mario, olio, day, '12:00')).status, 400); // 12:00-13:00
-    const guest = await api.request('POST', '/api/bookings/guest', {
-      body: {
-        nome: 'Ospite',
-        cognome: 'Serale',
-        email: 'serale@test.local',
-        giorno: day,
-        ora: '22:30',
-        serviceId: olio.id,
-        targa: 'AA111AA',
-        modello: 'Panda'
-      }
-    });
-    assert.equal(guest.status, 400);
-  }
-);
+test('clienti e ospiti non possono prenotare fuori orario né scavalcare la pausa pranzo', async () => {
+  const day = futureWeekday(2, 7);
+  const olio = findService('Tagliando olio + filtro');
+  assert.equal((await book(mario, olio, day, '21:00')).status, 400);
+  assert.equal((await book(mario, olio, day, '12:00')).status, 400); // 12:00-13:00
+  const guest = await api.request('POST', '/api/bookings/guest', {
+    body: {
+      nome: 'Ospite',
+      cognome: 'Serale',
+      email: 'serale@test.local',
+      giorno: day,
+      ora: '22:30',
+      serviceId: olio.id,
+      targa: 'AA111AA',
+      modello: 'Panda'
+    }
+  });
+  assert.equal(guest.status, 400);
+});
 
 test('un VIP può prenotare negli orari estesi', async () => {
   const user = makeUser('vipbook');

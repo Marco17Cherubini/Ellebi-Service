@@ -80,7 +80,10 @@ router.get('/api/holidays', (req, res) => {
 
 // Nuova prenotazione (o modifica con old_giorno/old_ora); per le consegne crea anche il deposito
 router.post('/api/bookings', authenticateToken, (req, res) => {
-  const { booking, deposit, isConsegna } = createCustomerBooking(req.user.email, req.body);
+  // I clienti VIP possono prenotare anche negli orari estesi
+  const { booking, deposit, isConsegna } = createCustomerBooking(req.user.email, req.body, {
+    extendedHours: req.user.vip === true
+  });
   touchUserActivity(req.user.email);
 
   if (isConsegna) {
