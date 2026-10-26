@@ -3,33 +3,6 @@ let chart = null;
 let currentChartData = null;
 
 // Sidebar functionality
-function setupSidebar() {
-  const hamburgerBtn = document.getElementById('hamburger-btn');
-  const sidebar = document.getElementById('sidebar');
-  const sidebarOverlay = document.getElementById('sidebar-overlay');
-  const closeSidebarBtn = document.getElementById('close-sidebar');
-  const sidebarLogout = document.getElementById('sidebar-logout');
-
-  function openSidebar() {
-    sidebar.classList.add('active');
-    sidebarOverlay.classList.add('active');
-  }
-
-  function closeSidebar() {
-    sidebar.classList.remove('active');
-    sidebarOverlay.classList.remove('active');
-  }
-
-  hamburgerBtn.addEventListener('click', openSidebar);
-  closeSidebarBtn.addEventListener('click', closeSidebar);
-  sidebarOverlay.addEventListener('click', closeSidebar);
-
-  sidebarLogout.addEventListener('click', async () => {
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-    window.location.href = '/';
-  });
-}
-
 async function loadStats(period = 'weekly') {
   try {
     const response = await fetch(`/api/admin/reports/bookings-stats?period=${period}`, {

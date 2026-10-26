@@ -167,39 +167,6 @@ async function executeDelete() {
 }
 
 // Sidebar functionality
-function setupSidebar() {
-  const hamburgerBtn = document.getElementById('hamburger-btn');
-  const sidebar = document.getElementById('sidebar');
-  const sidebarOverlay = document.getElementById('sidebar-overlay');
-  const closeSidebarBtn = document.getElementById('close-sidebar');
-  const sidebarLogout = document.getElementById('sidebar-logout');
-
-  function openSidebar() {
-    sidebar.classList.add('active');
-    sidebarOverlay.classList.add('active');
-  }
-
-  function closeSidebar() {
-    sidebar.classList.remove('active');
-    sidebarOverlay.classList.remove('active');
-  }
-
-  hamburgerBtn.addEventListener('click', openSidebar);
-  closeSidebarBtn.addEventListener('click', closeSidebar);
-  sidebarOverlay.addEventListener('click', closeSidebar);
-
-  // Logout from sidebar
-  sidebarLogout.addEventListener('click', async () => {
-    try {
-      await apiRequest('/auth/logout', { method: 'POST' });
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Errore logout:', error);
-      window.location.href = '/';
-    }
-  });
-}
-
 // Initialize sidebar
 setupSidebar();
 

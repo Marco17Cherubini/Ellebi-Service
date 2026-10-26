@@ -571,39 +571,5 @@ document.getElementById('modal-confirm').addEventListener('click', async functio
   }
 });
 
-// ==================== SIDEBAR ====================
-
-function setupSidebar() {
-  var hamburgerBtn = document.getElementById('hamburger-btn');
-  var sidebar = document.getElementById('sidebar');
-  var sidebarOverlay = document.getElementById('sidebar-overlay');
-  var closeSidebarBtn = document.getElementById('close-sidebar');
-  var sidebarLogout = document.getElementById('sidebar-logout');
-
-  function openSidebar() {
-    sidebar.classList.add('active');
-    sidebarOverlay.classList.add('active');
-  }
-
-  function closeSidebar() {
-    sidebar.classList.remove('active');
-    sidebarOverlay.classList.remove('active');
-  }
-
-  hamburgerBtn.addEventListener('click', openSidebar);
-  closeSidebarBtn.addEventListener('click', closeSidebar);
-  sidebarOverlay.addEventListener('click', closeSidebar);
-
-  sidebarLogout.addEventListener('click', async function () {
-    try {
-      await apiRequest('/auth/logout', { method: 'POST' });
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Errore logout:', error);
-      window.location.href = '/';
-    }
-  });
-}
-
 setupSidebar();
 init();

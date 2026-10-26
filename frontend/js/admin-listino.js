@@ -369,34 +369,7 @@ document.getElementById('confirm-overlay').addEventListener('click', function (e
 
 // ── Sidebar ───────────────────────────────────────────────────
 
-(function () {
-  var ham = document.getElementById('hamburger-btn');
-  var sidebar = document.getElementById('sidebar');
-  var overlay = document.getElementById('sidebar-overlay');
-  var closeBtn = document.getElementById('close-sidebar');
-  var logoutBtn = document.getElementById('sidebar-logout');
-
-  function open() {
-    sidebar.classList.add('active');
-    overlay.classList.add('active');
-  }
-  function close() {
-    sidebar.classList.remove('active');
-    overlay.classList.remove('active');
-  }
-
-  ham.addEventListener('click', open);
-  closeBtn.addEventListener('click', close);
-  overlay.addEventListener('click', close);
-  logoutBtn.addEventListener('click', async function () {
-    try {
-      await apiRequest('/auth/logout', { method: 'POST' });
-    } catch (e) {
-      /* valore non valido: si ignora */
-    }
-    window.location.href = '/';
-  });
-})();
+setupSidebar();
 
 // ── Boot ──────────────────────────────────────────────────────
 

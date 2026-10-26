@@ -44,6 +44,39 @@ function makeKeyboardActivatable(el) {
   });
 }
 
+// Menu laterale (pagine con #sidebar): apertura dal pulsante ☰, chiusura con ×, overlay o Esc;
+// "Logout" chiude la sessione e torna alla home
+function setupSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (!sidebar || !overlay) return;
+
+  const open = () => {
+    sidebar.classList.add('active');
+    overlay.classList.add('active');
+  };
+  const close = () => {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+  };
+
+  document.getElementById('hamburger-btn').addEventListener('click', open);
+  document.getElementById('close-sidebar').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && sidebar.classList.contains('active')) close();
+  });
+
+  document.getElementById('sidebar-logout').addEventListener('click', async () => {
+    try {
+      await apiRequest('/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Errore logout:', error);
+    }
+    window.location.href = '/';
+  });
+}
+
 function showError(elementId, message) {
   const errorElement = document.getElementById(elementId);
   errorElement.textContent = message;
