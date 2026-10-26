@@ -6,9 +6,9 @@ const {
   getAllDepositsWithBookings,
   getMaxDeposits,
   updateDeposit,
-  updateDepositFromAdmin,
-  scheduleDeposit
+  updateDepositFromAdmin
 } = require('../depositService');
+const { scheduleExtraWork } = require('../bookingService');
 const { sendDepositCompletionEmail, sendInBackground } = require('../emailService');
 const { authenticateToken, requireAdmin } = require('../middleware');
 const { HttpError } = require('../errors');
@@ -57,7 +57,7 @@ router.put('/api/admin/deposits/:id/ore', admin, (req, res) => {
 
 // Assegna gli slot di lavoro nel calendario e porta il deposito "in corso"
 router.post('/api/admin/deposits/:id/schedule', admin, (req, res) => {
-  const deposit = scheduleDeposit(req.params.id, req.body.slots, req.body.ore_stimate);
+  const deposit = scheduleExtraWork(req.params.id, req.body.slots);
   res.json({
     success: true,
     deposit,

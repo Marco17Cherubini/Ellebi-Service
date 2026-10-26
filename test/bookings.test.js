@@ -244,26 +244,22 @@ test('modifica verso una consegna con limite raggiunto: la prenotazione original
   }
 });
 
-test(
-  'cancellare una consegna elimina anche il deposito collegato',
-  { todo: 'P08: la cancellazione del cliente lascia il deposito orfano' },
-  async () => {
-    const day = futureWeekday(4, 6);
-    const res = await book(mario, findService('Revisione sospensioni', 'moto'), day, '14:30');
-    assert.equal(res.status, 201);
-    const bookingId = res.data.booking.id;
-    assert.ok(depositsDB().findOne(d => d.booking_id === bookingId));
-    const del = await api.request('DELETE', '/api/bookings', {
-      cookie: mario,
-      body: { giorno: day, ora: '14:30' }
-    });
-    assert.equal(del.status, 200);
-    assert.equal(
-      depositsDB().findOne(d => d.booking_id === bookingId),
-      undefined
-    );
-  }
-);
+test('cancellare una consegna elimina anche il deposito collegato', async () => {
+  const day = futureWeekday(4, 6);
+  const res = await book(mario, findService('Revisione sospensioni', 'moto'), day, '14:30');
+  assert.equal(res.status, 201);
+  const bookingId = res.data.booking.id;
+  assert.ok(depositsDB().findOne(d => d.booking_id === bookingId));
+  const del = await api.request('DELETE', '/api/bookings', {
+    cookie: mario,
+    body: { giorno: day, ora: '14:30' }
+  });
+  assert.equal(del.status, 200);
+  assert.equal(
+    depositsDB().findOne(d => d.booking_id === bookingId),
+    undefined
+  );
+});
 
 test('la durata viene dal listino, non dal client', async () => {
   const day = futureWeekday(5, 6);

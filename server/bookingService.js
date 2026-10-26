@@ -45,12 +45,6 @@ function isDayAvailable(date) {
   return config.businessHours.daysOpen.includes(dayOfWeek);
 }
 
-// Verifica se uno slot è in ferie
-function isHolidaySlot(date, time) {
-  const holidays = holidaysDB.readAll();
-  return holidays.some(h => h.giorno === date && h.ora === time);
-}
-
 // Ottieni gli slot per un giorno specifico (sabato ha orari diversi)
 function getSlotsForDay(date, includeExtraSlots = false) {
   const dayOfWeek = getLocalDayOfWeek(date);
@@ -100,6 +94,20 @@ function timeToMinutes(timeStr) {
   return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
 }
 
+// Prenotazione da ignorare nel calcolo (quella che si sta modificando o spostando):
+// per id se disponibile, altrimenti per giorno e ora
+function isExcluded(booking, excludeBooking) {
+  if (!excludeBooking) return false;
+  if (excludeBooking.id) return booking.id === excludeBooking.id;
+  return booking.giorno === excludeBooking.giorno && booking.ora === excludeBooking.ora;
+}
+
+// Minuti occupati da una prenotazione esistente. Ogni blocco extra_work vale sempre 15 minuti,
+// qualunque sia il valore di durata_minuti (dati storici con DEFAULT 60)
+function occupiedMinutes(booking) {
+  return booking.service_id === 'extra_work' ? 15 : parseInt(booking.durata_minuti, 10) || 15;
+}
+
 // Validatore Temporale Universale a base matematica (Time Ranges)
 function computeAvailableSlots(
   date,
@@ -123,13 +131,11 @@ function computeAvailableSlots(
 
   existingBookings.forEach(b => {
     // Se stiamo modificando una prenotazione, escludi lo slot originale dal calcolo
-    if (excludeBooking && b.giorno === excludeBooking.giorno && b.ora === excludeBooking.ora) {
+    if (isExcluded(b, excludeBooking)) {
       return;
     }
     const startMin = timeToMinutes(b.ora);
-    // Extra_work: ogni record è SEMPRE un singolo blocco da 15 minuti,
-    // indipendentemente da cosa c'è scritto in durata_minuti (fix dati storici con DEFAULT 60)
-    const duration = b.service_id === 'extra_work' ? 15 : parseInt(b.durata_minuti, 10) || 15;
+    const duration = occupiedMinutes(b);
     occupiedRanges.push({ start: startMin, end: startMin + duration });
   });
 
@@ -366,8 +372,11 @@ function cancelBooking(giorno, ora, userEmail) {
     throw badRequest('Non autorizzato');
   }
 
-  // Elimina la prenotazione dal CSV
-  bookingsDB.delete(b => b.giorno === giorno && b.ora === ora && b.email === userEmail);
+  // Cancellare una consegna elimina anche il deposito e i blocchi di lavoro collegati
+  withTransaction(() => {
+    cleanDepositOnCancellation(booking);
+    bookingsDB.delete(b => b.id === booking.id);
+  });
 
   return true;
 }
@@ -520,14 +529,17 @@ function adminCancelBooking(giorno, ora) {
     throw badRequest('Prenotazione non trovata');
   }
 
-  cleanDepositOnCancellation(booking);
-
-  bookingsDB.delete(b => b.giorno === giorno && b.ora === ora);
+  withTransaction(() => {
+    cleanDepositOnCancellation(booking);
+    bookingsDB.delete(b => b.id === booking.id);
+  });
 
   return true;
 }
 
-// Sposta prenotazione da admin (cambia giorno/ora)
+// Sposta una prenotazione (drag & drop dell'admin) mantenendone id e durata: il nuovo
+// intervallo non può sovrapporsi ad altre prenotazioni o alle ferie. L'id invariato
+// conserva il collegamento con l'eventuale deposito.
 function moveBooking(oldGiorno, oldOra, newGiorno, newOra) {
   if (!oldGiorno || !oldOra || !newGiorno || !newOra) {
     throw badRequest('Tutti i campi sono obbligatori');
@@ -539,36 +551,20 @@ function moveBooking(oldGiorno, oldOra, newGiorno, newOra) {
     throw badRequest('Formato ora non valido (atteso HH:MM)');
   }
 
-  // Trova la prenotazione da spostare
   const booking = bookingsDB.findOne(b => b.giorno === oldGiorno && b.ora === oldOra);
   if (!booking) {
     throw badRequest('Prenotazione non trovata');
   }
 
-  // Verifica che il nuovo slot non sia occupato
-  const existingBooking = bookingsDB.findOne(b => b.giorno === newGiorno && b.ora === newOra);
-  if (existingBooking) {
-    throw badRequest('Questo slot è già occupato');
+  const slot = computeAvailableSlots(newGiorno, occupiedMinutes(booking), true, {
+    id: booking.id
+  }).find(s => s.time === newOra);
+  if (!slot || !slot.available) {
+    throw badRequest('Il nuovo orario si sovrappone a un altro appuntamento o alle ferie');
   }
 
-  // Verifica che il nuovo slot non sia in ferie
-  if (isHolidaySlot(newGiorno, newOra)) {
-    throw badRequest('Slot non disponibile (ferie)');
-  }
-
-  // Elimina la vecchia prenotazione
-  bookingsDB.delete(b => b.giorno === oldGiorno && b.ora === oldOra);
-
-  // Crea la nuova prenotazione con i nuovi dati
-  const newBooking = {
-    ...booking,
-    giorno: newGiorno,
-    ora: newOra
-  };
-
-  bookingsDB.insert(newBooking);
-
-  return newBooking;
+  bookingsDB.update(b => b.id === booking.id, { giorno: newGiorno, ora: newOra });
+  return bookingsDB.findOne(b => b.id === booking.id);
 }
 
 // ==================== FLUSSI COMPLETI (prenotazione + deposito) ====================
@@ -717,6 +713,45 @@ function createAdminBookingWithDeposit(data) {
   });
 }
 
+/**
+ * Pianifica il lavoro su un deposito: un blocco extra_work da 15 minuti per ogni slot
+ * { date, time } (o { giorno, ora }) e deposito "in corso". Ogni blocco deve cadere in un
+ * orario libero: se uno solo non è disponibile non viene pianificato nulla.
+ */
+function scheduleExtraWork(depositId, slots) {
+  if (!Array.isArray(slots) || slots.length === 0) {
+    throw badRequest('Nessuno slot fornito');
+  }
+
+  return withTransaction(() => {
+    const deposit = depositService.requireDeposit(depositId);
+
+    for (const slot of slots) {
+      const giorno = slot.date || slot.giorno;
+      const ora = slot.time || slot.ora;
+      assertBookable(giorno, ora, 15, true);
+
+      bookingsDB.insert({
+        nome: deposit.nome || 'Straordinario',
+        cognome: deposit.cognome || '',
+        email: deposit.email || 'interno@lb-service.it',
+        telefono: deposit.telefono || '',
+        targa: deposit.targa || '',
+        modello: deposit.modello || '',
+        tipo: 'deposito',
+        giorno,
+        ora,
+        stato: 'confermato',
+        service_id: depositService.EXTRA_WORK,
+        deposit_id: deposit.id,
+        durata_minuti: 15
+      });
+    }
+
+    return depositService.updateDeposit(deposit.id, { stato: 'in_corso' });
+  });
+}
+
 // ==================== VISTE ====================
 
 function serviceName(booking) {
@@ -804,6 +839,7 @@ module.exports = {
   createCustomerBooking,
   createGuestBooking,
   createAdminBookingWithDeposit,
+  scheduleExtraWork,
   getUserBookingList,
   getAdminBookings,
   isDayAvailable,

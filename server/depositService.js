@@ -11,7 +11,8 @@ const {
 } = require('./database');
 const { HttpError, badRequest } = require('./errors');
 
-// Stati che occupano capacità (il veicolo è in officina)
+// Stati di lavorazione; tutti tranne "completato" occupano capacità (il veicolo è in officina)
+const STATES = ['in_attesa', 'in_corso', 'standby', 'completato'];
 const ACTIVE_STATES = ['in_attesa', 'in_corso', 'standby'];
 
 // Blocchi di lavoro pianificati: prenotazioni con questo service_id e deposit_id del deposito
@@ -151,7 +152,8 @@ function updateDeposit(id, updates) {
 
   const changes = {};
   if (updates.stato !== undefined) {
-    changes.stato = sanitizeText(updates.stato, 50);
+    if (!STATES.includes(updates.stato)) throw badRequest('Stato del deposito non valido');
+    changes.stato = updates.stato;
     changes.completed_at = changes.stato === 'completato' ? new Date().toISOString() : '';
   }
   if (updates.nota_lorenzo !== undefined) {
@@ -181,43 +183,6 @@ function updateDepositFromAdmin(id, { stato, nota_lorenzo, ore_residue }) {
   });
 }
 
-// Pianifica il lavoro: un blocco extra_work da 15 minuti per ogni slot { date, time }
-function scheduleDeposit(id, slots, oreStimateInput) {
-  if (!Array.isArray(slots) || slots.length === 0) {
-    throw badRequest('Nessuno slot fornito');
-  }
-
-  return withTransaction(() => {
-    const deposit = requireDeposit(id);
-    const oreStimate = oreStimateInput || deposit.ore_residue || deposit.ore_stimate || 0;
-
-    for (const slot of slots) {
-      const giorno = slot.date || slot.giorno;
-      const ora = slot.time || slot.ora;
-      if (!giorno || !ora) continue;
-
-      bookingsDB.insert({
-        nome: deposit.nome || 'Straordinario',
-        cognome: deposit.cognome || '',
-        email: deposit.email || 'interno@lb-service.it',
-        telefono: deposit.telefono || '',
-        targa: deposit.targa || '',
-        modello: deposit.modello || '',
-        tipo: 'deposito',
-        giorno,
-        ora,
-        stato: 'confermato',
-        service_id: EXTRA_WORK,
-        deposit_id: deposit.id,
-        ore_stimate: oreStimate,
-        durata_minuti: 15
-      });
-    }
-
-    return updateDeposit(deposit.id, { stato: 'in_corso' });
-  });
-}
-
 function deleteDeposit(id) {
   depositsDB.delete(d => String(d.id) === String(id));
 }
@@ -236,7 +201,7 @@ module.exports = {
   createDeposit,
   updateDeposit,
   updateDepositFromAdmin,
-  scheduleDeposit,
+  requireDeposit,
   removeExtraWork,
   deleteDeposit
 };

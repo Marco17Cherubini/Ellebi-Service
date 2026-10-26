@@ -108,41 +108,33 @@ test("l'admin sposta una prenotazione su uno slot libero e la cancella", async (
   assert.equal(db().bookingsDB.findMany(b => b.giorno === day).length, 0);
 });
 
-test(
-  'spostare una prenotazione dentro un intervallo occupato viene rifiutato',
-  { todo: "P07: lo spostamento admin controlla solo l'orario di inizio" },
-  async () => {
-    const day = futureWeekday(2, 3);
-    const completo = findService('Tagliando completo');
-    assert.equal((await adminBook(day, '08:30', completo)).status, 201); // 08:30-10:30
-    assert.equal((await adminBook(day, '14:30', findService('Freni'))).status, 201);
-    const move = await api.request('PUT', '/api/admin/bookings', {
-      cookie: admin,
-      body: { oldGiorno: day, oldOra: '14:30', newGiorno: day, newOra: '09:30' }
-    });
-    assert.equal(move.status, 400);
-  }
-);
+test('spostare una prenotazione dentro un intervallo occupato viene rifiutato', async () => {
+  const day = futureWeekday(2, 3);
+  const completo = findService('Tagliando completo');
+  assert.equal((await adminBook(day, '08:30', completo)).status, 201); // 08:30-10:30
+  assert.equal((await adminBook(day, '14:30', findService('Freni'))).status, 201);
+  const move = await api.request('PUT', '/api/admin/bookings', {
+    cookie: admin,
+    body: { oldGiorno: day, oldOra: '14:30', newGiorno: day, newOra: '09:30' }
+  });
+  assert.equal(move.status, 400);
+});
 
-test(
-  'spostare una consegna mantiene il collegamento con il deposito',
-  { todo: "P07: lo spostamento elimina e reinserisce la prenotazione cambiando l'id" },
-  async () => {
-    const day = futureWeekday(3, 3);
-    const res = await api.request('POST', '/api/bookings', {
-      cookie: customer,
-      body: bookingPayload(findService('Distribuzione'), day, '08:30')
-    });
-    assert.equal(res.status, 201);
-    const move = await api.request('PUT', '/api/admin/bookings', {
-      cookie: admin,
-      body: { oldGiorno: day, oldOra: '08:30', newGiorno: day, newOra: '11:00' }
-    });
-    assert.equal(move.status, 200);
-    const moved = db().bookingsDB.findOne(b => b.giorno === day && b.ora === '11:00');
-    assert.ok(db().depositsDB.findOne(d => d.booking_id === moved.id));
-  }
-);
+test('spostare una consegna mantiene il collegamento con il deposito', async () => {
+  const day = futureWeekday(3, 3);
+  const res = await api.request('POST', '/api/bookings', {
+    cookie: customer,
+    body: bookingPayload(findService('Distribuzione'), day, '08:30')
+  });
+  assert.equal(res.status, 201);
+  const move = await api.request('PUT', '/api/admin/bookings', {
+    cookie: admin,
+    body: { oldGiorno: day, oldOra: '08:30', newGiorno: day, newOra: '11:00' }
+  });
+  assert.equal(move.status, 200);
+  const moved = db().bookingsDB.findOne(b => b.giorno === day && b.ora === '11:00');
+  assert.ok(db().depositsDB.findOne(d => d.booking_id === moved.id));
+});
 
 test("cancellare una consegna dall'admin elimina anche il deposito", async () => {
   const day = futureWeekday(4, 3);
@@ -259,6 +251,11 @@ test('impostazioni: lettura e modifica del limite depositi', async () => {
 });
 
 async function newDeposit(day, ora) {
+  // Capacità alta: questi test creano più depositi di quanti ne ammette il limite di default
+  await api.request('PUT', '/api/settings/maxDeposits', {
+    cookie: admin,
+    body: { maxDeposits: 50 }
+  });
   const res = await api.request('POST', '/api/bookings', {
     cookie: customer,
     body: bookingPayload(findService('Lavoro straordinario'), day, ora, {
@@ -356,36 +353,25 @@ test('depositi: id inesistente → 404', async () => {
   }
 });
 
-test(
-  'depositi: uno stato sconosciuto viene rifiutato',
-  { todo: 'P10: lo stato del deposito è testo libero' },
-  async () => {
-    const deposit = await newDeposit(futureWeekday(3, 4), '08:30');
-    const res = await api.request('POST', `/api/admin/deposits/${deposit.id}/status`, {
-      cookie: admin,
-      body: { stato: 'boh' }
-    });
-    assert.equal(res.status, 400);
-  }
-);
+test('depositi: uno stato sconosciuto viene rifiutato', async () => {
+  const deposit = await newDeposit(futureWeekday(3, 4), '08:30');
+  const res = await api.request('POST', `/api/admin/deposits/${deposit.id}/status`, {
+    cookie: admin,
+    body: { stato: 'boh' }
+  });
+  assert.equal(res.status, 400);
+});
 
-test(
-  'depositi: la pianificazione non può sovrapporsi ad altre prenotazioni',
-  { todo: 'P09: schedule inserisce blocchi senza controllare la disponibilità' },
-  async () => {
-    const day = futureWeekday(4, 4);
-    const deposit = await newDeposit(day, '08:30');
-    assert.equal(
-      (await adminBook(day, '15:00', findService('Tagliando olio + filtro'))).status,
-      201
-    );
-    const res = await api.request('POST', `/api/admin/deposits/${deposit.id}/schedule`, {
-      cookie: admin,
-      body: { slots: [{ date: day, time: '15:15' }] }
-    });
-    assert.equal(res.status, 400);
-  }
-);
+test('depositi: la pianificazione non può sovrapporsi ad altre prenotazioni', async () => {
+  const day = futureWeekday(4, 4);
+  const deposit = await newDeposit(day, '08:30');
+  assert.equal((await adminBook(day, '15:00', findService('Tagliando olio + filtro'))).status, 201);
+  const res = await api.request('POST', `/api/admin/deposits/${deposit.id}/schedule`, {
+    cookie: admin,
+    body: { slots: [{ date: day, time: '15:15' }] }
+  });
+  assert.equal(res.status, 400);
+});
 
 test('clienti: elenco senza password, VIP, veicoli e storico per targa', async () => {
   const users = await api.request('GET', '/api/admin/users', { cookie: admin });
@@ -430,4 +416,42 @@ test('report: 7 giorni (settimanale) o 30 giorni (mensile)', async () => {
     cookie: admin
   });
   assert.equal(monthly.data.labels.length, 30);
+});
+
+test('depositi: se un blocco non è disponibile non viene pianificato nulla', async () => {
+  const day = futureWeekday(5, 4);
+  const deposit = await newDeposit(day, '08:30');
+  const res = await api.request('POST', `/api/admin/deposits/${deposit.id}/schedule`, {
+    cookie: admin,
+    body: {
+      slots: [
+        { date: day, time: '11:45' },
+        { date: day, time: '12:00' },
+        { date: day, time: '12:30' } // pausa pranzo: fuori dalla griglia
+      ]
+    }
+  });
+  assert.equal(res.status, 400);
+  assert.equal(
+    db().bookingsDB.findMany(b => b.deposit_id === deposit.id && b.service_id === 'extra_work')
+      .length,
+    0
+  );
+  assert.equal(db().depositsDB.findOne(d => d.id === deposit.id).stato, 'in_attesa');
+});
+
+test("spostare un blocco di lavoro su un orario libero mantiene l'id", async () => {
+  const day = futureWeekday(1, 5);
+  const deposit = await newDeposit(day, '08:30');
+  await api.request('POST', `/api/admin/deposits/${deposit.id}/schedule`, {
+    cookie: admin,
+    body: { slots: [{ date: day, time: '15:00' }] }
+  });
+  const block = db().bookingsDB.findOne(b => b.deposit_id === deposit.id && b.ora === '15:00');
+  const move = await api.request('PUT', '/api/admin/bookings', {
+    cookie: admin,
+    body: { oldGiorno: day, oldOra: '15:00', newGiorno: day, newOra: '16:00' }
+  });
+  assert.equal(move.status, 200);
+  assert.equal(move.data.booking.id, block.id);
 });
