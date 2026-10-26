@@ -1,3 +1,4 @@
+const path = require('path');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -32,6 +33,12 @@ const config = {
   server: {
     port: process.env.PORT || 3000,
     env: process.env.NODE_ENV || 'development'
+  },
+
+  // File SQLite: su Railway puntare a un volume montato (es. DATABASE_PATH=/data/database.sqlite)
+  database: {
+    path: process.env.DATABASE_PATH || path.join(__dirname, '../database/database.sqlite'),
+    backupDir: process.env.BACKUP_DIR || path.join(__dirname, '../backups')
   },
 
   // Cancellazione automatica dei dati scaduti (server/retentionService.js).

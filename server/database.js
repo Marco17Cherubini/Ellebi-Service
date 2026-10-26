@@ -2,10 +2,10 @@ const initSqlJs = require('sql.js');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const config = require('../config/config');
 
-// Path del database - usa variabile d'ambiente per Railway Volume, altrimenti default locale
-// Su Railway: imposta DATABASE_PATH=/data/database.sqlite e monta un Volume su /data
-const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, '../database/database.sqlite');
+// Percorso del file SQLite (DATABASE_PATH, vedi config.database)
+const DB_PATH = config.database.path;
 
 console.log(`📁 Database path: ${DB_PATH}`);
 
