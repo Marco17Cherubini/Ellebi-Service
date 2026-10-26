@@ -1,10 +1,11 @@
 # Ellebi Service
 
-**A booking and workshop management web app for a car and motorcycle repair shop — customers book the right amount of time for the job, and the mechanic plans the vehicles left in the workshop on the same calendar.**
+**A booking and workshop management web app for a car and motorcycle repair shop in Piedmont — built to take the organising off the mechanic's hands, so he can spend his day being a mechanic.**
 
 [![CI](https://github.com/Marco17Cherubini/Ellebi-Service/actions/workflows/ci.yml/badge.svg)](https://github.com/Marco17Cherubini/Ellebi-Service/actions/workflows/ci.yml)
 ![Node.js](https://img.shields.io/badge/node-%3E%3D22-339933)
 ![License](https://img.shields.io/badge/license-MIT-blue)
+![Status](https://img.shields.io/badge/status-in%20development-orange)
 
 > The user interface is in Italian: the app is built for an Italian workshop (Ellebi Service SRL) and its customers.
 > All screenshots in this README show **synthetic demo data** created with `npm run seed`.
@@ -15,39 +16,74 @@
 
 ### Context
 
-Ellebi Service is a small mechanic workshop for cars and motorcycles near Alessandria, Italy. The app manages a single schedule: the one of the owner, the mechanic customers book with. It started from [Lev Space](https://github.com/Marco17Cherubini/Lev-Space), a booking app I built for a barbershop, and was adapted to how a workshop actually works.
+Ellebi Service is a car and motorcycle workshop in **San Giuliano Vecchio**, a village in the province of Alessandria, Piedmont. Like [Lev Space](https://github.com/Marco17Cherubini/Lev-Space) — the booking system I built for a barbershop — this project starts from one goal: remove the organisational work from the owner's day and leave him only the work that is really his, the mechanic's.
 
 ### The problem
 
-A workshop calendar is not a list of identical slots:
+The owner told me that his biggest issue was not the repairs: it was the phone. **Constant calls interrupted his work**, so he could never stay focused on a job for long, and every interruption meant putting down the tools, checking the agenda in his head and finding a slot.
+
+On top of that, a workshop calendar is not a list of identical slots:
 
 - jobs have **very different durations** — an oil change takes an hour, a full service two, a brake job an hour and a half;
 - some jobs cannot be booked as an appointment at all: the customer **drops the vehicle off**, explains the problem, and the work is planned later, in pieces, around the other appointments;
 - the workshop can only keep **a limited number of vehicles** at the same time;
 - seasonal work (tyre changes) is only offered in some months, and the price list changes over time.
 
-A generic booking widget handles none of this, and doing it by phone means the mechanic keeps the whole plan in his head.
-
 ### How we solved it
 
-- **Customers and guests book by service**: the calendar only offers start times where the whole job fits, within a shift and without overlapping other work.
-- **Drop-offs become deposits**: booking a drop-off service reserves a 30-minute reception slot and opens a card in the _Lavori Straordinari_ page, with the customer's notes, the mechanic's notes and the estimated hours.
-- **The mechanic plans the work on the weekly calendar**, in 15-minute blocks, next to the regular appointments; when the job is done the customer gets a pick-up email.
-- **The rules live on the server**: durations come from the price list, opening hours depend on the role, capacity is checked before accepting a drop-off, and every multi-step change is a single transaction.
+The app is a revisited version of the Lev Space booking system, customised around the workshop's requests:
+
+- **customers and guests book by service**: the calendar only offers start times where the whole job fits, within a shift and without overlapping other work;
+- **drop-offs become deposits**: booking a drop-off service reserves a 30-minute reception slot and opens a card in the _Lavori Straordinari_ page, with the customer's notes, the mechanic's notes and the estimated hours;
+- **the mechanic plans the work on the weekly calendar**, in 15-minute blocks, next to the regular appointments; when the job is done the customer gets a pick-up email;
+- **the rules live on the server**: durations come from the price list, opening hours depend on the role, capacity is checked before accepting a drop-off, and every multi-step change is a single transaction.
 
 | Customer booking: only start times where a 90-minute job fits                                                         | Guest booking on mobile (dark theme)                                                      |
 | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | ![Customer booking calendar showing the free start times for a 90-minute brake job](docs/images/customer-booking.png) | ![Guest booking on a phone, service selection step](docs/images/guest-booking-mobile.png) |
 
-### Results
+### Results — and what they taught us
 
-What this repository demonstrates today:
+The software works: bookings, drop-offs, planning, reports and the admin tools are in place and covered by **98 automated tests** plus browser checks on desktop and mobile.
 
-- the booking flows for registered customers, guests and the admin, with service durations, opening hours by role, holidays, drop-offs and deposit capacity enforced on the server;
-- **98 automated tests** running against the real server and a temporary database, plus browser checks of the main flows on desktop and mobile;
-- a cleaned-up codebase: the refactoring, the decisions and the bugs found along the way are documented in [docs/refactoring-plan.md](docs/refactoring-plan.md).
+Adoption is the hard part. Lev Space's customers are mostly **20–30 years old** and booked online from day one. Ellebi Service's customers are on average **45–60 years old**: many of them would rather pick up the phone than open a web app, so the calls the system was meant to remove did not go away on their own.
 
-Figures about real use of the app (customers, bookings, time saved) will be added by the author; see [docs/portfolio-checklist.md](docs/portfolio-checklist.md).
+This is the honest state of the project: a good booking system is not enough if the people who should use it prefer another channel. The next step is to meet them on that channel.
+
+### Next step: an AI phone receptionist
+
+Instead of asking every customer to change habit, let the phone answer itself — and let the booking system stay the single source of truth behind it.
+
+**How it would work**
+
+- the workshop keeps its number and **forwards calls** (always, or when busy / not answered) to a voice-AI number;
+- an Italian-speaking voice agent (speech-to-text → LLM → text-to-speech, on a managed platform such as [Retell AI](https://www.retellai.com/pricing) or [Vapi](https://vapi.ai/pricing)) greets the customer, understands the service and the vehicle, and **reads the real availability** from this app's API (`/api/slots/:date/:serviceId`, already duration-aware);
+- it **books the appointment or the drop-off through the same rules** as the web app (durations, opening hours, overlaps, deposit capacity), so the calendar never diverges;
+- anything it cannot handle — quotes, complaints, an unclear request — becomes a **message for the mechanic** (call summary in the admin panel or by SMS/WhatsApp), to be called back when he has a minute;
+- the web app **stays active**: younger customers keep booking online, and the admin calendar remains the organiser of the workshop's work.
+
+**What it costs**
+
+| Item                                  | Assumption                                                                       | Monthly estimate    |
+| ------------------------------------- | -------------------------------------------------------------------------------- | ------------------- |
+| Voice AI (STT + LLM + TTS + platform) | ~250 minutes/month (about 8 short calls per working day), ~€0.07–0.09/min all-in | ~€18–23             |
+| Phone number for the forwarded calls  | Italian virtual number from a VoIP provider                                      | ~€1–5               |
+| **Total**                             |                                                                                  | **~€20–28 / month** |
+
+About **€25 a month**, easily sustainable for the SRL, against hours of interrupted work. The cost grows with the number of minutes, so the forwarding rule (all calls, or only the unanswered ones) is also the cost control. Prices are estimates and must be checked on the providers' pricing pages at setup time.
+
+**Integration work on this repository** (not built yet): a server-to-server API key for the voice agent, an endpoint to create bookings on behalf of a caller (name, phone, plate), and a "calls to return" list in the admin panel.
+
+Development is ongoing, driven by the workshop's feedback: the goal is not to ship a perfect product on the first try, but to keep acting and improving until the phone stops interrupting the work.
+
+---
+
+## Built with Claude
+
+<!-- TODO (author): describe how Claude / Claude Code was used in this project —
+     analysis, refactoring plan, tests, security fixes, documentation, what you reviewed and decided yourself. -->
+
+_Section to be written by the author._
 
 ---
 

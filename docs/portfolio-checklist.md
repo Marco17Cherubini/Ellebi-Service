@@ -4,8 +4,10 @@ Informazioni che il codice non può dimostrare e che solo l'autore può fornire.
 
 ## Storia e risultati (README → _The story_)
 
-- [ ] Conferma del contesto: officina, persona di riferimento (il README dice "the owner"), periodo in cui l'app è stata sviluppata e adottata.
-- [ ] Il problema in numeri, se disponibili: telefonate o messaggi al giorno, tempo speso a organizzare, errori o doppie prenotazioni.
+- [x] Contesto e problema (San Giuliano Vecchio, chiamate che interrompono il lavoro, clientela 45–60 anni): inseriti nel README.
+- [ ] Il problema in numeri, se disponibili: telefonate al giorno, tempo perso per le interruzioni.
+- [ ] Sezione _Built with Claude_ del README (segnaposto da completare).
+- [ ] Centralino IA: verificare prezzi e volumi reali di chiamate prima di confermare la stima di ~25 €/mese.
 - [ ] Uso reale: l'app è in produzione? Da quando? Con quale URL (se pubblico)?
 - [ ] Risultati misurabili: clienti registrati, prenotazioni al mese, depositi gestiti, tempo risparmiato. Fonte di ogni numero (export, report admin, stima dell'officina).
 - [ ] Eventuale citazione del titolare, con il suo consenso.
