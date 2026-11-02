@@ -1,6 +1,6 @@
 const rateLimit = require('express-rate-limit');
 const config = require('../config/config');
-const { verifyToken, getUserByEmail, isBanned, isVip } = require('./authService');
+const { verifySession, getUserByEmail, isBanned, isVip } = require('./authService');
 
 // Richiede una sessione valida: imposta req.user ({ ...utente, isAdmin }) oppure risponde 401/403
 function authenticateToken(req, res, next) {
@@ -9,11 +9,13 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ success: false, error: 'Accesso non autorizzato' });
   }
 
+  // Token valido, account esistente e versione di sessione invariata (reset password)
   let decoded;
   try {
-    decoded = verifyToken(token);
+    decoded = verifySession(token);
   } catch (error) {
-    return res.status(401).json({ success: false, error: 'Token non valido' });
+    res.clearCookie('token');
+    return res.status(401).json({ success: false, error: 'Sessione non valida' });
   }
 
   if (decoded.isAdmin) {
@@ -52,7 +54,7 @@ function hasExtendedHours(req) {
   const token = req.cookies.token;
   if (!token) return false;
   try {
-    const decoded = verifyToken(token);
+    const decoded = verifySession(token);
     if (decoded.isAdmin) return true;
     return !!decoded.email && isVip(decoded.email);
   } catch (error) {

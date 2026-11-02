@@ -2,10 +2,16 @@
 const { holidaysDB, withTransaction } = require('./database');
 const { badRequest } = require('./errors');
 
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
+
 function requireSlots(slots) {
-  if (!Array.isArray(slots) || slots.length === 0) {
-    throw badRequest('Slot ferie non validi');
-  }
+  const valid =
+    Array.isArray(slots) &&
+    slots.length > 0 &&
+    slots.length <= 2000 &&
+    slots.every(s => s && DATE_REGEX.test(s.giorno) && TIME_REGEX.test(s.ora));
+  if (!valid) throw badRequest('Slot ferie non validi');
 }
 
 function listHolidays() {

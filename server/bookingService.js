@@ -10,13 +10,15 @@ const { badRequest } = require('./errors');
 const {
   CONSEGNA_DURATION,
   findService,
+  isActive,
+  isInSeason,
   isConsegnaService,
   getServiceDuration
 } = require('./catalogService');
 const depositService = require('./depositService');
 const config = require('../config/config');
 const crypto = require('crypto');
-const { dayOfWeek, todayString } = require('./dates');
+const { dayOfWeek, todayString, hasStarted } = require('./dates');
 
 // Genera token univoco per gestione prenotazione (32 caratteri hex)
 function generateBookingToken() {
@@ -258,21 +260,91 @@ function assertBookable(data, orario, durata, extendedHours) {
   }
 }
 
-// Servizio scelto dal cliente: deve esistere ed essere attivo. La durata viene dal listino,
-// mai dal client.
-function requireBookableService(serviceId) {
+// Servizio scelto dal cliente: deve esistere, essere attivo e in stagione nel giorno
+// prenotato. La durata viene dal listino, mai dal client.
+function requireBookableService(serviceId, day) {
   if (!serviceId) throw badRequest('Seleziona un servizio');
   const service = findService(serviceId);
-  if (!service || !(service.attivo === 1 || service.attivo === '1')) {
+  if (!service || !isActive(service)) {
     throw badRequest('Servizio non disponibile');
+  }
+  if (day && DATE_REGEX.test(day) && !isInSeason(service, day)) {
+    throw badRequest('Il servizio non è disponibile in questo periodo: scegli un altro giorno');
   }
   return service;
 }
 
-// Crea una prenotazione cliente per un servizio a appuntamento
-function createBooking(userEmail, bookingData, { extendedHours = false } = {}) {
+// Campi di una prenotazione visibili al cliente: niente note interne dell'officina,
+// token di gestione o riferimenti interni
+const CUSTOMER_FIELDS = [
+  'id',
+  'nome',
+  'cognome',
+  'email',
+  'telefono',
+  'giorno',
+  'ora',
+  'servizio',
+  'service_id',
+  'targa',
+  'modello',
+  'tipo',
+  'stato',
+  'note_cliente',
+  'durata_minuti'
+];
+
+function customerView(booking) {
+  if (!booking) return booking;
+  const view = {};
+  CUSTOMER_FIELDS.forEach(key => {
+    if (booking[key] !== undefined) view[key] = booking[key];
+  });
+  return view;
+}
+
+function customerDepositView(deposit) {
+  if (!deposit) return deposit;
+  const { nota_lorenzo: _, ...rest } = deposit;
+  return rest;
+}
+
+// Il cliente può modificare o cancellare una prenotazione solo prima che inizi e, per le
+// consegne, finché il veicolo non è in lavorazione. L'officina resta libera di farlo.
+// Restituisce il motivo del blocco, oppure null.
+function customerChangeBlock(booking) {
+  if (hasStarted(booking.giorno, booking.ora)) {
+    return "L'appuntamento è già iniziato: per modifiche contatta l'officina";
+  }
+  const deposit = linkedDeposit(booking);
+  if (depositService.isInProgress(deposit)) {
+    return "Il veicolo è già in lavorazione: per modifiche contatta l'officina";
+  }
+  return null;
+}
+
+function assertCustomerCanChange(booking) {
+  const reason = customerChangeBlock(booking);
+  if (reason) throw badRequest(reason);
+}
+
+// Deposito collegato a una prenotazione di consegna (via booking_id o deposit_id)
+function linkedDeposit(booking) {
+  if (!booking || booking.service_id === 'extra_work') return null;
+  return (
+    depositsDB.findOne(d => String(d.booking_id) === String(booking.id)) ||
+    (booking.deposit_id
+      ? depositsDB.findOne(d => String(d.id) === String(booking.deposit_id))
+      : null) ||
+    null
+  );
+}
+
+// Crea una prenotazione cliente per un servizio a appuntamento.
+// person: dati di contatto digitati (prenotazione ospite); altrimenti quelli dell'account.
+function createBooking(userEmail, bookingData, { extendedHours = false, person = null } = {}) {
   const { data, orario, targa, modello, note_cliente } = bookingData;
-  const service = requireBookableService(bookingData.serviceId || bookingData.service_id);
+  const service = requireBookableService(bookingData.serviceId || bookingData.service_id, data);
   const durata = getServiceDuration(service);
 
   assertBookable(data, orario, durata, extendedHours);
@@ -281,13 +353,14 @@ function createBooking(userEmail, bookingData, { extendedHours = false } = {}) {
   if (!user) {
     throw badRequest('Utente non trovato');
   }
+  const contact = person || user;
 
   const bookingToken = generateBookingToken();
   bookingsDB.insert({
-    nome: user.nome,
-    cognome: user.cognome,
+    nome: sanitizeText(contact.nome, 100),
+    cognome: sanitizeText(contact.cognome, 100),
     email: user.email,
-    telefono: user.telefono,
+    telefono: sanitizeText(contact.telefono, 20),
     giorno: data,
     ora: orario,
     token: bookingToken,
@@ -305,7 +378,7 @@ function createBooking(userEmail, bookingData, { extendedHours = false } = {}) {
 // Crea la prenotazione di accoglienza per una consegna veicolo (durata fissa di 30 minuti)
 function createConsegnaBooking(userEmail, bookingData, { extendedHours = false } = {}) {
   const { data, orario, targa, modello, note_cliente, nome, cognome, telefono } = bookingData;
-  const service = requireBookableService(bookingData.serviceId || bookingData.service_id);
+  const service = requireBookableService(bookingData.serviceId || bookingData.service_id, data);
 
   if (!targa || !targa.toString().trim()) {
     throw badRequest('La targa del veicolo è obbligatoria per le consegne');
@@ -318,11 +391,12 @@ function createConsegnaBooking(userEmail, bookingData, { extendedHours = false }
   // Dati utente (registrato o ospite)
   const user = usersDB.findOne(u => u.email === userEmail);
   const bookingToken = generateBookingToken();
+  // Dati digitati (ospite) se presenti, altrimenti quelli dell'account
   bookingsDB.insert({
-    nome: user ? user.nome : nome || '',
-    cognome: user ? user.cognome : cognome || '',
+    nome: sanitizeText(nome || (user && user.nome), 100),
+    cognome: sanitizeText(cognome || (user && user.cognome), 100),
     email: userEmail,
-    telefono: user ? user.telefono : telefono || '',
+    telefono: sanitizeText(telefono || (user && user.telefono), 20),
     giorno: data,
     ora: orario,
     token: bookingToken,
@@ -357,9 +431,10 @@ function cancelBooking(giorno, ora, userEmail) {
     throw badRequest('Prenotazione non trovata');
   }
 
-  if (booking.email !== userEmail) {
+  if (booking.email !== userEmail || booking.service_id === 'extra_work') {
     throw badRequest('Non autorizzato');
   }
+  assertCustomerCanChange(booking);
 
   // Cancellare una consegna elimina anche il deposito e i blocchi di lavoro collegati
   withTransaction(() => {
@@ -489,8 +564,9 @@ function cleanDepositOnCancellation(booking) {
       console.error('Errore eliminazione deposito:', e);
     }
   } else if (isExtraWork) {
-    // Cancellazione di uno slot extra_work → elimina tutti gli slot, deposito resta (torna in_attesa)
-    bookingsDB.delete(b => String(b.deposit_id) === String(depId) && b.service_id === 'extra_work');
+    // Cancellazione di uno slot extra_work → elimina gli slot non ancora svolti, il deposito
+    // resta (torna in_attesa); il blocco cancellato viene poi eliminato dal chiamante
+    depositService.removeExtraWork(depId);
     try {
       depositService.updateDeposit(depId, { stato: 'in_attesa' });
     } catch (e) {
@@ -584,19 +660,24 @@ function depositFields(data, service, person) {
  */
 function createCustomerBooking(email, data, options = {}) {
   return withTransaction(() => {
-    if (data.old_giorno && data.old_ora) {
-      const old = getUserBookings(email).find(
-        b => b.giorno === data.old_giorno && b.ora === data.old_ora
+    if (data.old_giorno || data.old_ora) {
+      const old = bookingsDB.findOne(
+        b =>
+          b.email === email &&
+          b.giorno === data.old_giorno &&
+          b.ora === data.old_ora &&
+          b.service_id !== 'extra_work'
       );
-      if (old) {
-        cleanDepositOnCancellation(old);
-        bookingsDB.delete(b => b.id === old.id);
-      }
+      if (!old) throw badRequest('Prenotazione da modificare non trovata');
+      assertCustomerCanChange(old);
+      cleanDepositOnCancellation(old);
+      bookingsDB.delete(b => b.id === old.id);
     }
 
     const service = findService(data.serviceId);
     if (!isConsegnaService(service)) {
-      return { booking: createBooking(email, data, options), deposit: null, isConsegna: false };
+      const booking = createBooking(email, data, options);
+      return { booking: customerView(booking), deposit: null, isConsegna: false };
     }
 
     const user = usersDB.findOne(u => u.email === email) || {};
@@ -613,7 +694,11 @@ function createCustomerBooking(email, data, options = {}) {
       depositService.depositLimitMessage('Contattare il laboratorio.'),
       options
     );
-    return { ...result, isConsegna: true };
+    return {
+      booking: customerView(result.booking),
+      deposit: customerDepositView(result.deposit),
+      isConsegna: true
+    };
   });
 }
 
@@ -622,17 +707,24 @@ function createCustomerBooking(email, data, options = {}) {
  * Accetta sia { data, orario } sia { giorno, ora }. Restituisce { booking, deposit }.
  */
 function createGuestBooking(data) {
-  const { nome, cognome, email, giorno, ora } = data;
+  const { nome, cognome, email } = data;
+  const giorno = data.data || data.giorno;
+  const ora = data.orario || data.ora;
   if (!nome || !cognome || !email) throw badRequest('Nome, cognome e email sono obbligatori');
   if (!giorno || !ora) throw badRequest('Dati prenotazione incompleti (giorno, ora)');
   if (!EMAIL_REGEX.test(email)) throw badRequest('Formato email non valido');
 
   const emailLower = email.trim().toLowerCase();
-  const payload = { ...data, data: data.data || giorno, orario: data.orario || ora };
+  const payload = { ...data, data: giorno, orario: ora };
 
   return withTransaction(() => {
     const now = new Date().toISOString();
-    if (usersDB.findOne(u => u.email === emailLower)) {
+    const existing = usersDB.findOne(u => u.email === emailLower);
+    if (existing && (existing.banned === '1' || existing.banned === 1)) {
+      // Messaggio generico: non rivela lo stato dell'account
+      throw badRequest("Non è possibile completare la prenotazione online: contatta l'officina");
+    }
+    if (existing) {
       usersDB.update(u => u.email === emailLower, { last_active_at: now });
     } else {
       usersDB.insert({
@@ -648,22 +740,28 @@ function createGuestBooking(data) {
       });
     }
 
-    const service = findService(data.serviceId);
-    if (!isConsegnaService(service)) {
-      return { booking: createBooking(emailLower, payload), deposit: null };
-    }
+    // I dati digitati dall'ospite valgono per questa prenotazione, anche se l'email
+    // corrisponde a un profilo esistente (l'email non è verificata)
     const person = {
       nome: nome.trim(),
       cognome: cognome.trim(),
       email: emailLower,
       telefono: data.telefono || ''
     };
-    return createDropOff(
+    const service = findService(data.serviceId);
+    if (!isConsegnaService(service)) {
+      return {
+        booking: customerView(createBooking(emailLower, payload, { person })),
+        deposit: null
+      };
+    }
+    const result = createDropOff(
       emailLower,
       payload,
       depositFields(data, service, person),
       'Limite depositi raggiunto. Contattare il laboratorio.'
     );
+    return { booking: customerView(result.booking), deposit: customerDepositView(result.deposit) };
   });
 }
 
@@ -764,7 +862,10 @@ function getUserBookingList(email) {
     return { ...first, servizio: serviceName(first), durata_minuti: durata };
   });
 
-  return [...grouped, ...standalone];
+  return [...grouped, ...standalone].map(b => ({
+    ...customerView(b),
+    modificabile: customerChangeBlock(b) === null
+  }));
 }
 
 // Prenotazioni per il calendario admin, arricchite con servizio, tipo veicolo e,
@@ -820,6 +921,7 @@ function getAdminBookings() {
 }
 
 module.exports = {
+  requireBookableService,
   getAvailableSlots,
   getAvailableSlotsForService,
   createCustomerBooking,

@@ -10,6 +10,7 @@ const {
   withTransaction
 } = require('./database');
 const { HttpError, badRequest } = require('./errors');
+const { hasStarted } = require('./dates');
 
 // Stati di lavorazione; tutti tranne "completato" occupano capacità (il veicolo è in officina)
 const STATES = ['in_attesa', 'in_corso', 'standby', 'completato'];
@@ -33,7 +34,7 @@ function getMaxDeposits() {
 }
 
 function setMaxDeposits(value) {
-  if (typeof value !== 'number' || value < 0) {
+  if (!Number.isInteger(value) || value < 0) {
     throw badRequest('Valore maxDeposits non valido');
   }
   setSetting('maxDeposits', String(value));
@@ -159,8 +160,8 @@ function updateDeposit(id, updates) {
   if (updates.nota_lorenzo !== undefined) {
     changes.nota_lorenzo = sanitizeText(updates.nota_lorenzo, 1000);
   }
-  if (updates.ore_residue !== undefined) changes.ore_residue = updates.ore_residue;
-  if (updates.ore_stimate !== undefined) changes.ore_stimate = updates.ore_stimate;
+  if (updates.ore_residue !== undefined) changes.ore_residue = requireHours(updates.ore_residue);
+  if (updates.ore_stimate !== undefined) changes.ore_stimate = requireHours(updates.ore_stimate);
 
   if (Object.keys(changes).length > 0) {
     depositsDB.update(d => String(d.id) === String(id), changes);
@@ -168,8 +169,28 @@ function updateDeposit(id, updates) {
   return getDepositById(id);
 }
 
+// Ore stimate o residue: numero non negativo (anche decimale, es. 1.5)
+function requireHours(value) {
+  const hours = Number(value);
+  if (value === '' || value === null || !Number.isFinite(hours) || hours < 0 || hours > 1000) {
+    throw badRequest('Numero di ore non valido');
+  }
+  return hours;
+}
+
+// Libera i blocchi di lavoro non ancora iniziati; quelli già svolti restano come storico
 function removeExtraWork(depositId) {
-  bookingsDB.delete(b => String(b.deposit_id) === String(depositId) && b.service_id === EXTRA_WORK);
+  bookingsDB.delete(
+    b =>
+      String(b.deposit_id) === String(depositId) &&
+      b.service_id === EXTRA_WORK &&
+      !hasStarted(b.giorno, b.ora)
+  );
+}
+
+// Un deposito è "in lavorazione" se non è più in attesa: il veicolo è già in officina
+function isInProgress(deposit) {
+  return !!deposit && deposit.stato !== 'in_attesa';
 }
 
 // Aggiornamento dalla card del deposito. Tornando "in attesa" o chiudendo il lavoro
@@ -200,5 +221,7 @@ module.exports = {
   updateDeposit,
   updateDepositFromAdmin,
   requireDeposit,
+  removeExtraWork,
+  isInProgress,
   deleteDeposit
 };
