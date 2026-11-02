@@ -18,4 +18,12 @@ function dayOfWeek(dateString) {
   return new Date(year, month - 1, day).getDay();
 }
 
-module.exports = { toDateString, todayString, dayOfWeek };
+// true se il momento 'YYYY-MM-DD' + 'HH:MM' (ora locale dell'officina) è già arrivato
+function hasStarted(day, time, now = new Date()) {
+  const today = toDateString(now);
+  if (day !== today) return day < today;
+  const [h, m] = String(time).split(':').map(Number);
+  return h * 60 + m <= now.getHours() * 60 + now.getMinutes();
+}
+
+module.exports = { toDateString, todayString, dayOfWeek, hasStarted };

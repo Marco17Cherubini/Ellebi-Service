@@ -77,6 +77,23 @@ function withTransaction(fn) {
   }
 }
 
+// Copia di sicurezza prima delle migrazioni della Fase 2: se il file esistente non ha ancora
+// la colonna users.session_version, lo schema sta per cambiare. La copia resta accanto al file
+// (sul volume in produzione) e non viene mai sovrascritta: per tornare indietro basta
+// rimettere quel file al posto di DATABASE_PATH a server fermo.
+function backupBeforeMigration() {
+  const userColumns = db.exec('PRAGMA table_info(users)')[0]?.values || [];
+  const hasUsers = userColumns.length > 0;
+  const migrated = userColumns.some(col => col[1] === 'session_version');
+  if (!hasUsers || migrated) return null;
+
+  const target = `${DB_PATH}.pre-migrazione-fase2.bak`;
+  if (fs.existsSync(target)) return target;
+  fs.copyFileSync(DB_PATH, target);
+  console.log(`🗄️  Copia di sicurezza prima della migrazione: ${target}`);
+  return target;
+}
+
 // Inizializza il database
 async function initDatabase() {
   const SQL = await initSqlJs();
@@ -86,6 +103,7 @@ async function initDatabase() {
     const fileBuffer = fs.readFileSync(DB_PATH);
     db = new SQL.Database(fileBuffer);
     console.log('📦 Database SQLite caricato da file');
+    backupBeforeMigration();
   } else {
     db = new SQL.Database();
     console.log('📦 Nuovo database SQLite creato');
@@ -330,6 +348,26 @@ async function initDatabase() {
     // Colonna già presente
   }
 
+  // Versione di sessione (Fase 2): è scritta nei JWT e incrementata dal reset della password,
+  // così le sessioni aperte e i link di reset già usati smettono di valere
+  ['users', 'admins'].forEach(function (table) {
+    try {
+      db.run(`ALTER TABLE ${table} ADD COLUMN session_version INTEGER DEFAULT 0`);
+    } catch (e) {
+      // Colonna già presente
+    }
+  });
+
+  // Migrazione (Fase 2): la consegna si riconosce solo da tipo_servizio. I listini storici
+  // la indicavano anche con il nome: quei servizi diventano esplicitamente di consegna.
+  try {
+    db.run(
+      `UPDATE services SET tipo_servizio = 'consegna' WHERE lower(nome) LIKE '%consegna%' AND tipo_servizio != 'consegna'`
+    );
+  } catch (e) {
+    // Tabella non ancora presente
+  }
+
   // Migrazione: corregge nome errato 'Taglio olio + filtro' → 'Tagliando olio + filtro'
   try {
     db.run(
@@ -514,7 +552,8 @@ const userColumns = [
   'vip',
   'banned',
   'isGuest',
-  'last_active_at'
+  'last_active_at',
+  'session_version'
 ];
 const bookingColumns = [
   'nome',
@@ -537,7 +576,7 @@ const bookingColumns = [
   'deposit_id',
   'durata_minuti'
 ];
-const adminColumns = ['email', 'password'];
+const adminColumns = ['email', 'password', 'session_version'];
 const holidayColumns = ['giorno', 'ora'];
 const vehicleColumns = ['user_id', 'targa', 'modello', 'anno'];
 const serviceColumns = [

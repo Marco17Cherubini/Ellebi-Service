@@ -58,22 +58,22 @@
 /* Pending states */
 .user-item.pending-vip-add {
   background-color: #fffbe6;
-  border-left: 4px solid #d4a800;
+  border-left: 0;
 }
 
 .user-item.pending-vip-remove {
   background-color: var(--color-bg-secondary);
-  border-left: 4px solid #999;
+  border-left: 0;
 }
 
 .user-item.pending-ban-add {
   background-color: #ffe6e6;
-  border-left: 4px solid #cc0000;
+  border-left: 0;
 }
 
 .user-item.pending-ban-remove {
   background-color: #e6ffe6;
-  border-left: 4px solid #00aa00;
+  border-left: 0;
 }
 
 .user-info {

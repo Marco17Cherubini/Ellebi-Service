@@ -19,3 +19,6 @@ data/
 package-lock.json
 docs/
 frontend/googlef402c97bc491dc73.html
+
+# Bundle generato da client-src/ con `npm run build:3d`
+frontend/js/garage3d.js

@@ -55,7 +55,12 @@
   font-size: var(--font-size-sm);
   background-color: var(--color-bg-primary);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .calendar-day:hover:not(.disabled):not(.empty) {
@@ -112,7 +117,12 @@
   background-color: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .time-slot:hover:not(.disabled):not(.holiday) {

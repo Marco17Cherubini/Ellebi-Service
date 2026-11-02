@@ -13,7 +13,8 @@ npm run lint           # ESLint
 npm run format:check   # Prettier check (npm run format writes)
 npm run seed           # demo data, only on a database without bookings
 npm run backup         # copy DATABASE_PATH into BACKUP_DIR (keeps 4)
-npm run start:prod     # PM2 (process name lb-service)
+npm run start:prod     # PM2 (process name lb-service, one instance)
+npm run build:3d       # rebuild frontend/js/garage3d.js from client-src/ (commit the output)
 ```
 
 Run lint, format:check and test before committing; CI runs the same on Node 22 and 24.
@@ -33,7 +34,9 @@ Never point development or tests at a real database; never enable email sending 
   - `depositService` capacity (`maxDeposits` setting), states `in_attesa | in_corso | standby | completato`, deposit board;
   - `catalogService` (price list, durations, seasonal filter), `holidayService`, `vehicleService`, `reportService`, `authService`, `emailService`, `retentionService`, `dates`.
 - `server/database.js`: sql.js (SQLite in memory) with `SQLiteTable` (`readAll`, `findOne`, `findMany`, `insert` → id, `update`, `delete`) and a column whitelist per table. `saveDatabase()` writes atomically (temp file + rename); `withTransaction(fn)` for multi-row changes (fn must be synchronous). Schema migrations run at startup (`ALTER TABLE ... ADD COLUMN` in try/catch). Tables: users, admins, bookings, holidays, settings, vehicles, services, deposits, notifications (unused).
-- Frontend: static pages in `frontend/`, one script per page in `frontend/js/`, shared helpers in `utils.js` (`apiRequest`, `escapeHTML`, `setupSidebar`, `makeKeyboardActivatable`). CSS layers: `styles/tokens → base → layout → components → pages`, imported by `styles.css`.
+- Frontend: static pages in `frontend/`, one script per page in `frontend/js/`, shared helpers in `utils.js` (`apiRequest`, `escapeHTML`, `setupSidebar`, `makeKeyboardActivatable`, `parseLocalDate`). One booking flow for guests and customers (`prenota.html` + `booking-flow.js`, also served at `/guest-booking` and `/dashboard`); client area `home.html` (also `/bookings`); admin day view `admin-agenda.js` (loaded after `admin.js`, uses its globals). CSS layers: `styles/tokens → base → layout → components → pages`, imported by `styles.css`; dark theme is the default (`[data-theme='light']` overrides). Font: self-hosted Archivo variable (`frontend/fonts/`).
+- 3D: source `client-src/garage3d.js` (ES module, Three.js), bundled by esbuild into `frontend/js/garage3d.js` (ignored by ESLint/Prettier). Only `landing.js` imports it, dynamically; the WebP stills in `frontend/images/` are rendered from the same model and must stay the default. Never add it to booking or admin pages.
+- `/api/auth/session` returns `{ user: null }` (200) for anonymous visitors; `/api/auth/me` requires a session. JWTs carry `sv` (session version), checked on every request.
 
 ## Business rules (see config/config.js)
 

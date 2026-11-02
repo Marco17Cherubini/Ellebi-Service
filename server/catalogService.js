@@ -1,6 +1,7 @@
 // Listino servizi: lettura pubblica (con filtro stagionale), CRUD admin e regole di durata
 const { servicesDB } = require('./database');
 const { HttpError, badRequest } = require('./errors');
+const { toDateString } = require('./dates');
 
 // Durata fissa dell'accoglienza per i servizi di consegna veicolo (chiavi + descrizione del problema)
 const CONSEGNA_DURATION = 30;
@@ -23,13 +24,10 @@ function findService(id) {
   return servicesDB.findOne(s => String(s.id) === String(id));
 }
 
-// Un servizio è "consegna" per tipo oppure, per compatibilità con listini storici, per nome
+// Un servizio è "consegna" solo per tipo. I listini storici che lo indicavano col nome
+// vengono convertiti all'avvio (migrazione in database.js).
 function isConsegnaService(service) {
-  return (
-    !!service &&
-    (service.tipo_servizio === 'consegna' ||
-      (service.nome || '').toLowerCase().includes('consegna'))
-  );
+  return !!service && service.tipo_servizio === 'consegna';
 }
 
 // Minuti occupati in calendario dalla prenotazione di un servizio
@@ -42,27 +40,43 @@ function isActive(service) {
   return service.attivo === 1 || service.attivo === '1';
 }
 
-// Finestra stagionale in formato MM-DD, anche a cavallo d'anno (es. 11-15 → 04-15)
-function isInSeason(service, today) {
+// Finestra stagionale in formato MM-DD, anche a cavallo d'anno (es. 11-15 → 04-15).
+// day: data di calendario 'YYYY-MM-DD' (quella della prenotazione) oppure un Date.
+function isInSeason(service, day) {
   if (!service.stagionale || service.stagionale === '0') return true;
   if (!service.data_inizio_stagione || !service.data_fine_stagione) return true;
 
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const todayMMDD = `${mm}-${dd}`;
+  const dayString = typeof day === 'string' ? day : toDateString(day);
+  const dayMMDD = dayString.slice(5, 10);
   const start = service.data_inizio_stagione;
   const end = service.data_fine_stagione;
 
-  return start <= end
-    ? todayMMDD >= start && todayMMDD <= end
-    : todayMMDD >= start || todayMMDD <= end;
+  return start <= end ? dayMMDD >= start && dayMMDD <= end : dayMMDD >= start || dayMMDD <= end;
 }
 
-// Servizi prenotabili oggi dai clienti, opzionalmente filtrati per tipo veicolo (auto | moto)
+// Campi del listino visibili al pubblico: niente prezzo interno
+function publicService(service) {
+  return {
+    id: service.id,
+    nome: service.nome,
+    tipo_veicolo: service.tipo_veicolo,
+    tipo_servizio: service.tipo_servizio,
+    durata_minuti: getServiceDuration(service),
+    campi_extra: service.campi_extra,
+    stagionale: service.stagionale,
+    data_inizio_stagione: service.data_inizio_stagione,
+    data_fine_stagione: service.data_fine_stagione
+  };
+}
+
+// Servizi prenotabili oggi dai clienti, opzionalmente filtrati per tipo veicolo (auto | moto).
+// La stagione della singola prenotazione si verifica poi sulla data scelta (bookingService).
 function listPublicServices(tipoVeicolo, today = new Date()) {
-  return servicesDB.findMany(
-    s => isActive(s) && (!tipoVeicolo || s.tipo_veicolo === tipoVeicolo) && isInSeason(s, today)
-  );
+  return servicesDB
+    .findMany(
+      s => isActive(s) && (!tipoVeicolo || s.tipo_veicolo === tipoVeicolo) && isInSeason(s, today)
+    )
+    .map(publicService);
 }
 
 function listAllServices() {
@@ -116,6 +130,8 @@ module.exports = {
   requireService,
   isConsegnaService,
   getServiceDuration,
+  isActive,
+  isInSeason,
   listPublicServices,
   listAllServices,
   createService,

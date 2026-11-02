@@ -1,134 +1,201 @@
 /* ============================================================================
-   LB SERVICE - BUTTON COMPONENT
-   Apple Style with minimum 44x44pt tap target
+   PULSANTI — un rettangolo pieno ad angoli vivi, come il modulo del quarto d'ora.
+   Primario: arancio con testo grafite. Secondario: contorno grafite.
    ============================================================================ */
 
 .btn {
+  /* Il bordo è lo sfondo dell'elemento, il riempimento è ::before rientrato di 2px:
+     così anche le varianti a contorno mantengono lo smusso a 45° */
+  --btn-edge: var(--ink);
+  --btn-fill: var(--ink);
+  --btn-ink: var(--paper);
+  --chamfer: polygon(
+    0 0,
+    calc(100% - var(--cut)) 0,
+    100% var(--cut),
+    100% 100%,
+    var(--cut) 100%,
+    0 calc(100% - var(--cut))
+  );
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 44px;
-  min-width: 44px;
-  padding: var(--space-3) var(--space-5);
+  min-height: 48px;
+  padding: 0 var(--space-6);
+  border: 0;
+  background: var(--btn-edge);
+  color: var(--btn-ink);
+  clip-path: var(--chamfer);
   font-family: var(--font-primary);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  line-height: 1;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.1;
   text-decoration: none;
   text-align: center;
-  white-space: nowrap;
   cursor: pointer;
-  border: none;
-  border-radius: var(--radius-lg);
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text-primary);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 160ms var(--ease-out),
+    transform 120ms var(--ease-out);
 }
 
-.btn:hover {
-  background-color: var(--color-bg-tertiary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  background: var(--btn-fill);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut) + 1px) 0,
+    100% calc(var(--cut) - 1px),
+    100% 100%,
+    calc(var(--cut) - 1px) 100%,
+    0 calc(100% - var(--cut) + 1px)
+  );
+  transition: background-color 160ms var(--ease-out);
 }
 
-.btn:active {
-  transform: translateY(0);
-  box-shadow: var(--shadow-xs);
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
-.btn:disabled {
-  opacity: 0.5;
+.btn:focus-visible {
+  outline: none;
+  --btn-edge: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled) {
+    --btn-fill: var(--paper-3);
+    --btn-edge: var(--paper-3);
+    --btn-ink: var(--ink);
+  }
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.4;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
-/* ==================== BUTTON VARIANTS ==================== */
-
-.btn-primary {
-  background-color: var(--color-text-primary);
-  color: var(--color-bg-primary);
-}
-
-.btn-primary:hover {
-  background-color: var(--color-text-secondary);
-}
-
+/* Azione principale: il blocco arancio segnale */
+.btn-primary,
 .btn-accent {
-  background-color: var(--color-accent);
-  color: var(--brand-text-on-accent);
+  --btn-edge: var(--accent);
+  --btn-fill: var(--accent);
+  --btn-ink: var(--on-accent);
 }
 
-.btn-accent:hover {
-  background-color: var(--color-accent-hover);
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover:not(:disabled),
+  .btn-accent:hover:not(:disabled) {
+    --btn-edge: var(--accent-press);
+    --btn-fill: var(--accent-press);
+    --btn-ink: var(--on-accent);
+  }
+}
+
+.btn-primary:focus-visible,
+.btn-accent:focus-visible {
+  --btn-edge: var(--ink);
 }
 
 .btn-outline {
-  background-color: transparent;
-  border: 2px solid var(--color-border-strong);
-  box-shadow: none;
+  --btn-edge: var(--ink-3);
+  --btn-fill: var(--paper);
+  --btn-ink: var(--ink);
 }
 
-.btn-outline:hover {
-  background-color: var(--color-text-primary);
-  color: var(--color-bg-primary);
+@media (hover: hover) and (pointer: fine) {
+  .btn-outline:hover:not(:disabled) {
+    --btn-edge: var(--ink);
+    --btn-fill: var(--paper);
+    --btn-ink: var(--ink);
+  }
 }
 
 .btn-danger {
-  background-color: var(--color-error);
-  color: #ffffff;
+  --btn-edge: var(--danger);
+  --btn-fill: var(--danger);
+  --btn-ink: var(--paper);
 }
 
-.btn-danger:hover {
-  background-color: #d62d23;
+.btn-quiet {
+  --btn-edge: transparent;
+  --btn-fill: transparent;
+  --btn-ink: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  padding: 0 var(--space-3);
 }
 
-/* ==================== BUTTON SIZES ==================== */
+@media (hover: hover) and (pointer: fine) {
+  .btn-quiet:hover:not(:disabled) {
+    --btn-edge: var(--paper-2);
+    --btn-fill: var(--paper-2);
+  }
+}
 
 .btn-sm {
-  min-height: 36px;
-  padding: var(--space-2) var(--space-4);
+  min-height: 44px;
+  padding: 0 var(--space-4);
   font-size: var(--font-size-sm);
-  border-radius: var(--radius-md);
 }
 
-.btn-lg {
-  min-height: 52px;
-  padding: var(--space-4) var(--space-8);
+.btn-lg,
+.btn-large {
+  min-height: 56px;
+  padding: 0 var(--space-8);
   font-size: var(--font-size-lg);
-  border-radius: var(--radius-xl);
 }
 
 .btn-full {
   width: 100%;
-  margin-top: var(--space-8);
-  /* Apple: 32pt+ per CTA isolata */
 }
-
-/* ==================== BUTTON GROUPS ==================== */
 
 .btn-group {
   display: flex;
-  gap: var(--space-5);
-  /* Apple: 20pt tra bottoni orizzontali */
   flex-wrap: wrap;
-  justify-content: center;
-  margin-top: var(--space-6);
-  /* Apple: 24pt sopra gruppi */
+  gap: var(--space-3);
 }
 
 .btn-group-vertical {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-  /* Apple: 20pt tra bottoni verticali */
-  width: 100%;
-  max-width: 320px;
-  margin-top: var(--space-6);
-  /* Apple: 24pt sopra gruppi */
+  gap: var(--space-3);
 }
-/* ============================================================================
-   GROUP SELECTION BUTTONS (Apple 16px spacing, 44pt hit area)
-   ============================================================================ */
+
+/* Stato "in corso": il testo resta, un blocco scorre sotto */
+.btn.is-busy {
+  position: relative;
+  pointer-events: none;
+}
+
+.btn.is-busy::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  width: 25%;
+  background: currentColor;
+  animation: busy-block 900ms var(--ease-in-out) infinite alternate;
+}
+
+@keyframes busy-block {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(300%);
+  }
+}

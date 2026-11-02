@@ -1,96 +1,28 @@
 /* ============================================================================
-   RESPONSIVE DESIGN
+   ADATTAMENTI GENERALI — il resto è mobile-first nei singoli componenti
    ============================================================================ */
 
-/* Mobile Small (max 480px) */
-@media (max-width: 480px) {
-  :root {
-    --font-size-4xl: 2rem;
-    --font-size-3xl: 1.5rem;
-    --font-size-2xl: 1.25rem;
-  }
-
-  .container {
-    padding: 0 var(--space-4);
-  }
-
-  .header {
-    padding: var(--space-3) var(--space-4);
-  }
-
-  .btn-group {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .btn-group .btn {
-    width: 100%;
-  }
-
-  .form-row {
-    flex-direction: column;
-  }
-
-  .modal-content {
-    padding: var(--space-6);
-    margin: var(--space-4);
-  }
-
-  .booking-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .calendar-day-header {
-    font-size: var(--font-size-xs);
-    padding: var(--space-2);
-  }
-}
-
-/* Tablet (max 768px) */
 @media (max-width: 768px) {
-  .container {
-    padding: 0 var(--space-5);
-  }
-
   .grid-2,
   .grid-3 {
     grid-template-columns: 1fr;
   }
+}
 
-  .calendar-grid {
-    gap: 1px;
-  }
-
-  .time-slots-grid {
-    grid-template-columns: repeat(3, 1fr);
+@media (max-width: 480px) {
+  .btn-group > .btn {
+    flex: 1 1 100%;
   }
 }
 
-/* Desktop (min 1024px) */
-@media (min-width: 1024px) {
-  .container {
-    padding: 0 var(--space-8);
-  }
-}
-
-/* Touch devices */
-@media (pointer: coarse) {
-  .btn,
-  .calendar-day:not(.disabled):not(.empty),
-  .time-slot:not(.disabled),
-  .form-input,
-  .sidebar-item {
-    min-height: 44px;
-  }
-}
-
-/* Print */
+/* Stampa: solo il contenuto */
 @media print {
   .header,
+  .site-bar,
   .sidebar,
   .sidebar-overlay,
   .theme-toggle,
+  .action-bar,
   .btn {
     display: none !important;
   }
@@ -98,6 +30,7 @@
   body {
     background: white;
     color: black;
+    padding: 0 !important;
   }
 
   .container {
@@ -106,13 +39,10 @@
   }
 }
 
-/* Admin Drag & Drop Mobile */
+/* Calendario admin: niente selezione del testo durante trascinamenti e pressioni lunghe */
 .admin-cell.has-booking,
 .booking-item,
 .booking-chip {
   -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }

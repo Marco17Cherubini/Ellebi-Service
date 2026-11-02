@@ -1,20 +1,22 @@
 /* ============================================================================
-   SIDEBAR (Apple Style)
+   NAVIGAZIONE DELL'OFFICINA — cassetto su telefono e tablet, colonna fissa
+   su schermi larghi. Campo grafite, voce attiva segnata dal blocco arancio.
    ============================================================================ */
 
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 280px;
+  width: min(300px, 86vw);
   height: 100%;
-  background-color: var(--color-bg-elevated);
-  border-right: 1px solid var(--color-border-secondary);
+  background-color: var(--graphite);
+  color: var(--on-graphite);
   transform: translateX(-100%);
-  transition: transform var(--transition-normal);
+  transition: transform 260ms var(--ease-out);
   z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .sidebar.active {
@@ -23,17 +25,17 @@
 
 .sidebar-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background-color: var(--color-overlay);
   z-index: calc(var(--z-modal) - 1);
   opacity: 0;
   visibility: hidden;
-  transition: all var(--transition-normal);
+  transition:
+    opacity 200ms var(--ease-out),
+    visibility 200ms;
 }
 
+.sidebar-overlay.active,
 .sidebar-overlay.visible {
   opacity: 1;
   visibility: visible;
@@ -43,8 +45,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-6);
-  border-bottom: 1px solid var(--color-border-secondary);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+}
+
+.sidebar-logo-link {
+  color: var(--on-graphite);
+  text-decoration: none;
+}
+
+.sidebar-logo {
+  display: none;
 }
 
 .sidebar-close {
@@ -53,83 +63,89 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-xl);
+  font-size: 1.75rem;
+  line-height: 1;
   background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-  border-radius: var(--radius-md);
-}
-
-.sidebar-close:hover {
-  background-color: var(--color-bg-secondary);
+  border: 0;
+  color: var(--on-graphite);
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: var(--space-4) 0;
+  padding: var(--space-2) 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
 .sidebar-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  min-height: 44px;
-  padding: var(--space-3) var(--space-6);
-  font-size: var(--font-size-base);
-  color: var(--color-text-primary);
+  min-height: 52px;
+  padding: 0 var(--space-6);
+  color: var(--on-graphite);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
   text-decoration: none;
+  background: none;
+  border: 0;
+  width: 100%;
+  text-align: left;
   transition: background-color var(--transition-fast);
-  border-bottom: 1px solid var(--color-border-secondary);
 }
 
 .sidebar-item:hover {
-  background-color: var(--color-bg-secondary);
+  background-color: rgba(255, 255, 255, 0.07);
+  color: var(--on-graphite);
 }
 
 .sidebar-item.active {
-  color: var(--color-accent);
-  font-weight: var(--font-weight-medium);
+  font-weight: 600;
+}
+
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 8px;
+  background: var(--accent);
+}
+
+.sidebar-item svg,
+.sidebar-item img {
+  display: none;
 }
 
 .sidebar-footer {
-  border-top: 1px solid var(--color-border-secondary);
-  padding: var(--space-4) 0;
-  margin-top: auto;
+  padding: var(--space-3) 0 var(--space-5);
 }
 
 .sidebar-logout {
-  color: var(--color-error);
-  width: 100%;
-  cursor: pointer;
-  background: none;
-  border: none;
-  text-align: left;
-}
-/* ============================================================================
-   SIDEBAR LOGO
-   ============================================================================ */
-
-.sidebar-logo {
-  height: 52px;
-  width: auto;
-  display: block;
-  object-fit: contain;
+  color: #f3b38c;
 }
 
-.sidebar-logo-link {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  border: none;
-  background: none;
-  padding: 0;
-  transition: opacity 0.2s ease;
-}
+/* Schermi larghi: la navigazione resta sempre visibile */
+@media (min-width: 1100px) {
+  .sidebar {
+    transform: none;
+    width: 248px;
+    z-index: var(--z-sticky);
+  }
 
-.sidebar-logo-link:hover {
-  opacity: 0.75;
+  .sidebar-close,
+  .sidebar-overlay {
+    display: none;
+  }
+
+  body:has(#sidebar) {
+    padding-left: 248px;
+  }
+
+  body:has(#sidebar) .hamburger-btn {
+    display: none;
+  }
 }

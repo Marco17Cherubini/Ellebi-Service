@@ -13,42 +13,53 @@
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
     <!-- Sidebar Menu -->
-    <div id="sidebar" class="sidebar">
+    <nav id="sidebar" class="sidebar" aria-label="Pannello officina">
       <div class="sidebar-header">
-        <a href="/admin" class="sidebar-logo-link">
-          <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="sidebar-logo" />
+        <a href="/admin" class="wordmark sidebar-logo-link" aria-label="Ellebi Service, agenda">
+          <span class="wordmark-block" aria-hidden="true"></span>Ellebi<span class="wordmark-sub"
+            >Officina</span
+          >
         </a>
-        <button type="button" id="close-sidebar" class="sidebar-close">&times;</button>
-      </div>
-      <nav class="sidebar-nav">
-        <a href="/admin" class="sidebar-item active">
-          <span>Calendario Appuntamenti</span>
-        </a>
-        <a href="/admin/reports" class="sidebar-item">
-          <span>Resoconto Clientela</span>
-        </a>
-        <a href="/admin/clienti" class="sidebar-item">
-          <span>Gestione Clienti</span>
-        </a>
-        <a href="/admin/depositi" class="sidebar-item">
-          <span>Lavori Straordinari</span>
-        </a>
-        <a href="/admin/listino" class="sidebar-item">
-          <span>Listino Servizi</span>
-        </a>
-      </nav>
-      <div class="sidebar-footer">
-        <button type="button" id="sidebar-logout" class="sidebar-item sidebar-logout">
-          <span>Logout</span>
+        <button type="button" id="close-sidebar" class="sidebar-close" aria-label="Chiudi il menu">
+          &times;
         </button>
       </div>
-    </div>
+      <div class="sidebar-nav">
+        <a href="/admin" class="sidebar-item active" aria-current="page">
+          <span>Agenda</span>
+        </a>
+        <a href="/admin/reports" class="sidebar-item">
+          <span>Report</span>
+        </a>
+        <a href="/admin/clienti" class="sidebar-item">
+          <span>Clienti</span>
+        </a>
+        <a href="/admin/depositi" class="sidebar-item">
+          <span>Lavori straordinari</span>
+        </a>
+        <a href="/admin/listino" class="sidebar-item">
+          <span>Listino</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <button type="button" id="sidebar-logout" class="sidebar-item sidebar-logout">
+          <span>Esci</span>
+        </button>
+      </div>
+    </nav>
 
     <div class="header">
       <div class="header-left">
-        <button type="button" id="hamburger-btn" class="hamburger-btn" aria-label="Apri menu">
-          ☰
+        <button
+          type="button"
+          id="hamburger-btn"
+          class="hamburger-btn"
+          aria-label="Apri il menu"
+          aria-controls="sidebar"
+        >
+          Menu
         </button>
+        <span class="header-title">Agenda</span>
       </div>
       <div class="header-actions">
         <select id="granularity-select" class="header-select hidden">
@@ -61,6 +72,47 @@
     </div>
 
     <div class="container">
+      <div class="view-switch" role="group" aria-label="Vista dell'agenda">
+        <button type="button" class="view-btn" data-view="day" aria-pressed="true">Giorno</button>
+        <button type="button" class="view-btn" data-view="week" aria-pressed="false">
+          Settimana
+        </button>
+      </div>
+
+      <!-- Vista giorno: tutti gli appuntamenti in ordine, anche fuori dalla griglia oraria -->
+      <section id="day-agenda" class="day-agenda" aria-labelledby="agenda-title">
+        <div class="agenda-nav">
+          <button
+            type="button"
+            id="agenda-prev"
+            class="btn btn-outline btn-sm"
+            aria-label="Giorno precedente"
+          >
+            ←
+          </button>
+          <h1 id="agenda-title" class="agenda-title" tabindex="-1">Oggi</h1>
+          <button
+            type="button"
+            id="agenda-next"
+            class="btn btn-outline btn-sm"
+            aria-label="Giorno successivo"
+          >
+            →
+          </button>
+        </div>
+        <div class="agenda-tools">
+          <button type="button" id="agenda-today" class="btn btn-quiet btn-sm">Oggi</button>
+          <label class="agenda-date">
+            <span class="visually-hidden">Vai alla data</span>
+            <input type="date" id="agenda-date" class="form-input" />
+          </label>
+        </div>
+        <p id="agenda-summary" class="agenda-summary" aria-live="polite"></p>
+        <ol id="agenda-list" class="agenda-list"></ol>
+      </section>
+
+      <p id="offgrid-banner" class="notice offgrid-banner" hidden></p>
+
       <div class="admin-calendar">
         <!-- Legenda con selezione modalità ferie -->
         <div class="admin-calendar__legend">
@@ -163,7 +215,7 @@
     <div id="booking-modal" class="modal hidden">
       <div class="modal-overlay"></div>
       <div class="modal-content modal-large">
-        <h3 class="modal-title" id="modal-title">Nuovo Appuntamento</h3>
+        <h2 class="modal-title" id="modal-title">Nuovo Appuntamento</h2>
         <p class="modal-subtitle">
           <span id="modal-date-display"></span> alle <span id="modal-time-display"></span>
         </p>
@@ -316,7 +368,7 @@
     <div id="detail-modal" class="modal hidden">
       <div class="modal-overlay"></div>
       <div class="modal-content">
-        <h3 class="modal-title">Dettaglio Appuntamento</h3>
+        <h2 class="modal-title">Dettaglio Appuntamento</h2>
         <div class="modal-details" id="detail-content">
           <!-- Dettagli inseriti via JS -->
         </div>
@@ -331,7 +383,7 @@
     <div id="delete-confirm-modal" class="modal hidden">
       <div class="modal-overlay"></div>
       <div class="modal-content">
-        <h3 class="modal-title">Conferma Cancellazione</h3>
+        <h2 class="modal-title">Conferma Cancellazione</h2>
         <p class="modal-text">
           Stai per cancellare l'appuntamento di:<br />
           <strong id="delete-client-name"></strong>
@@ -351,5 +403,6 @@
     <script src="/js/utils.js"></script>
     <script src="/js/components/Modal.js"></script>
     <script src="/js/admin.js"></script>
+    <script src="/js/admin-agenda.js"></script>
   </body>
 </html>

@@ -4,6 +4,11 @@ module.exports = {
       name: 'lb-service',
       script: 'server/server.js',
 
+      // Una sola istanza: sql.js tiene il database in memoria e lo riscrive su file.
+      // Due processi avrebbero due copie diverse e si sovrascriverebbero a vicenda.
+      instances: 1,
+      exec_mode: 'fork',
+
       // Auto-restart
       autorestart: true,
       watch: false, // Non riavviare su modifiche file (per produzione)

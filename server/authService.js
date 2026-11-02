@@ -7,6 +7,19 @@ const { HttpError, badRequest } = require('./errors');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Parametri argon2id (raccomandazione OWASP) per registrazione e reset
+const ARGON2_OPTIONS = { type: argon2.argon2id, memoryCost: 15360, timeCost: 2, parallelism: 1 };
+
+// Versione di sessione dell'account: è scritta nel JWT e confrontata a ogni richiesta.
+// I token emessi prima della Fase 2 non hanno "sv" e valgono come versione 0.
+function sessionVersion(account) {
+  return parseInt(account && account.session_version, 10) || 0;
+}
+
+function isGuestProfile(user) {
+  return user.isGuest === '1' || user.isGuest === 1;
+}
+
 // Verifica password admin
 async function verifyAdminPassword(email, password) {
   const admin = adminDB.findOne(a => a.email === email.trim().toLowerCase());
@@ -69,6 +82,14 @@ async function registerUser(userData) {
   if (!EMAIL_REGEX.test(emailLower)) {
     throw badRequest('Formato email non valido');
   }
+  // Chi ha già prenotato come ospite ha un profilo senza password. Non basta conoscere
+  // l'email per prenderne possesso: si invia un link all'indirizzo (prova di possesso) e la
+  // password si imposta da lì. Il chiamante invia l'email.
+  const existing = usersDB.findOne(user => user.email === emailLower);
+  if (existing && isGuestProfile(existing) && !existing.password) {
+    return { pendingEmailVerification: true, email: emailLower };
+  }
+
   const assertEmailFree = () => {
     if (usersDB.findOne(user => user.email === emailLower)) {
       throw badRequest('Email già registrata');
@@ -76,13 +97,7 @@ async function registerUser(userData) {
   };
   assertEmailFree();
 
-  // Argon2id (raccomandazione OWASP)
-  const hashedPassword = await argon2.hash(password, {
-    type: argon2.argon2id,
-    memoryCost: 15360, // 15 MiB mem
-    timeCost: 2, // 2 iterations
-    parallelism: 1 // 1 thread
-  });
+  const hashedPassword = await argon2.hash(password, ARGON2_OPTIONS);
 
   // Durante l'hash (asincrono) potrebbe essere arrivata una registrazione con la stessa email
   assertEmailFree();
@@ -118,9 +133,12 @@ async function loginUser(email, password) {
   const adminCheck = await verifyAdminPassword(emailLower, password);
   if (adminCheck) {
     // È un admin - genera token con flag isAdmin
-    const token = jwt.sign({ email: emailLower, isAdmin: true }, config.jwt.secret, {
-      expiresIn: config.jwt.expiresIn
-    });
+    const admin = adminDB.findOne(a => a.email === emailLower);
+    const token = jwt.sign(
+      { email: emailLower, isAdmin: true, sv: sessionVersion(admin) },
+      config.jwt.secret,
+      { expiresIn: config.jwt.expiresIn }
+    );
 
     return {
       user: { email: emailLower, isAdmin: true },
@@ -165,11 +183,13 @@ async function loginUser(email, password) {
   touchUserActivity(user.email);
 
   // Genera JWT token (utente normale)
-  const token = jwt.sign({ email: user.email, isAdmin: false }, config.jwt.secret, {
-    expiresIn: config.jwt.expiresIn
-  });
+  const token = jwt.sign(
+    { email: user.email, isAdmin: false, sv: sessionVersion(user) },
+    config.jwt.secret,
+    { expiresIn: config.jwt.expiresIn }
+  );
 
-  const { password: _, ...userWithoutPassword } = user;
+  const { password: _, session_version: __, ...userWithoutPassword } = user;
   return { user: { ...userWithoutPassword, isAdmin: false }, token, isAdmin: false };
 }
 
@@ -182,12 +202,26 @@ function verifyToken(token) {
   }
 }
 
+// Verifica il JWT di sessione e che l'account esista ancora con la stessa versione di sessione.
+// Restituisce il payload decodificato; lancia 401 se il token non vale più.
+function verifySession(token) {
+  const decoded = verifyToken(token);
+  if (decoded.purpose) throw new HttpError(401, 'Token non valido');
+  const account = decoded.isAdmin
+    ? adminDB.findOne(a => a.email === decoded.email)
+    : usersDB.findOne(u => u.email === decoded.email);
+  if (!account || sessionVersion(account) !== (parseInt(decoded.sv, 10) || 0)) {
+    throw new HttpError(401, 'Sessione scaduta: accedi di nuovo');
+  }
+  return decoded;
+}
+
 // Get user by email
 function getUserByEmail(email) {
   const user = usersDB.findOne(u => u.email === email);
   if (!user) return null;
 
-  const { password: _, ...userWithoutPassword } = user;
+  const { password: _, session_version: __, ...userWithoutPassword } = user;
   return {
     ...userWithoutPassword,
     vip: user.vip === '1' || user.vip === 1
@@ -198,7 +232,7 @@ function getUserByEmail(email) {
 function getAllUsers() {
   const users = usersDB.readAll();
   return users.map(user => {
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _, session_version: __, ...userWithoutPassword } = user;
     return {
       ...userWithoutPassword,
       vip: user.vip === '1' || user.vip === 1
@@ -257,11 +291,12 @@ function generateResetToken(email) {
   }
 
   // Genera token con email e timestamp per invalidazione automatica
-  const token = jwt.sign({ email: emailLower, purpose: 'password-reset' }, config.jwt.secret, {
-    expiresIn: '1h'
-  });
-
-  return token;
+  // La versione di sessione rende il link monouso: il reset la incrementa
+  return jwt.sign(
+    { email: emailLower, purpose: 'password-reset', sv: sessionVersion(user) },
+    config.jwt.secret,
+    { expiresIn: '1h' }
+  );
 }
 
 // Reset password con token
@@ -287,22 +322,26 @@ async function resetPassword(token, newPassword) {
     throw badRequest('Token non valido');
   }
 
-  // Trova utente
-  const user = usersDB.findOne(u => u.email === decoded.email);
-  if (!user) {
-    throw badRequest('Utente non trovato');
-  }
+  const findUser = () => usersDB.findOne(u => u.email === decoded.email);
+  const assertUnused = user => {
+    if (!user || sessionVersion(user) !== (parseInt(decoded.sv, 10) || 0)) {
+      throw badRequest('Link scaduto o già utilizzato');
+    }
+  };
+  assertUnused(findUser());
 
-  // 🛡️ FASE 3 Sicurezza: Argon2id per i Reset Passwords (OWASP 2025)
-  const hashedPassword = await argon2.hash(newPassword, {
-    type: argon2.argon2id,
-    memoryCost: 15360,
-    timeCost: 2,
-    parallelism: 1
+  const hashedPassword = await argon2.hash(newPassword, ARGON2_OPTIONS);
+
+  // Durante l'hash (asincrono) lo stesso link potrebbe essere stato usato da un'altra richiesta
+  const user = findUser();
+  assertUnused(user);
+
+  // Nuova password, sessioni aperte invalidate; un profilo ospite diventa un account
+  usersDB.update(u => u.email === decoded.email, {
+    password: hashedPassword,
+    session_version: sessionVersion(user) + 1,
+    isGuest: 0
   });
-
-  // Aggiorna password
-  usersDB.update(u => u.email === decoded.email, { password: hashedPassword });
 
   return { success: true, email: decoded.email };
 }
@@ -311,6 +350,7 @@ module.exports = {
   registerUser,
   loginUser,
   verifyToken,
+  verifySession,
   getUserByEmail,
   getAllUsers,
   toggleVip,

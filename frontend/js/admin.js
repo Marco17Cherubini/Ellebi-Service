@@ -128,7 +128,11 @@ let allServices = [];
 
 // Funzione per ottenere gli slot validi per un giorno
 function getTimeSlotsForDate(date) {
-  const dayOfWeek = new Date(date).getDay();
+  // Data 'YYYY-MM-DD' letta come locale (new Date(stringa) userebbe UTC)
+  const dayOfWeek =
+    typeof date === 'string'
+      ? new Date(...date.split('-').map((n, i) => Number(n) - (i === 1 ? 1 : 0))).getDay()
+      : new Date(date).getDay();
   return dayOfWeek === 6 ? timeSlotsSaturday : timeSlotsWeekday;
 }
 
@@ -1582,7 +1586,7 @@ function addToDragSelection(date, time, isHoliday) {
       document.getElementById('extrawork-mode-indicator').style.borderColor = 'green';
     } else {
       document.getElementById('extrawork-hours-left').style.color = '';
-      document.getElementById('extrawork-mode-indicator').style.borderColor = '#ff9999';
+      document.getElementById('extrawork-mode-indicator').style.borderColor = 'var(--ink-2)';
     }
     return;
   }
@@ -1923,38 +1927,24 @@ async function checkPendingDeposits() {
 
     banner = document.createElement('div');
     banner.id = 'admin-deposit-banner';
-    banner.style.cssText = [
-      'display:flex',
-      'align-items:center',
-      'gap:12px',
-      'background:#FFF7ED',
-      'border:1.5px solid #FF6B00',
-      'border-radius:10px',
-      'padding:12px 16px',
-      'margin-bottom:16px',
-      'font-size:0.9rem',
-      'color:#92400E',
-      'font-weight:600',
-      'cursor:pointer',
-      'transition:opacity 0.2s'
-    ].join(';');
+    banner.className = 'notice deposit-banner';
 
     const label =
       attesaCount === 1
-        ? 'Hai 1 lavoro straordinario da fissare — vai a Lavori Straordinari'
-        : 'Hai ' + attesaCount + ' lavori straordinari da fissare — vai a Lavori Straordinari';
+        ? '1 lavoro straordinario da pianificare'
+        : attesaCount + ' lavori straordinari da pianificare';
 
     banner.innerHTML =
-      '<span style="flex:1;">' +
+      '<a href="/admin/depositi">' +
       label +
-      '</span>' +
-      '<button id="admin-deposit-banner-close" style="background:none;border:none;cursor:pointer;color:#92400E;font-size:1.1rem;padding:2px 6px;border-radius:4px;opacity:0.7;" title="Chiudi">&times;</button>';
+      '</a>' +
+      '<button type="button" id="admin-deposit-banner-close" class="btn btn-quiet btn-sm" aria-label="Chiudi l\'avviso">&times;</button>';
 
     // Inserisci sopra il calendario
     const container =
       document.querySelector('.container') || document.querySelector('.admin-calendar');
     if (container) {
-      container.parentNode.insertBefore(banner, container);
+      container.insertBefore(banner, container.firstChild);
     } else {
       document.body.insertBefore(banner, document.body.firstChild);
     }

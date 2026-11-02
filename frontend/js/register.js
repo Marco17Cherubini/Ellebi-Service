@@ -40,8 +40,18 @@ document.getElementById('register-form').addEventListener('submit', async e => {
       body: JSON.stringify(formData)
     });
 
+    if (response.pendingEmailVerification) {
+      // Email già usata per una prenotazione da ospite: la password si sceglie dal link ricevuto
+      const ok = document.getElementById('success-message');
+      if (ok) {
+        ok.textContent = response.message;
+        ok.classList.remove('hidden');
+      }
+      submitButton.disabled = false;
+      submitButton.textContent = 'Registrati';
+      return;
+    }
     if (response.success) {
-      // Redirect a login con messaggio di successo
       window.location.href = '/login?registered=true';
     }
   } catch (error) {

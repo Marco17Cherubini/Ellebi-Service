@@ -1,62 +1,85 @@
 /* ============================================================================
-   LB SERVICE - TYPOGRAPHY
+   TIPOGRAFIA — Archivo variabile (OFL, fonts/OFL-Archivo.txt), un solo file.
+   Titoli in maiuscolo e larghezza 125%: la voce delle schede tecniche e delle
+   livree da corsa. Testo a larghezza normale, cifre tabellari per orari e targhe.
    ============================================================================ */
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('/fonts/archivo-var.woff2') format('woff2');
+}
 
 h1,
 h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--letter-spacing-tight);
-  line-height: var(--line-height-tight);
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 125%;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.98;
   color: var(--color-text-primary);
+  text-wrap: balance;
 }
 
 h1 {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--space-8);
-}
-
-h2 {
-  font-size: var(--font-size-3xl);
+  font-size: var(--step-head);
   margin-bottom: var(--space-6);
 }
 
-h3 {
-  font-size: var(--font-size-2xl);
+h2 {
+  font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.5rem);
   margin-bottom: var(--space-4);
 }
 
-h4 {
+h3 {
   font-size: var(--font-size-xl);
   margin-bottom: var(--space-3);
 }
 
-h5 {
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--space-2);
-}
-
+h4,
+h5,
 h6 {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
+  font-family: var(--font-primary);
+  font-weight: 600;
+  font-size: var(--font-size-lg);
   margin-bottom: var(--space-2);
 }
 
 p {
   margin-bottom: var(--space-4);
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+  text-wrap: pretty;
 }
 
 a {
-  color: var(--color-accent);
-  text-decoration: none;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-accent-hover);
+  color: var(--ink);
+}
+
+strong {
+  font-weight: 650;
+}
+
+time,
+.tabular,
+.time-slot,
+.slot-btn {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
 }

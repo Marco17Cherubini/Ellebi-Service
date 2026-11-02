@@ -7,12 +7,24 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
 
-  <body>
-    <div class="center-container">
+  <body class="auth-page">
+    <a class="skip-link" href="#contenuto">Vai al contenuto</a>
+    <header class="site-bar">
+      <a class="wordmark" href="/" aria-label="Ellebi Service, pagina iniziale">
+        <span class="wordmark-block" aria-hidden="true"></span>Ellebi<span class="wordmark-sub"
+          >Service</span
+        >
+      </a>
+      <div class="site-bar-actions">
+        <a class="btn btn-primary btn-sm" href="/prenota">Prenota</a>
+      </div>
+    </header>
+    <main class="center-container auth" id="contenuto">
       <div class="form">
-        <h2 class="text-center">Registrazione</h2>
+        <h1>Registrazione</h1>
 
-        <div id="error-message" class="form-error hidden"></div>
+        <div id="success-message" class="form-success hidden" role="status"></div>
+        <div id="error-message" class="form-error hidden" role="alert"></div>
 
         <form id="register-form">
           <div class="form-group">
@@ -45,6 +57,7 @@
               type="email"
               id="email"
               name="email"
+              autocomplete="email"
               class="form-input"
               required
               placeholder="mario.rossi@example.com"
@@ -68,6 +81,7 @@
             <input
               type="password"
               id="password"
+              autocomplete="new-password"
               name="password"
               class="form-input"
               required
@@ -117,12 +131,15 @@
             </label>
           </div>
 
-          <button type="submit" class="btn btn-full">Registrati</button>
+          <button type="submit" class="btn btn-primary btn-full">Registrati</button>
         </form>
 
         <p class="text-center mt-2">Hai già un account? <a href="/login" class="link">Accedi</a></p>
+        <p class="auth-aside">
+          Per prenotare non serve un account: <a href="/prenota">prenota come ospite</a>.
+        </p>
       </div>
-    </div>
+    </main>
 
     <script src="/js/theme.js"></script>
     <script src="/js/register.js"></script>

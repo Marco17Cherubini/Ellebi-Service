@@ -1,55 +1,53 @@
 /* ============================================================================
-   LB SERVICE - GLOBAL DESIGN TOKENS
-   Sistema di design basato sulle specifiche tecniche Apple
-   
-   Contenuto:
-   - Grid system 8pt
-   - Typography scale
-   - Shadows, Radius, Transitions, Z-index
-   - System Colors (Apple palette)
-   - Semantic Colors
+   ELLEBI SERVICE — DESIGN TOKENS
+   Direzione: "La meccanica prende forma". Carta da disegno tecnico, grafite e
+   l'arancio del marchio. Il modulo grafico è il quarto d'ora dell'officina:
+   un blocco pieno ad angoli vivi (pulsanti, indicatori, striscia degli orari).
+   I nomi delle variabili storiche restano invariati: le pagine esistenti li usano.
    ============================================================================ */
 
 :root {
-  /* ============================================================
-       🎨 BRAND COLORS — MODIFICA QUI I COLORI SOCIALI DEL BRAND
-       ============================================================
-       Queste variabili controllano l'aspetto visivo dell'intera
-       applicazione. Cambia solo questi valori per adattare i
-       colori ai colori sociali del marchio.
+  /* ==================== PALETTE (scuro, predefinito) ==================== */
+  /* Banco prova di notte: carbonio, alluminio, arancio segnale */
+  --paper: #0b0c0e; /* fondo */
+  --paper-2: #16181b; /* superficie */
+  --paper-3: #2a2e34; /* bordi dei controlli, divisori */
+  --ink: #f1f2f3; /* testo */
+  --ink-2: #b0b5bc; /* testo secondario (9.4:1) */
+  --ink-3: #868c94; /* note minori (5.6:1) */
+  --graphite: #000000;
+  --on-graphite: #f3f1ec;
+  --accent: #ff4d00; /* arancio segnale: riempimenti */
+  --accent-press: #ff6a2b;
+  --on-accent: #0b0c0e;
+  --accent-ink: #ff7a3d; /* arancio per testo e link sul fondo (7.3:1) */
+  --ok: #5fd08c;
+  --warn: #ffb84d;
+  --danger: #ff7b72;
+  --info: #7fb2ff;
+  --ok-bg: #12301f;
+  --warn-bg: #3a2a10;
+  --danger-bg: #3d1915;
+  --info-bg: #13263f;
 
-       ✅ COLORI PRINCIPALI (pulsanti CTA, accenti, link attivi)
-    */
-  --brand-accent: #ff6b00;
-  /* Colore principale (CTA, bottoni primari)    */
-  --brand-accent-hover: #cc5500;
-  /* Hover del colore principale (light mode)    */
-  --brand-accent-dark: #ff8c33;
-  /* Hover del colore principale (dark mode)     */
+  --slot-free: #f3f1ec;
+  --slot-busy: #2a2e34;
+  --slot-closed: transparent;
 
-  /*
-       ✅ OMBRE PULSANTI E UI
-       Usa rgba con il colore brand per ombre "colorate",
-       oppure rgba(0,0,0,...) per ombre neutre classiche.
-    */
-  --brand-shadow-color: rgba(0, 0, 0, 0.15);
-  /* Colore base ombre (light mode)              */
-  --brand-shadow-color-dark: rgba(0, 0, 0, 0.5);
-  /* Colore base ombre (dark mode)               */
+  /* Smusso a 45° dei pezzi lavorati: pulsanti, superfici, indicatori */
+  --cut: 12px;
+  --cut-lg: 28px;
 
-  /*
-       ✅ TESTO
-       Cambia solo se il brand usa un colore di testo personalizzato.
-    */
-  --brand-text-primary: #000000;
-  /* Testo principale (light mode)               */
-  --brand-text-on-accent: #ffffff;
-  /* Testo sopra i pulsanti colorati             */
+  /* ==================== COMPATIBILITÀ (nomi storici) ==================== */
+  --brand-accent: var(--accent);
+  --brand-accent-hover: var(--accent-press);
+  --brand-accent-dark: #f7853f;
+  --brand-shadow-color: rgba(0, 0, 0, 0.6);
+  --brand-shadow-color-dark: rgba(0, 0, 0, 0.55);
+  --brand-text-primary: var(--ink);
+  --brand-text-on-accent: var(--on-accent);
 
-  /* ============================================================
-       Fine sezione BRAND COLORS. Non toccare il resto del file.
-       ============================================================ */
-  /* ==================== 8-POINT GRID SYSTEM ==================== */
+  /* ==================== SPAZIO (griglia 8pt) ==================== */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -62,12 +60,20 @@
   --space-12: 3rem;
   --space-16: 4rem;
   --space-20: 5rem;
+  --gutter: clamp(16px, 4vw, 40px); /* margini esterni della pagina */
 
-  /* ==================== TYPOGRAPHY ==================== */
-  --font-primary:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue',
-    'Segoe UI', sans-serif;
-  --font-size-xs: 0.75rem;
+  /* ==================== TIPOGRAFIA ==================== */
+  --font-primary: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Archivo', 'Arial Black', sans-serif;
+
+  /* Cinque passi visibili: piccolo, testo, introduzione, titolo, display */
+  --step-small: 0.875rem;
+  --step-body: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --step-head: clamp(1.875rem, 1.3rem + 2.6vw, 3.25rem);
+  --step-display: clamp(2.75rem, 1.4rem + 6.2vw, 6.25rem);
+
+  --font-size-xs: 0.8125rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
@@ -76,44 +82,47 @@
   --font-size-3xl: 2rem;
   --font-size-4xl: 2.5rem;
 
-  --font-weight-light: 300;
+  --font-weight-light: 400;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
-  --font-weight-bold: 700;
+  --font-weight-bold: 600;
 
-  --line-height-tight: 1.2;
+  --line-height-tight: 1;
   --line-height-normal: 1.5;
-  --line-height-relaxed: 1.7;
+  --line-height-relaxed: 1.6;
 
   --letter-spacing-tight: -0.02em;
   --letter-spacing-normal: 0;
   --letter-spacing-wide: 0.02em;
 
-  /* ==================== CORNER RADIUS (Squircle System) ==================== */
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
+  /* ==================== FORMA ==================== */
+  /* Angoli vivi ovunque: il modulo è un rettangolo pieno */
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
   --radius-full: 9999px;
 
-  /* ==================== SHADOWS (Apple Formula) ==================== */
-  --shadow-xs: 0 1px 2px var(--brand-shadow-color);
-  --shadow-sm: 0 2px 4px var(--brand-shadow-color);
-  --shadow-md: 0 4px 8px var(--brand-shadow-color);
-  --shadow-lg: 0 8px 16px var(--brand-shadow-color);
-  --shadow-xl: 0 12px 24px var(--brand-shadow-color);
-  --shadow-2xl: 0 20px 40px var(--brand-shadow-color);
+  /* Nessuna ombra su ciò che è fermo: solo menu e finestre che galleggiano */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 12px 32px -8px var(--brand-shadow-color);
+  --shadow-xl: 0 18px 48px -12px var(--brand-shadow-color);
+  --shadow-2xl: 0 24px 64px -16px var(--brand-shadow-color);
 
-  /* ==================== TRANSITIONS ==================== */
-  --transition-fast: 150ms ease;
-  --transition-normal: 250ms ease;
-  --transition-slow: 350ms ease;
-  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* ==================== MOVIMENTO ==================== */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --transition-fast: 140ms var(--ease-out);
+  --transition-normal: 220ms var(--ease-out);
+  --transition-slow: 320ms var(--ease-out);
+  --transition-spring: 220ms var(--ease-out);
 
-  /* ==================== Z-INDEX SCALE ==================== */
+  /* ==================== LIVELLI ==================== */
   --z-dropdown: 100;
   --z-sticky: 200;
   --z-fixed: 300;
@@ -122,156 +131,82 @@
   --z-popover: 600;
   --z-tooltip: 700;
 
-  /* ==================== APPLE SYSTEM COLORS (Light Mode) ==================== */
-  --system-blue: #007aff;
-  --system-green: #34c759;
-  --system-red: #ff3b30;
-  --system-yellow: #ffcc00;
-  --system-orange: #ff9500;
-  --system-pink: #ff2d55;
-  --system-purple: #af52de;
-  --system-indigo: #5856d6;
-  --system-teal: #5ac8fa;
-  --system-brown: #a2845e;
+  /* ==================== SEMANTICA ==================== */
+  --system-background: var(--paper);
+  --secondary-system-background: var(--paper-2);
+  --tertiary-system-background: var(--paper-2);
+  --system-red: var(--danger);
+  --system-green: var(--ok);
+  --system-orange: var(--warn);
+  --system-blue: var(--info);
+  --system-gray2: var(--ink-3);
+  --system-gray5: var(--paper-3);
+  --label: var(--ink);
+  --secondary-label: var(--ink-2);
+  --tertiary-label: var(--ink-3);
+  --quaternary-label: var(--paper-3);
+  --opaque-separator: var(--paper-3);
 
-  /* ==================== APPLE GRAY SCALE (Light Mode) ==================== */
-  --system-gray: #8e8e93;
-  --system-gray2: #aeaeb2;
-  --system-gray3: #c7c7cc;
-  --system-gray4: #d1d1d6;
-  --system-gray5: #e5e5ea;
-  --system-gray6: #f2f2f7;
+  --color-bg: var(--paper);
+  --color-bg-primary: var(--paper);
+  --color-bg-secondary: var(--paper-2);
+  --color-bg-tertiary: var(--paper-3);
+  --color-bg-elevated: var(--paper);
+  --color-surface: var(--paper-2);
+  --color-surface-raised: var(--paper);
 
-  /* ==================== APPLE BACKGROUNDS (Light Mode) ==================== */
-  --system-background: #ffffff;
-  --secondary-system-background: #f2f2f7;
-  --tertiary-system-background: #ffffff;
-  --system-grouped-background: #f2f2f7;
-  --secondary-system-grouped-background: #ffffff;
-  --tertiary-system-grouped-background: #f2f2f7;
+  --color-text: var(--ink);
+  --color-text-primary: var(--ink);
+  --color-text-secondary: var(--ink-2);
+  --color-text-tertiary: var(--ink-3);
+  --color-text-disabled: var(--ink-3);
 
-  /* ==================== APPLE LABELS (Light Mode) ==================== */
-  --label: #000000;
-  --secondary-label: rgba(60, 60, 67, 0.6);
-  --tertiary-label: rgba(60, 60, 67, 0.3);
-  --quaternary-label: rgba(60, 60, 67, 0.18);
-  --placeholder-text: rgba(60, 60, 67, 0.3);
+  --color-border: var(--paper-3);
+  --color-border-primary: var(--paper-3);
+  --color-border-secondary: var(--paper-3);
+  --color-border-strong: var(--ink);
+  --color-border-dark: var(--ink-2);
 
-  /* ==================== APPLE FILLS (Light Mode) ==================== */
-  --system-fill: rgba(120, 120, 128, 0.2);
-  --secondary-system-fill: rgba(120, 120, 128, 0.16);
-  --tertiary-system-fill: rgba(118, 118, 128, 0.12);
-  --quaternary-system-fill: rgba(116, 116, 128, 0.08);
-
-  /* ==================== APPLE SEPARATORS (Light Mode) ==================== */
-  --separator: rgba(60, 60, 67, 0.29);
-  --opaque-separator: #c6c6c8;
-
-  /* ==================== SEMANTIC COLORS (Light Mode) ==================== */
-  --color-bg-primary: var(--system-background);
-  --color-bg-secondary: var(--secondary-system-background);
-  --color-bg-tertiary: var(--system-gray5);
-  --color-bg-elevated: var(--system-background);
-
-  --color-text-primary: var(--label);
-  --color-text-secondary: var(--secondary-label);
-  --color-text-tertiary: var(--tertiary-label);
-  --color-text-disabled: var(--quaternary-label);
-
-  --color-border-primary: var(--opaque-separator);
-  --color-border-secondary: var(--system-gray5);
-  --color-border-strong: var(--label);
-
-  --color-special-bg: #eed4ff;
-  --color-special-text: #7b00c8;
-  --color-special-border: #c800ff;
-
-  --color-accent: var(--brand-accent);
-  --color-accent-hover: var(--brand-accent-hover);
-  --color-success: var(--system-green);
-  --color-warning: var(--system-orange);
-  --color-error: var(--system-red);
-
-  --color-overlay: rgba(0, 0, 0, 0.4);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-press);
+  --color-success: var(--ok);
+  --color-warning: var(--warn);
+  --color-error: var(--danger);
+  --color-overlay: rgba(0, 0, 0, 0.72);
   --color-shadow: var(--brand-shadow-color);
+
+  --color-special-bg: var(--paper-2);
+  --color-special-border: var(--accent);
+  --color-special-text: var(--ink);
+
+  color-scheme: dark;
 }
 
-/* ==================== DARK THEME (Apple Specifications) ==================== */
-[data-theme='dark'] {
-  /* === APPLE SYSTEM COLORS (Dark Mode) === */
-  --system-blue: #0a84ff;
-  --system-green: #30d158;
-  --system-red: #ff453a;
-  --system-yellow: #ffd60a;
-  --system-orange: #ff9f0a;
-  --system-pink: #ff375f;
-  --system-purple: #bf5af2;
-  --system-indigo: #5e5ce6;
-  --system-teal: #64d2ff;
-  --system-brown: #ac8e68;
-
-  /* === APPLE GRAY SCALE (Dark Mode) === */
-  --system-gray: #8e8e93;
-  --system-gray2: #636366;
-  --system-gray3: #48484a;
-  --system-gray4: #3a3a3c;
-  --system-gray5: #2c2c2e;
-  --system-gray6: #1c1c1e;
-
-  /* === APPLE BACKGROUNDS (Dark Mode) === */
-  --system-background: #000000;
-  --secondary-system-background: #1c1c1e;
-  --tertiary-system-background: #2c2c2e;
-  --system-grouped-background: #000000;
-  --secondary-system-grouped-background: #1c1c1e;
-  --tertiary-system-grouped-background: #2c2c2e;
-
-  /* === APPLE LABELS (Dark Mode) === */
-  --label: #ffffff;
-  --secondary-label: rgba(235, 235, 245, 0.6);
-  --tertiary-label: rgba(235, 235, 245, 0.3);
-  --quaternary-label: rgba(235, 235, 245, 0.18);
-  --placeholder-text: rgba(235, 235, 245, 0.3);
-
-  /* === APPLE FILLS (Dark Mode) === */
-  --system-fill: rgba(120, 120, 128, 0.36);
-  --secondary-system-fill: rgba(120, 120, 128, 0.32);
-  --tertiary-system-fill: rgba(118, 118, 128, 0.24);
-  --quaternary-system-fill: rgba(116, 116, 128, 0.18);
-
-  /* === APPLE SEPARATORS (Dark Mode) === */
-  --separator: #ffffff;
-  --opaque-separator: #ffffff;
-
-  /* === SEMANTIC COLORS (Dark Mode) === */
-  --color-bg-primary: var(--system-background);
-  --color-bg-secondary: var(--secondary-system-background);
-  --color-bg-tertiary: var(--tertiary-system-background);
-  --color-bg-elevated: var(--secondary-system-background);
-
-  --color-text-primary: var(--label);
-  --color-text-secondary: var(--secondary-label);
-  --color-text-tertiary: var(--tertiary-label);
-  --color-text-disabled: var(--quaternary-label);
-
-  --color-border-primary: var(--opaque-separator);
-  --color-border-secondary: #ffffff;
-  --color-border-strong: var(--label);
-
-  --color-accent: var(--brand-accent);
-  --color-accent-hover: var(--brand-accent-dark);
-  --color-success: var(--system-green);
-  --color-warning: var(--system-orange);
-  --color-error: var(--system-red);
-
-  --color-overlay: rgba(0, 0, 0, 0.6);
-  --color-shadow: var(--brand-shadow-color-dark);
-
-  /* Dark mode shadows */
-  --shadow-xs: 0 1px 2px var(--brand-shadow-color-dark);
-  --shadow-sm: 0 2px 4px var(--brand-shadow-color-dark);
-  --shadow-md: 0 4px 8px var(--brand-shadow-color-dark);
-  --shadow-lg: 0 8px 16px var(--brand-shadow-color-dark);
-  --shadow-xl: 0 12px 24px var(--brand-shadow-color-dark);
-  --shadow-2xl: 0 20px 40px var(--brand-shadow-color-dark);
+/* Tema chiaro: alluminio spazzolato. Stessi ruoli, toni invertiti. */
+[data-theme='light'] {
+  --paper: #e8eaed;
+  --paper-2: #dbdee2;
+  --paper-3: #b9bec5;
+  --ink: #0b0c0e;
+  --ink-2: #3c4148;
+  --ink-3: #5a6068;
+  --graphite: #0b0c0e;
+  --on-graphite: #f3f1ec;
+  --accent: #ff4d00;
+  --accent-press: #e04300;
+  --on-accent: #0b0c0e;
+  --accent-ink: #a83400;
+  --ok: #1f6b3f;
+  --warn: #8a5600;
+  --danger: #b3261e;
+  --info: #2b5aa3;
+  --ok-bg: #cfe5d7;
+  --warn-bg: #f2e1c2;
+  --danger-bg: #f3d3cf;
+  --info-bg: #d3def0;
+  --slot-free: #0b0c0e;
+  --slot-busy: #b9bec5;
+  --brand-shadow-color: rgba(11, 12, 14, 0.25);
+  --color-overlay: rgba(11, 12, 14, 0.6);
+  color-scheme: light;
 }

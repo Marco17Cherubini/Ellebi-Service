@@ -2,24 +2,77 @@
 <html lang="it">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home - Ellebi Service SRL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>La tua area · Ellebi Service</title>
+    <meta name="theme-color" content="#0b0c0e" />
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles/pages/account.css" />
   </head>
 
   <body>
-    <div class="header">
-      <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo" />
-      <button type="button" id="logout-btn" class="btn header-btn">Logout</button>
-    </div>
+    <a class="skip-link" href="#contenuto">Vai al contenuto</a>
+    <header class="site-bar">
+      <a class="wordmark" href="/" aria-label="Ellebi Service, pagina iniziale">
+        <span class="wordmark-block" aria-hidden="true"></span>Ellebi<span class="wordmark-sub"
+          >Service</span
+        >
+      </a>
+      <div class="site-bar-actions">
+        <button type="button" id="logout-btn" class="btn btn-outline btn-sm">Esci</button>
+      </div>
+    </header>
 
-    <div class="center-container">
-      <div class="text-center">
-        <h2 id="welcome-message">Ciao!</h2>
+    <main class="container container-narrow account" id="contenuto">
+      <div class="page-head">
+        <div>
+          <h1 id="welcome-message">La tua area</h1>
+          <p id="welcome-sub">Prenotazioni in arrivo e veicoli salvati.</p>
+        </div>
+        <a href="/prenota" class="btn btn-primary btn-lg">Nuova prenotazione</a>
+      </div>
 
-        <div class="btn-group-vertical mt-3">
-          <a href="/dashboard" class="btn btn-large">Prenota</a>
-          <a href="/bookings" class="btn btn-large">Gestisci Prenotazioni</a>
+      <section aria-labelledby="upcoming-title" class="account-section">
+        <h2 id="upcoming-title">Prossimi appuntamenti</h2>
+        <div id="flash" class="form-success" role="status" hidden></div>
+        <ul id="bookings-list" class="booking-list" aria-live="polite">
+          <li class="loading-line">Caricamento…</li>
+        </ul>
+        <div id="no-bookings" class="empty-state" hidden>
+          <p>Non hai appuntamenti in programma.</p>
+          <a href="/prenota" class="btn btn-outline">Prenota un intervento</a>
+        </div>
+      </section>
+
+      <section aria-labelledby="vehicles-title" class="account-section">
+        <h2 id="vehicles-title">I tuoi veicoli</h2>
+        <ul id="vehicles-list" class="vehicle-list"></ul>
+        <p id="no-vehicles" class="muted" hidden>
+          Nessun veicolo salvato. Alla prossima prenotazione puoi scegliere di ricordarlo.
+        </p>
+      </section>
+
+      <p class="account-help">
+        Per un appuntamento già iniziato o un veicolo già in lavorazione, chiama l'officina al
+        <a href="tel:+393663043908">366 304 3908</a>.
+      </p>
+    </main>
+
+    <!-- Conferma dell'annullamento -->
+    <div
+      id="delete-confirm-modal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-title"
+    >
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <h2 class="modal-title" id="delete-title">Annullare l'appuntamento?</h2>
+        <div id="delete-booking-details" class="modal-details"></div>
+        <p class="modal-text">L'orario tornerà libero per altri clienti.</p>
+        <div class="modal-buttons">
+          <button type="button" id="delete-cancel" class="btn btn-outline">No, tienilo</button>
+          <button type="button" id="delete-confirm" class="btn btn-danger">Sì, annulla</button>
         </div>
       </div>
     </div>
@@ -27,6 +80,5 @@
     <script src="/js/theme.js"></script>
     <script src="/js/utils.js"></script>
     <script src="/js/home.js"></script>
-    <script src="/js/legal-footer.js"></script>
   </body>
 </html>

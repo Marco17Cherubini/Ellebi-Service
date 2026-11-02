@@ -2,25 +2,187 @@
 <html lang="it">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ellebi Service SRL</title>
-    <link rel="preload" href="/images/LB-Service-Logo.webp" as="image" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Ellebi Service · Officina auto e moto a San Giuliano Vecchio</title>
+    <meta
+      name="description"
+      content="Officina auto e moto a San Giuliano Vecchio (AL). Prenota online un intervento o la consegna del veicolo, scegliendo tra gli orari liberi."
+    />
+    <meta name="theme-color" content="#0b0c0e" />
+    <link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/images/auto-esplosa.webp" as="image" fetchpriority="high" />
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles/pages/landing.css" />
   </head>
 
-  <body>
-    <div class="center-container">
-      <div class="text-center">
-        <h1 class="mb-2">Benvenuto da</h1>
-        <div class="brand-logo" role="img" aria-label="Ellebi Service SRL Logo"></div>
-        <div class="btn-group mb-4">
-          <a href="/login" class="btn">Accedi</a>
-          <a href="/register" class="btn">Registrati</a>
-          <a href="/guest-booking" class="btn">Ospite</a>
+  <body class="landing">
+    <a class="skip-link" href="#contenuto">Vai al contenuto</a>
+
+    <header class="site-bar">
+      <a class="wordmark" href="/" aria-label="Ellebi Service, pagina iniziale">
+        <span class="wordmark-block" aria-hidden="true"></span>Ellebi<span class="wordmark-sub"
+          >Service</span
+        >
+      </a>
+      <nav class="site-bar-actions" aria-label="Principale">
+        <a class="site-link" href="#servizi">Servizi</a>
+        <a class="site-link" href="#contatti">Contatti</a>
+        <a class="site-link site-link-account" href="/login" id="account-link">Accedi</a>
+        <a class="btn btn-primary btn-sm site-bar-cta" href="/prenota">Prenota</a>
+      </nav>
+    </header>
+
+    <main id="contenuto">
+      <!-- 1. Il palco: nome monumentale, auto in vista esplosa, chi/cosa/come, telemetria -->
+      <section class="stage" aria-labelledby="hero-title">
+        <p class="stage-monument" aria-hidden="true">Ellebi</p>
+
+        <div class="stage-car" id="stage-car">
+          <img
+            class="stage-poster"
+            id="stage-poster"
+            src="/images/auto-esplosa.webp"
+            width="1120"
+            height="688"
+            alt="Auto stilizzata in vista esplosa: abitacolo, carrozzeria, sedili, motore, telaio e ruote separati"
+            fetchpriority="high"
+          />
+          <div class="stage-controls" role="group" aria-label="Vista dell'auto">
+            <button type="button" class="chip" id="explode-toggle" aria-pressed="true">
+              Esplosa
+            </button>
+            <button type="button" class="chip" id="open-3d" hidden>Ruota in 3D</button>
+            <span
+              class="stage-status"
+              id="mechanics-status"
+              role="status"
+              aria-live="polite"
+            ></span>
+          </div>
         </div>
-      </div>
-    </div>
+
+        <div class="stage-copy">
+          <h1 id="hero-title" class="stage-title">Officina auto e moto</h1>
+          <p class="stage-place">A San Giuliano Vecchio, in provincia di Alessandria.</p>
+          <p class="stage-lead">
+            La meccanica prende forma: scegli il servizio, guarda gli orari liberi e prenota. La
+            conferma arriva via email.
+          </p>
+          <div class="stage-actions">
+            <a class="btn btn-primary btn-lg" href="/prenota">Prenota un intervento</a>
+            <a class="btn btn-outline btn-lg" href="tel:+393663043908">366 304 3908</a>
+          </div>
+        </div>
+
+        <figure class="telemetry" aria-labelledby="day-title">
+          <figcaption>
+            <span id="day-title" class="telemetry-title">Orari dell'officina</span>
+            <span id="day-summary" class="telemetry-summary"
+              >Lun–ven 8:30–12:30 e 14:30–18:30, sabato 8:30–12:00.</span
+            >
+          </figcaption>
+          <div class="telemetry-bars" id="day-shifts" aria-hidden="true">
+            <div class="day-shift" data-shift="mattina"></div>
+            <div class="day-shift" data-shift="pomeriggio"></div>
+          </div>
+        </figure>
+      </section>
+
+      <!-- 2. Due modi di portare il veicolo -->
+      <section class="ways" aria-labelledby="ways-title">
+        <h2 id="ways-title">Appuntamento o consegna</h2>
+        <div class="ways-grid">
+          <article class="way">
+            <p class="way-figure" aria-hidden="true">15<small>min × n</small></p>
+            <h3>Appuntamento</h3>
+            <p>
+              Tagliandi, freni, gomme e lavori brevi. Prenoti un orario: la durata dipende dal
+              servizio ed è indicata prima di confermare, così sai quanto tempo riservare.
+            </p>
+          </article>
+          <article class="way way-alt">
+            <p class="way-figure" aria-hidden="true">30<small>min</small></p>
+            <h3>Consegna del veicolo</h3>
+            <p>
+              Per i lavori lunghi. Prenoti 30 minuti di accoglienza per lasciare il veicolo e
+              raccontare il problema; l'officina pianifica il lavoro e ti scrive quando è pronto. La
+              data di riconsegna non è fissata in anticipo.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- 3. Il listino come scheda tecnica, letto dal gestionale -->
+      <section class="services" id="servizi" aria-labelledby="services-title">
+        <div class="services-head">
+          <h2 id="services-title">Scheda servizi</h2>
+          <p>
+            Le durate sono quelle che l'officina riserva in agenda; i prezzi non sono pubblicati
+            online.
+          </p>
+        </div>
+        <div class="services-cols" id="services-cols">
+          <p class="services-fallback">
+            L'elenco completo dei servizi è nella <a href="/prenota">prenotazione</a>.
+          </p>
+        </div>
+      </section>
+
+      <!-- 4. Orari e contatti -->
+      <section class="contact" id="contatti" aria-labelledby="contact-title">
+        <h2 id="contact-title">Orari e contatti</h2>
+        <div class="contact-grid">
+          <address class="contact-lines">
+            <a class="contact-big" href="tel:+393663043908">366 304 3908</a>
+            <a href="mailto:ellebi_service@libero.it">ellebi_service@libero.it</a>
+            <span>Via Zerbi 21, San Giuliano Vecchio (AL)</span>
+            <a
+              href="https://www.google.com/maps/search/?api=1&amp;query=Via%20Zerbi%2021%20San%20Giuliano%20Vecchio"
+              rel="noopener"
+              >Apri in Mappe</a
+            >
+          </address>
+          <table class="hours">
+            <caption class="visually-hidden">
+              Orari di apertura
+            </caption>
+            <tbody>
+              <tr>
+                <th scope="row">Lunedì – venerdì</th>
+                <td>8:30 – 12:30</td>
+                <td>14:30 – 18:30</td>
+              </tr>
+              <tr>
+                <th scope="row">Sabato</th>
+                <td>8:30 – 12:00</td>
+                <td>chiuso</td>
+              </tr>
+              <tr>
+                <th scope="row">Domenica</th>
+                <td colspan="2">chiuso</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p class="site-foot-mark" aria-hidden="true">Ellebi</p>
+      <nav class="site-foot-links" aria-label="Collegamenti">
+        <a href="/prenota">Prenota</a>
+        <a href="/login">Accedi</a>
+        <a href="/register">Registrati</a>
+        <a href="/privacy-policy.html">Privacy</a>
+        <a href="/cookie-policy.html">Cookie</a>
+      </nav>
+      <p class="site-foot-legal">
+        © Ellebi Service SRL · P.IVA 02686660065 · Via Zerbi 21, San Giuliano Vecchio (AL). Auto 3D:
+        modello stilizzato e generico, non un veicolo reale.
+      </p>
+    </footer>
+
     <script src="/js/theme.js"></script>
-    <script src="/js/legal-footer.js"></script>
+    <script src="/js/landing.js"></script>
   </body>
 </html>

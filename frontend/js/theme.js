@@ -14,21 +14,27 @@
 
   // Ottieni tema salvato o default a light
   function getSavedTheme() {
-    const saved = localStorage.getItem(THEME_KEY);
+    let saved = null;
+    try {
+      saved = localStorage.getItem(THEME_KEY);
+    } catch (e) {
+      saved = null;
+    }
     if (saved && Object.values(THEMES).includes(saved)) {
       return saved;
     }
-    // Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return THEMES.DARK;
-    }
-    return THEMES.LIGHT;
+    // L'identità nasce scura; il tema chiaro resta una scelta esplicita
+    return THEMES.DARK;
   }
 
   // Applica tema al documento
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(THEME_KEY, theme);
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch (e) {
+      /* preferenza non salvata */
+    }
   }
 
   // Toggle tra light e dark con Wipe Animation
@@ -88,9 +94,11 @@
     const toggle = document.createElement('div');
     toggle.className = 'theme-toggle';
     toggle.innerHTML = `
-      <button class="theme-switch" aria-label="Cambia tema" title="Cambia tema">
-        <span class="theme-switch-icon sun">☀</span>
-        <span class="theme-switch-icon moon">☾</span>
+      <button type="button" class="theme-switch" aria-label="Cambia tema chiaro o scuro" title="Cambia tema">
+        <svg class="theme-switch-icon" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+          <circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+          <path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor" />
+        </svg>
       </button>
     `;
 

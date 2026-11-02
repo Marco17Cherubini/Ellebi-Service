@@ -9,7 +9,12 @@ const {
   getUserBookingList,
   cancelBooking
 } = require('../bookingService');
-const { requireService, getServiceDuration, listPublicServices } = require('../catalogService');
+const {
+  requireService,
+  getServiceDuration,
+  isInSeason,
+  listPublicServices
+} = require('../catalogService');
 const { listHolidays } = require('../holidayService');
 const { listUserVehicles, addUserVehicle } = require('../vehicleService');
 const { touchUserActivity } = require('../authService');
@@ -47,14 +52,21 @@ router.get('/api/slots/:date', (req, res) => {
 
 // Slot in cui il servizio può iniziare, tenendo conto della sua durata
 router.get('/api/slots/:date/:serviceId', (req, res) => {
-  const durata = getServiceDuration(requireService(req.params.serviceId));
+  const service = requireService(req.params.serviceId);
+  const durata = getServiceDuration(service);
+  noStore(res);
+
+  // Servizio stagionale fuori stagione nel giorno richiesto: nessun orario prenotabile
+  if (DATE_REGEX.test(req.params.date) && !isInSeason(service, req.params.date)) {
+    return res.json({ success: true, slots: [], durata_minuti: durata, outOfSeason: true });
+  }
+
   const slots = getAvailableSlotsForService(
     req.params.date,
     durata,
     hasExtendedHours(req),
     excludedBooking(req.query)
   );
-  noStore(res);
   res.json({ success: true, slots, durata_minuti: durata });
 });
 
