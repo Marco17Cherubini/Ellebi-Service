@@ -87,10 +87,10 @@ Gate eseguiti: Taste `inspect.mjs` (da 9 FAIL a 4, tutti motivati: il nome monum
 
 ## Rilascio e rollback proposti
 
-1. Backup del file di produzione (`npm run backup`) e annotazione del commit in esercizio.
+1. Backup: al primo avvio della nuova versione su uno schema vecchio, `initDatabase` copia il database in `${DATABASE_PATH}.pre-migrazione-fase2.bak` (sul volume) **prima** di ogni migrazione. In più, se possibile, un backup del volume dal pannello Railway. Annotare il deployment in esercizio per il rollback.
 2. Deploy del branch su un ambiente di prova con una **copia** del database: all'avvio partono le migrazioni (`session_version`, servizi "consegna" esplicitati). Controllare il listino e una prenotazione per tipo.
 3. Merge su `main` e deploy (una sola istanza). Tutti gli utenti restano connessi: i token senza versione valgono come versione 0.
-4. Rollback: ridistribuire il commit precedente. Le colonne aggiunte sono ignorate dal codice vecchio; l'unico cambiamento di dato non reversibile automaticamente è `tipo_servizio = 'consegna'` sui servizi che lo avevano nel nome, comportamento che il codice vecchio già riconosceva.
+4. Rollback: ridistribuire il deployment precedente da Railway; se serve tornare anche ai dati di prima, a servizio fermo rimettere il file `.pre-migrazione-fase2.bak` al posto di `DATABASE_PATH` (si perdono le prenotazioni fatte nel frattempo). Le colonne aggiunte sono ignorate dal codice vecchio; l'unico cambiamento di dato non reversibile automaticamente è `tipo_servizio = 'consegna'` sui servizi che lo avevano nel nome, comportamento che il codice vecchio già riconosceva.
 
 ## Rischi residui e aperti
 

@@ -99,3 +99,17 @@ test('migrazione: dati e login esistenti preservati, nuove tabelle e colonne cre
   const mine = await api.request('GET', '/api/bookings', { cookie: login.cookie });
   assert.equal(mine.data.bookings.length, 1);
 });
+
+test('prima di migrare uno schema vecchio il database viene copiato accanto al file', async () => {
+  const backup = `${process.env.DATABASE_PATH}.pre-migrazione-fase2.bak`;
+  assert.ok(fs.existsSync(backup));
+  // La copia è lo schema originale: senza le colonne aggiunte dalla migrazione
+  const initSqlJs = require('sql.js');
+  const SQL = await initSqlJs();
+  const old = new SQL.Database(fs.readFileSync(backup));
+  const cols = old.exec('PRAGMA table_info(users)')[0].values.map(c => c[1]);
+  assert.ok(!cols.includes('session_version'));
+  assert.equal(old.exec('SELECT count(*) FROM bookings')[0].values[0][0], 1);
+  old.close();
+  fs.rmSync(backup, { force: true });
+});

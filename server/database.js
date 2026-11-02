@@ -77,6 +77,23 @@ function withTransaction(fn) {
   }
 }
 
+// Copia di sicurezza prima delle migrazioni della Fase 2: se il file esistente non ha ancora
+// la colonna users.session_version, lo schema sta per cambiare. La copia resta accanto al file
+// (sul volume in produzione) e non viene mai sovrascritta: per tornare indietro basta
+// rimettere quel file al posto di DATABASE_PATH a server fermo.
+function backupBeforeMigration() {
+  const userColumns = db.exec('PRAGMA table_info(users)')[0]?.values || [];
+  const hasUsers = userColumns.length > 0;
+  const migrated = userColumns.some(col => col[1] === 'session_version');
+  if (!hasUsers || migrated) return null;
+
+  const target = `${DB_PATH}.pre-migrazione-fase2.bak`;
+  if (fs.existsSync(target)) return target;
+  fs.copyFileSync(DB_PATH, target);
+  console.log(`🗄️  Copia di sicurezza prima della migrazione: ${target}`);
+  return target;
+}
+
 // Inizializza il database
 async function initDatabase() {
   const SQL = await initSqlJs();
@@ -86,6 +103,7 @@ async function initDatabase() {
     const fileBuffer = fs.readFileSync(DB_PATH);
     db = new SQL.Database(fileBuffer);
     console.log('📦 Database SQLite caricato da file');
+    backupBeforeMigration();
   } else {
     db = new SQL.Database();
     console.log('📦 Nuovo database SQLite creato');
