@@ -35,22 +35,6 @@ body:has(.action-bar) .theme-toggle {
 }
 
 .theme-switch-icon {
-  font-size: var(--font-size-lg);
-}
-
-.theme-switch-icon.sun {
-  display: block;
-}
-
-.theme-switch-icon.moon {
-  display: none;
-}
-
-[data-theme='dark'] .theme-switch-icon.sun {
-  display: none;
-}
-
-[data-theme='dark'] .theme-switch-icon.moon {
   display: block;
 }
 

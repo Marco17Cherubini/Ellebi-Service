@@ -55,6 +55,7 @@
     }
 
     if (bookings.length === 0) {
+      list.textContent = '';
       list.hidden = true;
       $('no-bookings').hidden = false;
       return;

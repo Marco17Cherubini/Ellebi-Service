@@ -4,19 +4,37 @@
    ============================================================================ */
 
 .btn {
+  /* Il bordo è lo sfondo dell'elemento, il riempimento è ::before rientrato di 2px:
+     così anche le varianti a contorno mantengono lo smusso a 45° */
+  --btn-edge: var(--ink);
+  --btn-fill: var(--ink);
+  --btn-ink: var(--paper);
+  --chamfer: polygon(
+    0 0,
+    calc(100% - var(--cut)) 0,
+    100% var(--cut),
+    100% 100%,
+    var(--cut) 100%,
+    0 calc(100% - var(--cut))
+  );
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
   min-height: 48px;
-  padding: 0 var(--space-5);
-  border: 2px solid var(--ink);
-  border-radius: 0;
-  background: var(--ink);
-  color: var(--paper);
+  padding: 0 var(--space-6);
+  border: 0;
+  background: var(--btn-edge);
+  color: var(--btn-ink);
+  clip-path: var(--chamfer);
   font-family: var(--font-primary);
-  font-size: var(--font-size-base);
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   line-height: 1.1;
   text-decoration: none;
   text-align: center;
@@ -24,80 +42,105 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast),
-    border-color var(--transition-fast),
+    color 160ms var(--ease-out),
     transform 120ms var(--ease-out);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  background: var(--btn-fill);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut) + 1px) 0,
+    100% calc(var(--cut) - 1px),
+    100% 100%,
+    calc(var(--cut) - 1px) 100%,
+    0 calc(100% - var(--cut) + 1px)
+  );
+  transition: background-color 160ms var(--ease-out);
 }
 
 .btn:active:not(:disabled) {
   transform: scale(0.97);
 }
 
+.btn:focus-visible {
+  outline: none;
+  --btn-edge: var(--accent);
+}
+
 @media (hover: hover) and (pointer: fine) {
   .btn:hover:not(:disabled) {
-    background: var(--ink-2);
-    border-color: var(--ink-2);
-    color: var(--paper);
+    --btn-fill: var(--paper-3);
+    --btn-edge: var(--paper-3);
+    --btn-ink: var(--ink);
   }
 }
 
 .btn:disabled,
 .btn[aria-disabled='true'] {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* Azione principale della pagina: il blocco arancio */
+/* Azione principale: il blocco arancio segnale */
 .btn-primary,
 .btn-accent {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
+  --btn-edge: var(--accent);
+  --btn-fill: var(--accent);
+  --btn-ink: var(--on-accent);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btn-primary:hover:not(:disabled),
   .btn-accent:hover:not(:disabled) {
-    background: var(--accent-press);
-    border-color: var(--accent-press);
-    color: var(--on-accent);
+    --btn-edge: var(--accent-press);
+    --btn-fill: var(--accent-press);
+    --btn-ink: var(--on-accent);
   }
 }
 
+.btn-primary:focus-visible,
+.btn-accent:focus-visible {
+  --btn-edge: var(--ink);
+}
+
 .btn-outline {
-  background: transparent;
-  color: var(--ink);
+  --btn-edge: var(--ink-3);
+  --btn-fill: var(--paper);
+  --btn-ink: var(--ink);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btn-outline:hover:not(:disabled) {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    --btn-edge: var(--ink);
+    --btn-fill: var(--paper);
+    --btn-ink: var(--ink);
   }
 }
 
 .btn-danger {
-  background: var(--danger);
-  border-color: var(--danger);
-  color: #fff;
+  --btn-edge: var(--danger);
+  --btn-fill: var(--danger);
+  --btn-ink: var(--paper);
 }
 
 .btn-quiet {
-  background: transparent;
-  border-color: transparent;
-  color: var(--ink);
+  --btn-edge: transparent;
+  --btn-fill: transparent;
+  --btn-ink: var(--ink);
   text-decoration: underline;
-  text-underline-offset: 0.2em;
+  text-underline-offset: 0.25em;
   padding: 0 var(--space-3);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btn-quiet:hover:not(:disabled) {
-    background: var(--paper-2);
-    border-color: var(--paper-2);
-    color: var(--ink);
+    --btn-edge: var(--paper-2);
+    --btn-fill: var(--paper-2);
   }
 }
 

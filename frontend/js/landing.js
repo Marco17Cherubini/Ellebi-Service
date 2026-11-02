@@ -85,7 +85,7 @@
       day.getDate() +
       ' ' +
       MONTHS[day.getMonth()];
-    document.getElementById('day-title').textContent = 'La giornata in officina · ' + label;
+    document.getElementById('day-title').textContent = 'Telemetria · ' + label;
     const first = all.find(t => free.has(t));
     document.getElementById('day-summary').textContent =
       free.size +
@@ -93,20 +93,27 @@
       all.length +
       '. Primo orario libero: ' +
       first +
-      '. Ogni blocco vale 15 minuti.';
+      '. Ogni segmento vale 15 minuti: chiaro libero, scuro occupato, arancio il primo libero.';
 
-    fillShift(document.querySelector('[data-shift="mattina"]'), 'Mattina', morning, listed, free);
+    fillShift(
+      document.querySelector('[data-shift="mattina"]'),
+      'Mattina',
+      morning,
+      listed,
+      free,
+      first
+    );
     fillShift(
       document.querySelector('[data-shift="pomeriggio"]'),
       'Pomeriggio',
       afternoon,
       listed,
-      free
+      free,
+      first
     );
-    document.getElementById('day-legend').hidden = false;
   }
 
-  function fillShift(el, name, times, listed, free) {
+  function fillShift(el, name, times, listed, free, first) {
     if (!el || times.length === 0) return;
     el.style.gridTemplateColumns = 'repeat(' + Math.max(times.length, 14) + ', 1fr)';
     const title = document.createElement('span');
@@ -120,6 +127,7 @@
       // Gli orari già passati non sono restituiti dal server
       if (!listed.has(t)) q.classList.add('is-past');
       else if (!free.has(t)) q.classList.add('is-busy');
+      else if (t === first) q.classList.add('is-first');
       el.appendChild(q);
     });
     el.classList.add('is-filled');
@@ -172,7 +180,10 @@
           name.appendChild(kind);
           const time = document.createElement('span');
           time.className = 'svc-time';
-          time.textContent = consegna ? '30 min di accoglienza' : formatDuration(s.durata_minuti);
+          time.textContent = consegna ? '30 min' : formatDuration(s.durata_minuti);
+          const note = document.createElement('small');
+          note.textContent = consegna ? 'accoglienza' : 'in agenda';
+          time.appendChild(note);
           li.append(name, time);
           ul.appendChild(li);
         });
@@ -184,67 +195,78 @@
     }
   }
 
-  // ==================== VISTA ESPLOSA E 3D ====================
+  // ==================== AUTO: IMMAGINE E 3D ====================
+  // L'immagine (resa dallo stesso modello 3D) è sempre presente e basta da sola.
+  // Il 3D si carica: subito dopo il caricamento su schermi larghi con WebGL, senza
+  // risparmio dati né movimento ridotto; altrimenti solo con "Ruota in 3D".
 
   let scene3d = null;
+  let exploded = true;
 
-  function setupMechanics() {
-    const svg = document.getElementById('car-drawing');
+  function setupCar() {
+    const stage = document.getElementById('stage-car');
+    const poster = document.getElementById('stage-poster');
     const toggle = document.getElementById('explode-toggle');
     const open3d = document.getElementById('open-3d');
-    const stage = document.getElementById('mechanics-stage');
     const status = document.getElementById('mechanics-status');
-    if (!svg || !toggle) return;
+    if (!stage || !toggle) return;
 
-    let assembled = false;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const saveData = !!(navigator.connection && navigator.connection.saveData);
+
     toggle.addEventListener('click', () => {
-      assembled = !assembled;
-      svg.classList.toggle('is-assembled', assembled);
-      toggle.textContent = assembled ? 'Scomponi' : 'Assembla';
-      toggle.setAttribute('aria-pressed', String(assembled));
-      if (scene3d) scene3d.setExploded(!assembled);
+      exploded = !exploded;
+      toggle.textContent = exploded ? 'Esplosa' : 'Assemblata';
+      toggle.setAttribute('aria-pressed', String(exploded));
+      poster.src = exploded ? '/images/auto-esplosa.webp' : '/images/auto-assemblata.webp';
+      poster.alt = exploded
+        ? 'Auto stilizzata in vista esplosa: abitacolo, carrozzeria, sedili, motore, telaio e ruote separati'
+        : 'Auto stilizzata assemblata';
+      if (scene3d) scene3d.setExploded(exploded);
     });
 
-    // Il 3D si offre solo se il browser ha WebGL; si carica soltanto al clic
     if (!hasWebGL()) return;
-    open3d.hidden = false;
-    open3d.addEventListener('click', async () => {
-      if (scene3d) {
-        scene3d.dispose();
-        scene3d = null;
-        stage.classList.remove('is-3d');
-        open3d.textContent = 'Esplora la meccanica in 3D';
-        status.textContent = 'Vista 3D chiusa.';
-        return;
-      }
+
+    async function load(auto) {
+      if (scene3d) return;
       open3d.disabled = true;
-      open3d.classList.add('is-busy');
-      status.textContent = 'Caricamento della vista 3D…';
+      if (!auto) status.textContent = 'Caricamento del 3D…';
       const started = performance.now();
       try {
         const mod = await import('/js/garage3d.js');
         scene3d = await mod.mount(stage, {
-          exploded: !assembled,
+          exploded,
+          intro: auto && !reduced,
+          reducedMotion: reduced,
           onLost: () => {
             stage.classList.remove('is-3d');
             scene3d = null;
-            open3d.textContent = 'Esplora la meccanica in 3D';
-            status.textContent = 'La vista 3D si è interrotta: resta il disegno.';
+            open3d.hidden = false;
+            open3d.disabled = false;
+            status.textContent = "Il 3D si è interrotto: resta l'immagine.";
           }
         });
         stage.classList.add('is-3d');
-        open3d.textContent = 'Chiudi la vista 3D';
-        status.textContent =
-          'Vista 3D pronta. Trascina in orizzontale per ruotare; il pulsante Assembla funziona anche qui.';
+        open3d.hidden = true;
+        status.textContent = auto ? '' : 'Trascina in orizzontale per ruotare.';
         window.__garage3dReadyMs = Math.round(performance.now() - started);
       } catch (e) {
-        status.textContent =
-          'La vista 3D non è disponibile su questo dispositivo: resta il disegno.';
-      } finally {
         open3d.disabled = false;
-        open3d.classList.remove('is-busy');
+        status.textContent = "Il 3D non è disponibile su questo dispositivo: resta l'immagine.";
       }
-    });
+    }
+
+    open3d.hidden = false;
+    open3d.addEventListener('click', () => load(false));
+
+    const wide = window.matchMedia('(min-width: 1024px)').matches;
+    const lowMemory = navigator.deviceMemory && navigator.deviceMemory < 4;
+    if (wide && !saveData && !reduced && !lowMemory) {
+      const go = () => load(true);
+      const idle = window.requestIdleCallback || (cb => setTimeout(cb, 600));
+      if (document.readyState === 'complete') idle(go);
+      else window.addEventListener('load', () => idle(go), { once: true });
+    }
   }
 
   function hasWebGL() {
@@ -259,5 +281,5 @@
   updateAccountLink();
   renderDay();
   renderServices();
-  setupMechanics();
+  setupCar();
 })();

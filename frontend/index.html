@@ -8,15 +8,9 @@
       name="description"
       content="Officina auto e moto a San Giuliano Vecchio (AL). Prenota online un intervento o la consegna del veicolo, scegliendo tra gli orari liberi."
     />
-    <meta name="theme-color" content="#eceae4" />
-    <link
-      rel="preload"
-      href="/fonts/barlow-semi-condensed-700.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link rel="preload" href="/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#0b0c0e" />
+    <link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/images/auto-esplosa.webp" as="image" fetchpriority="high" />
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/styles/pages/landing.css" />
   </head>
@@ -31,77 +25,86 @@
         >
       </a>
       <nav class="site-bar-actions" aria-label="Principale">
+        <a class="site-link" href="#servizi">Servizi</a>
         <a class="site-link" href="#contatti">Contatti</a>
-        <a class="site-link" href="/login" id="account-link">Accedi</a>
+        <a class="site-link site-link-account" href="/login" id="account-link">Accedi</a>
         <a class="btn btn-primary btn-sm site-bar-cta" href="/prenota">Prenota</a>
       </nav>
     </header>
 
     <main id="contenuto">
-      <!-- 1. Chi, cosa, come: la giornata dell'officina in quarti d'ora -->
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <h1 id="hero-title" class="hero-title">
-            Ellebi Service<span class="hero-title-line">officina auto e moto</span>
-          </h1>
-          <p class="hero-lead">
-            A San Giuliano Vecchio, in provincia di Alessandria. Scegli il servizio, vedi gli orari
-            liberi e prenota: la conferma arriva via email.
-          </p>
-          <div class="hero-actions">
-            <a class="btn btn-primary btn-lg" href="/prenota">Prenota un intervento</a>
-            <a class="btn btn-outline btn-lg" href="tel:+393663043908">Chiama 366 304 3908</a>
+      <!-- 1. Il palco: nome monumentale, auto in vista esplosa, chi/cosa/come, telemetria -->
+      <section class="stage" aria-labelledby="hero-title">
+        <p class="stage-monument" aria-hidden="true">Ellebi</p>
+
+        <div class="stage-car" id="stage-car">
+          <img
+            class="stage-poster"
+            id="stage-poster"
+            src="/images/auto-esplosa.webp"
+            width="1120"
+            height="688"
+            alt="Auto stilizzata in vista esplosa: abitacolo, carrozzeria, sedili, motore, telaio e ruote separati"
+            fetchpriority="high"
+          />
+          <div class="stage-controls" role="group" aria-label="Vista dell'auto">
+            <button type="button" class="chip" id="explode-toggle" aria-pressed="true">
+              Esplosa
+            </button>
+            <button type="button" class="chip" id="open-3d" hidden>Ruota in 3D</button>
+            <span
+              class="stage-status"
+              id="mechanics-status"
+              role="status"
+              aria-live="polite"
+            ></span>
           </div>
-          <p class="hero-note">
-            Non serve un account. Se preferisci, puoi
-            <a href="/register">registrarti</a> per ritrovare prenotazioni e veicoli.
-          </p>
         </div>
 
-        <figure class="day-board" aria-labelledby="day-title">
-          <figcaption class="day-head">
-            <span id="day-title" class="day-title">Orari dell'officina</span>
-            <span id="day-summary" class="day-summary">
-              Lun–ven 8:30–12:30 e 14:30–18:30, sabato 8:30–12:00.
-            </span>
+        <div class="stage-copy">
+          <h1 id="hero-title" class="stage-title">Officina auto e moto</h1>
+          <p class="stage-place">A San Giuliano Vecchio, in provincia di Alessandria.</p>
+          <p class="stage-lead">
+            La meccanica prende forma: scegli il servizio, guarda gli orari liberi e prenota. La
+            conferma arriva via email.
+          </p>
+          <div class="stage-actions">
+            <a class="btn btn-primary btn-lg" href="/prenota">Prenota un intervento</a>
+            <a class="btn btn-outline btn-lg" href="tel:+393663043908">366 304 3908</a>
+          </div>
+        </div>
+
+        <figure class="telemetry" aria-labelledby="day-title">
+          <figcaption>
+            <span id="day-title" class="telemetry-title">Orari dell'officina</span>
+            <span id="day-summary" class="telemetry-summary"
+              >Lun–ven 8:30–12:30 e 14:30–18:30, sabato 8:30–12:00.</span
+            >
           </figcaption>
-          <div class="day-shifts" id="day-shifts" aria-hidden="true">
+          <div class="telemetry-bars" id="day-shifts" aria-hidden="true">
             <div class="day-shift" data-shift="mattina"></div>
             <div class="day-shift" data-shift="pomeriggio"></div>
           </div>
-          <p class="day-legend" id="day-legend" hidden>
-            <span class="legend-key legend-free" aria-hidden="true"></span>libero
-            <span class="legend-key legend-busy" aria-hidden="true"></span>occupato
-            <span class="legend-key legend-closed" aria-hidden="true"></span>passato
-          </p>
         </figure>
       </section>
 
       <!-- 2. Due modi di portare il veicolo -->
       <section class="ways" aria-labelledby="ways-title">
-        <h2 id="ways-title">Due modi di portare il veicolo</h2>
+        <h2 id="ways-title">Appuntamento o consegna</h2>
         <div class="ways-grid">
           <article class="way">
-            <div class="way-diagram" aria-hidden="true">
-              <span class="q q-on"></span><span class="q q-on"></span><span class="q q-on"></span
-              ><span class="q q-on"></span><span class="q"></span><span class="q"></span
-              ><span class="q"></span><span class="q"></span>
-            </div>
+            <p class="way-figure" aria-hidden="true">15<small>min × n</small></p>
             <h3>Appuntamento</h3>
             <p>
-              Per tagliandi, freni, gomme e lavori brevi. Prenoti un orario: la durata dipende dal
+              Tagliandi, freni, gomme e lavori brevi. Prenoti un orario: la durata dipende dal
               servizio ed è indicata prima di confermare, così sai quanto tempo riservare.
             </p>
           </article>
-          <article class="way">
-            <div class="way-diagram" aria-hidden="true">
-              <span class="q q-on"></span><span class="q q-on"></span><span class="q"></span
-              ><span class="q"></span><span class="q q-later"></span><span class="q q-later"></span
-              ><span class="q q-later"></span><span class="q"></span>
-            </div>
+          <article class="way way-alt">
+            <p class="way-figure" aria-hidden="true">30<small>min</small></p>
             <h3>Consegna del veicolo</h3>
             <p>
-              Per lavori più lunghi. Prenoti 30 minuti di accoglienza per lasciare il veicolo e
+              Per i lavori lunghi. Prenoti 30 minuti di accoglienza per lasciare il veicolo e
               raccontare il problema; l'officina pianifica il lavoro e ti scrive quando è pronto. La
               data di riconsegna non è fissata in anticipo.
             </p>
@@ -109,10 +112,10 @@
         </div>
       </section>
 
-      <!-- 3. Il listino, letto dal gestionale -->
-      <section class="services" aria-labelledby="services-title">
+      <!-- 3. Il listino come scheda tecnica, letto dal gestionale -->
+      <section class="services" id="servizi" aria-labelledby="services-title">
         <div class="services-head">
-          <h2 id="services-title">Servizi prenotabili</h2>
+          <h2 id="services-title">Scheda servizi</h2>
           <p>
             Le durate sono quelle che l'officina riserva in agenda; i prezzi non sono pubblicati
             online.
@@ -125,94 +128,20 @@
         </div>
       </section>
 
-      <!-- 4. La meccanica prende forma -->
-      <section class="mechanics" aria-labelledby="mechanics-title">
-        <div class="mechanics-copy">
-          <h2 id="mechanics-title">La meccanica prende forma</h2>
-          <p>
-            Carrozzeria, telaio, motore e ruote: le parti che un'officina smonta, controlla e
-            rimette al loro posto. Un disegno indicativo, non un veicolo reale.
-          </p>
-          <div class="mechanics-actions">
-            <button type="button" class="btn btn-outline" id="explode-toggle" aria-pressed="false">
-              Assembla
-            </button>
-            <button type="button" class="btn" id="open-3d" hidden>
-              Esplora la meccanica in 3D
-            </button>
-          </div>
-          <p class="mechanics-status" id="mechanics-status" role="status" aria-live="polite"></p>
-        </div>
-        <div class="mechanics-stage" id="mechanics-stage">
-          <svg
-            class="car-drawing"
-            id="car-drawing"
-            viewBox="0 0 800 460"
-            role="img"
-            aria-labelledby="car-title"
-          >
-            <title id="car-title">
-              Auto stilizzata in vista esplosa: carrozzeria, motore, telaio e ruote separati
-            </title>
-            <!-- Telaio: piano e longheroni -->
-            <g class="part chassis">
-              <rect class="ink2" x="118" y="292" width="566" height="16" />
-              <rect class="ink" x="150" y="308" width="500" height="10" />
-              <rect class="ink2" x="196" y="276" width="28" height="16" />
-              <rect class="ink2" x="576" y="276" width="28" height="16" />
-            </g>
-            <!-- Gruppo motore: blocco, testata, puleggia -->
-            <g class="part engine">
-              <rect class="accent" x="590" y="204" width="96" height="20" />
-              <rect class="ink" x="598" y="199" width="72" height="6" />
-              <circle class="ink" cx="582" cy="214" r="10" />
-              <circle class="paper" cx="582" cy="214" r="3" />
-              <rect class="ink" x="606" y="209" width="8" height="15" />
-              <rect class="ink" x="626" y="209" width="8" height="15" />
-              <rect class="ink" x="646" y="209" width="8" height="15" />
-              <rect class="ink" x="666" y="209" width="8" height="15" />
-            </g>
-            <!-- Carrozzeria: profilo di una berlina compatta generica, senza marchi -->
-            <g class="part body">
-              <path
-                class="ink"
-                d="M84 286 L84 236 Q86 206 128 196 L214 182 Q262 128 330 118 L470 116 Q516 118 556 150 L600 186 L700 204 Q738 212 742 244 L744 286 L652 286 A62 62 0 0 0 528 286 L272 286 A62 62 0 0 0 148 286 Z"
-              />
-              <path class="glass" d="M232 184 Q272 142 330 134 L392 132 L392 184 Z" />
-              <path class="glass" d="M408 132 L466 132 Q506 134 538 160 L566 184 L408 184 Z" />
-              <rect class="paper3" x="404" y="132" width="6" height="52" />
-              <rect class="accent" x="716" y="222" width="22" height="12" />
-              <rect class="paper3" x="86" y="226" width="14" height="14" />
-              <rect class="ink2" x="300" y="206" width="22" height="5" />
-              <rect class="ink2" x="452" y="206" width="22" height="5" />
-            </g>
-            <!-- Ruote: pneumatico, cerchio, mozzo -->
-            <g class="part wheel-r">
-              <circle class="ink" cx="210" cy="292" r="56" />
-              <circle class="paper3" cx="210" cy="292" r="32" />
-              <circle class="ink2" cx="210" cy="292" r="12" />
-              <rect class="ink2" x="207" y="262" width="6" height="18" />
-              <rect class="ink2" x="207" y="304" width="6" height="18" />
-              <rect class="ink2" x="180" y="289" width="18" height="6" />
-              <rect class="ink2" x="222" y="289" width="18" height="6" />
-            </g>
-            <g class="part wheel-f">
-              <circle class="ink" cx="590" cy="292" r="56" />
-              <circle class="paper3" cx="590" cy="292" r="32" />
-              <circle class="ink2" cx="590" cy="292" r="12" />
-              <rect class="ink2" x="587" y="262" width="6" height="18" />
-              <rect class="ink2" x="587" y="304" width="6" height="18" />
-              <rect class="ink2" x="560" y="289" width="18" height="6" />
-              <rect class="ink2" x="602" y="289" width="18" height="6" />
-            </g>
-          </svg>
-        </div>
-      </section>
-
-      <!-- 5. Orari e contatti -->
+      <!-- 4. Orari e contatti -->
       <section class="contact" id="contatti" aria-labelledby="contact-title">
         <h2 id="contact-title">Orari e contatti</h2>
         <div class="contact-grid">
+          <address class="contact-lines">
+            <a class="contact-big" href="tel:+393663043908">366 304 3908</a>
+            <a href="mailto:ellebi_service@libero.it">ellebi_service@libero.it</a>
+            <span>Via Zerbi 21, San Giuliano Vecchio (AL)</span>
+            <a
+              href="https://www.google.com/maps/search/?api=1&amp;query=Via%20Zerbi%2021%20San%20Giuliano%20Vecchio"
+              rel="noopener"
+              >Apri in Mappe</a
+            >
+          </address>
           <table class="hours">
             <caption class="visually-hidden">
               Orari di apertura
@@ -234,22 +163,12 @@
               </tr>
             </tbody>
           </table>
-          <address class="contact-lines">
-            <a class="contact-big" href="tel:+393663043908">366 304 3908</a>
-            <a href="mailto:ellebi_service@libero.it">ellebi_service@libero.it</a>
-            <span>Via Zerbi 21, San Giuliano Vecchio (AL)</span>
-            <a
-              href="https://www.google.com/maps/search/?api=1&amp;query=Via%20Zerbi%2021%20San%20Giuliano%20Vecchio"
-              rel="noopener"
-              >Apri in Mappe</a
-            >
-          </address>
         </div>
       </section>
     </main>
 
     <footer class="site-foot">
-      <p class="site-foot-mark" aria-hidden="true">Ellebi Service</p>
+      <p class="site-foot-mark" aria-hidden="true">Ellebi</p>
       <nav class="site-foot-links" aria-label="Collegamenti">
         <a href="/prenota">Prenota</a>
         <a href="/login">Accedi</a>
@@ -258,7 +177,8 @@
         <a href="/cookie-policy.html">Cookie</a>
       </nav>
       <p class="site-foot-legal">
-        © Ellebi Service SRL · P.IVA 02686660065 · Via Zerbi 21, San Giuliano Vecchio (AL)
+        © Ellebi Service SRL · P.IVA 02686660065 · Via Zerbi 21, San Giuliano Vecchio (AL). Auto 3D:
+        modello stilizzato e generico, non un veicolo reale.
       </p>
     </footer>
 

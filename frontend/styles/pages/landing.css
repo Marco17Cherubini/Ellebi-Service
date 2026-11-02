@@ -1,16 +1,16 @@
 /* ============================================================================
    PAGINA PUBBLICA — "La meccanica prende forma"
-   Il quarto d'ora dell'officina (blocco pieno, angoli vivi) è l'unico motivo:
-   la giornata in apertura, i diagrammi dei due modi, i punti del listino.
+   L'officina presentata come il lancio di un'auto: palco scuro, il nome come
+   monumento dietro la vettura in vista esplosa, schede tecniche al posto delle card,
+   gli orari come telemetria. Un solo arancio segnale per azioni e cifre.
    ============================================================================ */
 
-.landing {
-  --hero-field: var(--accent);
-}
-
-.site-bar {
+.landing .site-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
   background: transparent;
-  position: relative;
+  z-index: var(--z-sticky);
 }
 
 .site-link {
@@ -19,187 +19,315 @@
   align-items: center;
   padding: 0 var(--space-2);
   color: var(--ink);
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   text-decoration: none;
 }
 
 .site-link:hover {
-  text-decoration: underline;
-  color: var(--ink);
+  color: var(--accent-ink);
 }
 
-@media (min-width: 560px) {
+.site-link-account {
+  display: inline-flex;
+}
+
+@media (max-width: 479px) {
+  .landing .wordmark-sub {
+    display: none;
+  }
+
+  .landing .site-bar-actions {
+    gap: var(--space-1);
+  }
+}
+
+@media (min-width: 720px) {
   .site-link {
     display: inline-flex;
   }
 }
 
-/* ==================== HERO ==================== */
+/* ==================== PALCO ==================== */
 
-.hero {
+.stage {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr;
+  grid-template-areas:
+    'car'
+    'copy'
+    'telemetry';
   gap: var(--space-8);
-  padding: var(--space-6) var(--gutter) 0;
+  padding: 88px var(--gutter) var(--space-12);
   overflow: hidden;
+  isolation: isolate;
+  background: var(--paper);
 }
 
-.hero-title {
-  font-size: clamp(2.25rem, 1.1rem + 4.6vw, 4.75rem);
+/* Il nome, grande come l'auto, dietro la vettura */
+.stage-monument {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 92px;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: clamp(5rem, 1rem + 22vw, 24rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--paper-2);
+  user-select: none;
+}
+
+.stage-car {
+  grid-area: car;
+  position: relative;
+  margin: 0 calc(var(--gutter) * -0.5);
+  aspect-ratio: 1120 / 688;
+  touch-action: pan-y;
+}
+
+.stage-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 400ms var(--ease-out);
+}
+
+.stage-car.is-3d .stage-poster {
+  opacity: 0;
+}
+
+.garage3d-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  cursor: grab;
+  outline: none;
+}
+
+.garage3d-canvas:active {
+  cursor: grabbing;
+}
+
+.garage3d-canvas:focus-visible {
+  box-shadow: inset 0 0 0 3px var(--accent);
+}
+
+.stage-controls {
+  position: absolute;
+  z-index: 2; /* sopra la tela 3D */
+  left: calc(var(--gutter) * 0.5);
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.chip {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  background: rgba(11, 12, 14, 0.55);
+  border: 2px solid var(--paper-3);
+  color: var(--ink);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    border-color 160ms var(--ease-out),
+    transform 120ms var(--ease-out);
+}
+
+[data-theme='light'] .chip {
+  background: rgba(232, 234, 237, 0.7);
+}
+
+.chip:active {
+  transform: scale(0.97);
+}
+
+.chip[aria-pressed='true'] {
+  border-color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover {
+    border-color: var(--ink);
+  }
+}
+
+.stage-status {
+  font-size: var(--font-size-sm);
+  color: var(--ink-2);
+}
+
+.stage-copy {
+  grid-area: copy;
+}
+
+.stage-title {
+  font-size: clamp(2rem, 1rem + 4.2vw, 4.25rem);
   line-height: 0.95;
-  letter-spacing: -0.02em;
-  margin: 0 0 var(--space-6);
+  margin: 0 0 var(--space-5);
 }
 
-.hero-title-line {
-  display: block;
+.stage-place {
+  margin: calc(var(--space-2) * -1) 0 var(--space-3);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--accent-ink);
 }
 
-.hero-lead {
+.stage-lead {
   font-size: var(--step-lead);
   line-height: 1.35;
-  max-width: 34ch;
+  max-width: 32ch;
+  color: var(--ink-2);
   margin-bottom: var(--space-8);
 }
 
-.hero-actions {
+.stage-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
 }
 
-.hero-actions .btn {
-  flex: 1 1 15rem;
+.stage-actions .btn {
+  flex: 1 1 14rem;
 }
 
 @media (min-width: 560px) {
-  .hero-actions .btn {
+  .stage-actions .btn {
     flex: 0 0 auto;
   }
 }
 
-.hero-note {
-  margin-top: var(--space-5);
-  color: var(--ink-2);
-  font-size: var(--font-size-sm);
+/* ==================== TELEMETRIA DEGLI ORARI ==================== */
+
+.telemetry {
+  grid-area: telemetry;
+  margin: 0;
+  padding: var(--space-5);
+  background: var(--paper-2);
+  clip-path: polygon(0 0, calc(100% - var(--cut-lg)) 0, 100% var(--cut-lg), 100% 100%, 0 100%);
 }
 
-/* La giornata dell'officina su un campo arancio che esce dal bordo dello schermo */
-.day-board {
-  position: relative;
-  margin: 0 calc(var(--gutter) * -1);
-  padding: var(--space-8) var(--gutter) var(--space-10);
-  background: var(--hero-field);
-  color: var(--on-accent);
-}
-
-.day-head {
+.telemetry figcaption {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
-.day-title {
+.telemetry-title {
   font-family: var(--font-display);
-  font-size: var(--step-lead);
-  font-weight: 700;
-  line-height: 1.1;
+  font-weight: 800;
+  font-stretch: 125%;
+  text-transform: uppercase;
+  font-size: var(--font-size-base);
+  letter-spacing: 0.02em;
 }
 
-.day-summary {
-  font-size: var(--step-body);
-  font-weight: 500;
-  max-width: 40ch;
+.telemetry-summary {
+  font-size: var(--font-size-sm);
+  color: var(--ink-2);
 }
 
-.day-shifts {
+.telemetry-bars {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .day-shift {
   display: grid;
   grid-template-columns: repeat(16, 1fr);
-  gap: 3px;
+  gap: 4px;
 }
 
 .day-shift:empty {
   display: none;
 }
 
-.day-shift .q {
-  aspect-ratio: 1 / 2.2;
-  background: var(--slot-free);
-}
-
-.day-shift .q.is-busy {
-  background: var(--ink);
-}
-
-.day-shift .q.is-past {
-  background: transparent;
-  box-shadow: inset 0 0 0 2px rgba(22, 24, 26, 0.35);
-}
-
 .day-shift-label {
   grid-column: 1 / -1;
   font-size: var(--font-size-sm);
   font-weight: 600;
-  margin-bottom: 2px;
+  color: var(--ink-2);
 }
 
-.day-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
-  margin: var(--space-5) 0 0;
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--on-accent);
-}
-
-.legend-key {
-  display: inline-block;
-  width: 12px;
-  height: 22px;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-.legend-free {
+/* Ogni segmento è un quarto d'ora: acceso se libero, spento se occupato */
+.day-shift .q {
+  height: 26px;
   background: var(--slot-free);
+  transform: skewX(-16deg);
 }
 
-.legend-busy {
-  background: var(--ink);
+.day-shift .q.is-busy {
+  background: var(--slot-busy);
 }
 
-.legend-closed {
-  box-shadow: inset 0 0 0 2px rgba(22, 24, 26, 0.35);
+.day-shift .q.is-past {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--paper-3);
 }
 
-@media (min-width: 960px) {
-  .hero {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
-    align-items: stretch;
-    gap: var(--space-12);
-    padding-top: var(--space-12);
-    min-height: min(86svh, 860px);
+.day-shift .q.is-first {
+  background: var(--accent);
+}
+
+@media (min-width: 1024px) {
+  .stage {
+    min-height: min(100svh, 980px);
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+      'car car'
+      'copy telemetry';
+    column-gap: var(--space-12);
+    row-gap: var(--space-4);
+    padding-top: 76px;
+    padding-bottom: var(--space-8);
   }
 
-  .hero-copy {
+  .stage-car {
+    margin: 0 auto;
+    height: clamp(320px, calc(100svh - 400px), 660px);
+    width: auto;
+    max-width: 100%;
     align-self: center;
-    padding-bottom: var(--space-12);
   }
 
-  .day-board {
-    margin: 0 calc(var(--gutter) * -1) 0 0;
-    padding: var(--space-12) var(--gutter) var(--space-12) var(--space-10);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+  .stage-controls {
+    left: 0;
+  }
+
+  .stage-copy {
+    align-self: end;
+  }
+
+  .stage-title {
+    max-width: 22ch;
+    font-size: clamp(2rem, 0.8rem + 3vw, 3.5rem);
+  }
+
+  .stage-lead {
+    margin-bottom: var(--space-5);
+  }
+
+  .telemetry {
+    align-self: end;
   }
 }
 
@@ -207,77 +335,109 @@
 
 .ways,
 .services,
-.mechanics,
 .contact {
   padding: clamp(4rem, 3rem + 6vw, 9rem) var(--gutter) 0;
-  max-width: 1320px;
+  max-width: 1360px;
   margin: 0 auto;
 }
 
 .ways h2,
 .services h2,
-.mechanics h2,
 .contact h2 {
-  font-size: var(--step-head);
-  margin-bottom: var(--space-8);
+  font-size: clamp(1.625rem, 1rem + 3.6vw, 4.5rem);
+  margin-bottom: var(--space-10);
+  max-width: 16ch;
 }
 
 .ways-grid {
   display: grid;
-  gap: var(--space-10);
+  gap: 4px;
 }
 
-@media (min-width: 760px) {
+@media (min-width: 800px) {
   .ways-grid {
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-12);
   }
 }
 
+.way {
+  padding: var(--space-8) var(--space-6) var(--space-10);
+  background: var(--paper-2);
+  clip-path: polygon(0 0, calc(100% - var(--cut-lg)) 0, 100% var(--cut-lg), 100% 100%, 0 100%);
+}
+
+.way-alt {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.way-alt h3,
+.way-alt p {
+  color: var(--on-accent);
+}
+
+.way-figure {
+  margin: 0 0 var(--space-8);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: clamp(4.5rem, 2rem + 10vw, 9rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-ink);
+}
+
+.way-alt .way-figure {
+  color: var(--on-accent);
+}
+
+.way-figure small {
+  font-size: 0.22em;
+  letter-spacing: 0.06em;
+  margin-left: 0.3em;
+  vertical-align: top;
+}
+
 .way h3 {
-  font-size: var(--font-size-2xl);
-  margin: var(--space-5) 0 var(--space-3);
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
 }
 
 .way p {
-  max-width: 46ch;
+  max-width: 44ch;
+  margin: 0;
 }
 
-.way-diagram {
+/* ==================== SCHEDA SERVIZI ==================== */
+
+.services-head {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 4px;
-  max-width: 420px;
+  gap: var(--space-4);
 }
 
-.way-diagram .q {
-  aspect-ratio: 1 / 1.6;
-  background: var(--paper-2);
+.services-head h2 {
+  margin-bottom: 0;
 }
-
-.way-diagram .q-on {
-  background: var(--accent);
-}
-
-.way-diagram .q-later {
-  background: var(--ink);
-}
-
-/* ==================== LISTINO ==================== */
 
 .services-head p {
   max-width: 52ch;
-  margin-top: calc(var(--space-4) * -1);
   color: var(--ink-2);
+}
+
+@media (min-width: 960px) {
+  .services-head {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
 }
 
 .services-cols {
   display: grid;
-  gap: var(--space-10);
-  margin-top: var(--space-8);
+  gap: var(--space-12);
+  margin-top: var(--space-10);
 }
 
-@media (min-width: 760px) {
+@media (min-width: 800px) {
   .services-cols {
     grid-template-columns: 1fr 1fr;
     gap: var(--space-16);
@@ -289,40 +449,31 @@
   justify-content: space-between;
   align-items: baseline;
   font-size: var(--font-size-2xl);
-  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  margin-bottom: 0;
+  border-bottom: 4px solid var(--accent);
 }
 
 .services-group h3 small {
   font-family: var(--font-primary);
-  font-size: var(--font-size-base);
+  font-stretch: 100%;
+  text-transform: none;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--ink-2);
 }
 
 .services-list {
   list-style: none;
-  display: grid;
-  gap: var(--space-5);
 }
 
 .services-list li {
   display: grid;
-  grid-template-columns: 14px 1fr auto;
+  grid-template-columns: 1fr auto;
   gap: var(--space-4);
   align-items: baseline;
-}
-
-.services-list li::before {
-  content: '';
-  width: 14px;
-  height: 22px;
-  background: var(--ink);
-  align-self: start;
-  margin-top: 2px;
-}
-
-.services-list li.is-consegna::before {
-  background: var(--accent);
+  padding: var(--space-4) 0;
+  border-bottom: 2px solid var(--paper-3);
 }
 
 .svc-name {
@@ -337,129 +488,69 @@
   font-weight: 400;
 }
 
+.is-consegna .svc-kind {
+  color: var(--accent-ink);
+}
+
 .svc-time {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 800;
+  font-size: var(--font-size-xl);
   font-variant-numeric: tabular-nums;
-  font-weight: 500;
   white-space: nowrap;
+  text-align: right;
 }
 
-/* ==================== VISTA ESPLOSA ==================== */
-
-.mechanics {
-  display: grid;
-  gap: var(--space-8);
-  align-items: center;
-}
-
-@media (min-width: 960px) {
-  .mechanics {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-    gap: var(--space-12);
-  }
-}
-
-.mechanics-copy p {
-  max-width: 42ch;
-}
-
-.mechanics-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-6);
-}
-
-.mechanics-status {
-  min-height: 1.5em;
-  margin-top: var(--space-3);
-  font-size: var(--font-size-sm);
+.svc-time small {
+  display: block;
+  font-family: var(--font-primary);
+  font-stretch: 100%;
+  font-weight: 500;
+  font-size: var(--font-size-xs);
   color: var(--ink-2);
-}
-
-.mechanics-stage {
-  position: relative;
-  background: var(--paper-2);
-  aspect-ratio: 800 / 460;
-  touch-action: pan-y;
-}
-
-.car-drawing {
-  width: 100%;
-  height: 100%;
-}
-
-.car-drawing .ink {
-  fill: var(--ink);
-}
-
-.car-drawing .ink2 {
-  fill: var(--ink-2);
-}
-
-.car-drawing .paper {
-  fill: var(--paper);
-}
-
-.car-drawing .paper3 {
-  fill: var(--paper-3);
-}
-
-.car-drawing .accent {
-  fill: var(--accent);
-}
-
-.car-drawing .glass {
-  fill: #9aa3ab;
-}
-
-[data-theme='dark'] .car-drawing .ink {
-  fill: #3a3f45;
-}
-
-.car-drawing .part {
-  transition: transform 620ms var(--ease-in-out);
-}
-
-.car-drawing:not(.is-assembled) .body {
-  transform: translateY(-78px);
-}
-
-.car-drawing:not(.is-assembled) .engine {
-  transform: translate(10px, -176px);
-}
-
-.car-drawing:not(.is-assembled) .wheel-f {
-  transform: translate(34px, 52px);
-}
-
-.car-drawing:not(.is-assembled) .wheel-r {
-  transform: translate(-34px, 52px);
-}
-
-.mechanics-stage canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  touch-action: pan-y;
-  cursor: grab;
-}
-
-.mechanics-stage.is-3d .car-drawing {
-  visibility: hidden;
 }
 
 /* ==================== CONTATTI ==================== */
 
 .contact-grid {
   display: grid;
-  gap: var(--space-10);
+  gap: var(--space-12);
 }
 
-@media (min-width: 760px) {
+@media (min-width: 900px) {
   .contact-grid {
     grid-template-columns: 1.1fr 0.9fr;
+    align-items: start;
   }
+}
+
+.contact-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-style: normal;
+  font-size: var(--font-size-lg);
+}
+
+.contact-lines a {
+  color: var(--ink);
+}
+
+.contact-big {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: clamp(2.25rem, 1rem + 6vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--space-4);
+}
+
+.contact-big:hover {
+  color: var(--accent-ink);
 }
 
 .hours {
@@ -472,7 +563,7 @@
 .hours th,
 .hours td {
   text-align: left;
-  padding: var(--space-3) var(--space-3) var(--space-3) 0;
+  padding: var(--space-4) var(--space-3) var(--space-4) 0;
   border-bottom: 2px solid var(--paper-3);
   vertical-align: top;
 }
@@ -495,53 +586,27 @@
   }
 }
 
-.contact-lines {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  font-style: normal;
-  font-size: var(--font-size-lg);
-}
-
-.contact-lines a {
-  color: var(--ink);
-}
-
-.contact-big {
-  font-family: var(--font-display);
-  font-size: var(--step-head);
-  font-weight: 700;
-  line-height: 1;
-  text-decoration: none;
-  font-variant-numeric: tabular-nums;
-}
-
 /* ==================== CHIUSURA ==================== */
 
 .site-foot {
   margin-top: clamp(4rem, 3rem + 6vw, 9rem);
   padding: var(--space-10) var(--gutter) calc(var(--space-8) + env(safe-area-inset-bottom));
-  background: var(--graphite);
-  color: var(--on-graphite);
+  background: var(--accent);
+  color: var(--on-accent);
+  overflow: hidden;
 }
 
 .site-foot-mark {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(3rem, 1rem + 11vw, 11rem);
-  line-height: 0.85;
-  letter-spacing: -0.03em;
-  color: var(--on-graphite);
-  margin: 0 0 var(--space-8);
-}
-
-.site-foot-mark::after {
-  content: '';
-  display: inline-block;
-  width: 0.28em;
-  height: 0.62em;
-  margin-left: 0.08em;
-  background: #f26b1d;
+  font-weight: 900;
+  font-stretch: 125%;
+  text-transform: uppercase;
+  font-size: clamp(4rem, 0.5rem + 21vw, 22rem);
+  line-height: 0.78;
+  letter-spacing: -0.045em;
+  color: var(--on-accent);
+  margin: 0 0 var(--space-10) -0.04em;
+  white-space: nowrap;
 }
 
 .site-foot-links {
@@ -553,33 +618,87 @@
 
 .site-foot-links a,
 .site-foot-legal {
-  color: var(--on-graphite);
+  color: var(--on-accent);
 }
 
 .site-foot-links a {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: var(--font-size-sm);
 }
 
 .site-foot-legal {
   font-size: var(--font-size-sm);
   margin: 0;
-  opacity: 0.8;
+  max-width: 70ch;
 }
 
 /* ==================== MOVIMENTO ==================== */
-/* Ingresso dei quarti d'ora: una sola volta, solo al primo caricamento */
+/* Un solo momento firmato: il palco entra una volta (nome, auto, testo, telemetria).
+   Poi niente si muove da solo. Con riduzione del movimento tutto è già al suo posto. */
 @media (prefers-reduced-motion: no-preference) {
+  .stage-monument {
+    animation: monument-in 900ms var(--ease-out) both;
+  }
+
+  .stage-car {
+    animation: car-in 900ms var(--ease-out) 120ms both;
+  }
+
+  .stage-copy > *,
+  .telemetry {
+    animation: rise-in 600ms var(--ease-out) both;
+  }
+
+  .stage-copy > :nth-child(1) {
+    animation-delay: 260ms;
+  }
+
+  .stage-copy > :nth-child(2) {
+    animation-delay: 330ms;
+  }
+
+  .stage-copy > :nth-child(3) {
+    animation-delay: 400ms;
+  }
+
+  .telemetry {
+    animation-delay: 470ms;
+  }
+
   .day-shift.is-filled .q {
-    animation: q-in 420ms var(--ease-out) backwards;
-    animation-delay: calc(var(--i, 0) * 18ms);
+    animation: q-on 380ms var(--ease-out) backwards;
+    animation-delay: calc(500ms + var(--i, 0) * 16ms);
   }
 }
 
-@keyframes q-in {
+@keyframes monument-in {
   from {
-    transform: scaleY(0.4);
+    opacity: 0;
+    transform: translate(-50%, 24px);
+  }
+}
+
+@keyframes car-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes q-on {
+  from {
     opacity: 0;
   }
 }

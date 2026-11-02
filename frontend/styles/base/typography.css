@@ -1,51 +1,27 @@
 /* ============================================================================
-   TIPOGRAFIA — Barlow (testo) e Barlow Semi Condensed (titoli), self-hosted.
-   Barlow nasce dalla segnaletica stradale californiana: lettere della strada,
-   terminali squadrati, cifre tabellari leggibili. Licenza OFL (fonts/OFL.txt).
+   TIPOGRAFIA — Archivo variabile (OFL, fonts/OFL-Archivo.txt), un solo file.
+   Titoli in maiuscolo e larghezza 125%: la voce delle schede tecniche e delle
+   livree da corsa. Testo a larghezza normale, cifre tabellari per orari e targhe.
    ============================================================================ */
 
 @font-face {
-  font-family: 'Barlow';
+  font-family: 'Archivo';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
   font-display: swap;
-  src: url('/fonts/barlow-400.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Barlow';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/barlow-500.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Barlow';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('/fonts/barlow-600.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Barlow Semi Condensed';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/barlow-semi-condensed-700.woff2') format('woff2');
+  src: url('/fonts/archivo-var.woff2') format('woff2');
 }
 
 h1,
 h2,
-h3,
-h4,
-h5,
-h6 {
+h3 {
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 1.02;
+  font-weight: 800;
+  font-stretch: 125%;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.98;
   color: var(--color-text-primary);
   text-wrap: balance;
 }
@@ -56,7 +32,7 @@ h1 {
 }
 
 h2 {
-  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
+  font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.5rem);
   margin-bottom: var(--space-4);
 }
 
@@ -71,7 +47,6 @@ h6 {
   font-family: var(--font-primary);
   font-weight: 600;
   font-size: var(--font-size-lg);
-  letter-spacing: 0;
   margin-bottom: var(--space-2);
 }
 
@@ -85,7 +60,7 @@ a {
   color: var(--accent-ink);
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
+  text-underline-offset: 0.22em;
   transition: color var(--transition-fast);
 }
 
@@ -94,10 +69,9 @@ a:hover {
 }
 
 strong {
-  font-weight: 600;
+  font-weight: 650;
 }
 
-/* Cifre allineate dove si leggono orari, targhe e quantità */
 time,
 .tabular,
 .time-slot,

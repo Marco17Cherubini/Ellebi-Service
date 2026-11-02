@@ -77,9 +77,11 @@
   gap: 10px;
   min-height: 44px;
   font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 1.25rem;
+  font-weight: 850;
+  font-stretch: 125%;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
   line-height: 1;
   color: var(--ink);
   text-decoration: none;
@@ -89,18 +91,21 @@
   color: var(--ink);
 }
 
+/* Il segno: un parallelogramma arancio inclinato come una bandiera di partenza */
 .wordmark-block {
-  width: 14px;
-  height: 22px;
+  width: 22px;
+  height: 18px;
   background: var(--accent);
+  transform: skewX(-18deg);
   flex: none;
 }
 
 .wordmark-sub {
   font-family: var(--font-primary);
   font-weight: 500;
-  font-size: 0.95rem;
-  letter-spacing: 0.01em;
+  font-stretch: 100%;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
   color: var(--ink-2);
   margin-left: 2px;
 }

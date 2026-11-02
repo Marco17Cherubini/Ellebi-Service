@@ -112,7 +112,7 @@
   top: 12px;
   bottom: 12px;
   width: 8px;
-  background: #f26b1d;
+  background: var(--accent);
 }
 
 .sidebar-item svg,

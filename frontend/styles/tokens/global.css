@@ -7,38 +7,42 @@
    ============================================================================ */
 
 :root {
-  /* ==================== PALETTE ==================== */
-  --paper: #eceae4; /* fondo: carta tecnica */
-  --paper-2: #e2dfd8; /* superficie: un gradino di tono */
-  --paper-3: #d4d0c7; /* campi e bordi dei controlli */
-  --ink: #16181a; /* testo e grafite */
-  --ink-2: #43474d; /* testo secondario (7.9:1 sul fondo) */
-  --ink-3: #6a6f75; /* note minori, solo testo ≥ 14px (4.6:1) */
-  --graphite: #1c1f22; /* campo scuro */
-  --on-graphite: #eceae4;
-  --accent: #f26b1d; /* arancio Ellebi: solo riempimenti, mai testo su carta */
-  --accent-press: #d95a10;
-  --on-accent: #16181a; /* grafite sull'arancio: 5.9:1 */
-  --accent-ink: #a8420a; /* arancio scuro per testo e link su carta: 5.6:1 */
-  --ok: #2c7a4b;
-  --warn: #9a6200;
-  --danger: #b3261e;
-  --info: #35577d;
-  --ok-bg: #d9e6dc;
-  --warn-bg: #efe2c6;
-  --danger-bg: #f1d6d2;
-  --info-bg: #d7e0ea;
+  /* ==================== PALETTE (scuro, predefinito) ==================== */
+  /* Banco prova di notte: carbonio, alluminio, arancio segnale */
+  --paper: #0b0c0e; /* fondo */
+  --paper-2: #16181b; /* superficie */
+  --paper-3: #2a2e34; /* bordi dei controlli, divisori */
+  --ink: #f1f2f3; /* testo */
+  --ink-2: #b0b5bc; /* testo secondario (9.4:1) */
+  --ink-3: #868c94; /* note minori (5.6:1) */
+  --graphite: #000000;
+  --on-graphite: #f3f1ec;
+  --accent: #ff4d00; /* arancio segnale: riempimenti */
+  --accent-press: #ff6a2b;
+  --on-accent: #0b0c0e;
+  --accent-ink: #ff7a3d; /* arancio per testo e link sul fondo (7.3:1) */
+  --ok: #5fd08c;
+  --warn: #ffb84d;
+  --danger: #ff7b72;
+  --info: #7fb2ff;
+  --ok-bg: #12301f;
+  --warn-bg: #3a2a10;
+  --danger-bg: #3d1915;
+  --info-bg: #13263f;
 
-  /* Riempimenti del modulo "quarto d'ora" */
-  --slot-free: var(--paper);
-  --slot-busy: var(--ink);
-  --slot-closed: var(--paper-3);
+  --slot-free: #f3f1ec;
+  --slot-busy: #2a2e34;
+  --slot-closed: transparent;
+
+  /* Smusso a 45° dei pezzi lavorati: pulsanti, superfici, indicatori */
+  --cut: 12px;
+  --cut-lg: 28px;
 
   /* ==================== COMPATIBILITÀ (nomi storici) ==================== */
   --brand-accent: var(--accent);
   --brand-accent-hover: var(--accent-press);
   --brand-accent-dark: #f7853f;
-  --brand-shadow-color: rgba(22, 24, 26, 0.18);
+  --brand-shadow-color: rgba(0, 0, 0, 0.6);
   --brand-shadow-color-dark: rgba(0, 0, 0, 0.55);
   --brand-text-primary: var(--ink);
   --brand-text-on-accent: var(--on-accent);
@@ -59,8 +63,8 @@
   --gutter: clamp(16px, 4vw, 40px); /* margini esterni della pagina */
 
   /* ==================== TIPOGRAFIA ==================== */
-  --font-primary: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'Barlow Semi Condensed', 'Barlow', 'Arial Narrow', sans-serif;
+  --font-primary: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Archivo', 'Arial Black', sans-serif;
 
   /* Cinque passi visibili: piccolo, testo, introduzione, titolo, display */
   --step-small: 0.875rem;
@@ -168,42 +172,41 @@
   --color-success: var(--ok);
   --color-warning: var(--warn);
   --color-error: var(--danger);
-  --color-overlay: rgba(22, 24, 26, 0.55);
+  --color-overlay: rgba(0, 0, 0, 0.72);
   --color-shadow: var(--brand-shadow-color);
 
   --color-special-bg: var(--paper-2);
   --color-special-border: var(--accent);
   --color-special-text: var(--ink);
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
-/* Tema scuro: officina di sera. Stessi ruoli, toni invertiti. */
-[data-theme='dark'] {
-  --paper: #121416;
-  --paper-2: #1b1e21;
-  --paper-3: #2c3035;
-  --ink: #eceae4;
-  --ink-2: #b4b8bd;
-  --ink-3: #8f949a;
-  --graphite: #000000;
-  --on-graphite: #eceae4;
-  --accent: #f7853f;
-  --accent-press: #f26b1d;
-  --on-accent: #121416;
-  --accent-ink: #f7853f;
-  --ok: #6cc08b;
-  --warn: #e3b25c;
-  --danger: #f08a80;
-  --info: #8fb2d9;
-  --ok-bg: #1d3326;
-  --warn-bg: #3a2f17;
-  --danger-bg: #3d1f1c;
-  --info-bg: #1c2a3a;
-  --slot-free: var(--paper-2);
-  --slot-busy: var(--ink-2);
-  --slot-closed: var(--paper-3);
-  --brand-shadow-color: rgba(0, 0, 0, 0.6);
-  --color-overlay: rgba(0, 0, 0, 0.7);
-  color-scheme: dark;
+/* Tema chiaro: alluminio spazzolato. Stessi ruoli, toni invertiti. */
+[data-theme='light'] {
+  --paper: #e8eaed;
+  --paper-2: #dbdee2;
+  --paper-3: #b9bec5;
+  --ink: #0b0c0e;
+  --ink-2: #3c4148;
+  --ink-3: #5a6068;
+  --graphite: #0b0c0e;
+  --on-graphite: #f3f1ec;
+  --accent: #ff4d00;
+  --accent-press: #e04300;
+  --on-accent: #0b0c0e;
+  --accent-ink: #a83400;
+  --ok: #1f6b3f;
+  --warn: #8a5600;
+  --danger: #b3261e;
+  --info: #2b5aa3;
+  --ok-bg: #cfe5d7;
+  --warn-bg: #f2e1c2;
+  --danger-bg: #f3d3cf;
+  --info-bg: #d3def0;
+  --slot-free: #0b0c0e;
+  --slot-busy: #b9bec5;
+  --brand-shadow-color: rgba(11, 12, 14, 0.25);
+  --color-overlay: rgba(11, 12, 14, 0.6);
+  color-scheme: light;
 }
