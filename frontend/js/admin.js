@@ -1445,6 +1445,7 @@ function setupHolidayMode() {
 }
 
 function enterHolidayMode() {
+  if (typeof window.showWeekForPlanning === 'function') window.showWeekForPlanning();
   holidayMode = true;
   selectedHolidaySlots = [];
 
@@ -1582,8 +1583,8 @@ function addToDragSelection(date, time, isHoliday) {
 
     // Feedback visuale al termine/rimozione
     if (selectedExtraWorkSlots.length * 0.25 >= extraWorkHoursTotal) {
-      document.getElementById('extrawork-hours-left').style.color = 'green';
-      document.getElementById('extrawork-mode-indicator').style.borderColor = 'green';
+      document.getElementById('extrawork-hours-left').style.color = 'var(--ok)';
+      document.getElementById('extrawork-mode-indicator').style.borderColor = 'var(--ok)';
     } else {
       document.getElementById('extrawork-hours-left').style.color = '';
       document.getElementById('extrawork-mode-indicator').style.borderColor = 'var(--ink-2)';
@@ -1994,6 +1995,10 @@ function enterExtraWorkMode(depositId, hours) {
   // Aggiungi classe per styling puntatore
   const calendarEl = document.querySelector('.admin-calendar');
   if (calendarEl) calendarEl.classList.add('extrawork-mode');
+
+  // La pianificazione avviene sulla griglia settimanale: su telefono la pagina si apre
+  // nella vista Giorno, che la nasconderebbe insieme ai pulsanti Salva e Annulla
+  if (typeof window.showWeekForPlanning === 'function') window.showWeekForPlanning();
 
   // Inizializza i gestori drag mouse/touch
   setupHolidayTouch();

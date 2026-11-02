@@ -276,23 +276,15 @@
 }
 
 .admin-calendar__btn--holiday-save {
-  background-color: var(--admin-holiday-bg);
-  color: var(--admin-holiday-text);
-  border-color: var(--admin-holiday-btn-border);
-  padding: 5px 15px;
-  font-size: 0.85rem;
-}
-
-.admin-calendar__btn--holiday-save:hover {
-  background-color: var(--admin-holiday-btn-border);
+  --btn-edge: var(--info);
+  --btn-fill: var(--info);
+  --btn-ink: var(--paper);
 }
 
 .admin-calendar__btn--holiday-cancel {
-  background-color: var(--admin-btn-cancel-bg);
-  color: var(--admin-btn-cancel-text);
-  border-color: var(--admin-btn-cancel-text);
-  padding: 5px 15px;
-  font-size: 0.85rem;
+  --btn-edge: var(--ink-3);
+  --btn-fill: var(--paper);
+  --btn-ink: var(--ink);
 }
 
 .admin-cell.is-holiday {
@@ -384,19 +376,11 @@
   display: none;
 }
 
+/* Pulsanti della barra di pianificazione: varianti del pulsante smussato (buttons.css) */
 .admin-calendar__btn--extrawork-save {
-  background-color: var(--ink);
-  color: white;
-  border: 1px solid var(--ink);
-  padding: 5px 15px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  border-radius: var(--radius-xs);
-  font-weight: 600;
-}
-
-.admin-calendar__btn--extrawork-save:hover {
-  background-color: var(--ink);
+  --btn-edge: var(--accent);
+  --btn-fill: var(--accent);
+  --btn-ink: var(--on-accent);
 }
 
 .admin-cell.is-extrawork-draft {

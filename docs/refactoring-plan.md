@@ -92,6 +92,14 @@ Gate eseguiti: Taste `inspect.mjs` (da 9 FAIL a 4, tutti motivati: il nome monum
 3. Merge su `main` e deploy (una sola istanza). Tutti gli utenti restano connessi: i token senza versione valgono come versione 0.
 4. Rollback: ridistribuire il deployment precedente da Railway; se serve tornare anche ai dati di prima, a servizio fermo rimettere il file `.pre-migrazione-fase2.bak` al posto di `DATABASE_PATH` (si perdono le prenotazioni fatte nel frattempo). Le colonne aggiunte sono ignorate dal codice vecchio; l'unico cambiamento di dato non reversibile automaticamente è `tipo_servizio = 'consegna'` sui servizi che lo avevano nel nome, comportamento che il codice vecchio già riconosceva.
 
+## Correzione dopo il rilascio: pianificazione dei lavori straordinari
+
+| Problema ed evidenza | Causa | Correzione | Verifica |
+|---|---|---|---|
+| Da "Lavori straordinari → Pianifica a calendario" i blocchi di lavoro non venivano creati: lo slot restava prenotabile dai clienti. In produzione (2 novembre) cinque tentativi da iPhone, nessuna richiesta `/schedule` | Regressione della Fase 2: sotto i 1024 px l'agenda si apriva nella nuova vista Giorno, che nasconde la griglia settimanale e la barra Salva/Annulla della pianificazione; l'unico pulsante visibile ("Aggiungi") crea un appuntamento normale. Su desktop il percorso funzionava | Con `?assignDeposit` e in modalità lavoro o ferie la vista è sempre Settimana, senza cambiare la preferenza salvata (`agenda-view.js`, `showWeekForPlanning`); la vista Giorno non si può aprire durante la pianificazione. Pulsanti della barra resi leggibili con il nuovo stile | `test/agenda-view.test.js`, `test/extra-work.test.js` (blocchi creati e legati al deposito, slot occupati per ospiti, clienti e servizi lunghi, officina compresa, tutto o niente); Playwright a 390 e 1280 px con tocco e trascinamento |
+
+Nessun dato da correggere: in produzione non è stato creato alcun appuntamento sostitutivo; il deposito coinvolto è ancora "in attesa" e va pianificato.
+
 ## Rischi residui e aperti
 
 - Nessuna prova su telefono fisico, nessun invio email reale, CI su GitHub da verificare dopo la pull request.

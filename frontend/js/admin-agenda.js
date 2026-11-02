@@ -3,7 +3,7 @@
 // officina), i blocchi di lavoro sui depositi, le ferie e i tratti liberi.
 // Usa lo stato e le funzioni di admin.js (allBookings, allHolidays, showDetailModal,
 // openBookingModal, getTimeSlotsForDate): va caricato dopo admin.js.
-/* global allBookings, allHolidays, showDetailModal, openBookingModal, getTimeSlotsForDate, renderCalendar:writable, currentWeekStart */
+/* global allBookings, allHolidays, showDetailModal, openBookingModal, getTimeSlotsForDate, renderCalendar:writable, currentWeekStart, extraWorkMode, holidayMode, agendaInitialView */
 (function () {
   'use strict';
 
@@ -55,12 +55,16 @@
 
   // ==================== VISTA ====================
 
-  function setView(view) {
+  // persist: false per i cambi forzati (pianificazione), che non toccano la preferenza
+  function setView(view, { persist = true } = {}) {
+    // Durante la pianificazione di un lavoro o delle ferie serve la griglia settimanale
+    if (view === 'day' && (extraWorkMode || holidayMode)) view = 'week';
     document.body.classList.toggle('view-day', view === 'day');
     document.body.classList.toggle('view-week', view === 'week');
     document.querySelectorAll('.view-btn').forEach(b => {
       b.setAttribute('aria-pressed', String(b.dataset.view === view));
     });
+    if (!persist) return;
     try {
       localStorage.setItem(VIEW_KEY, view);
     } catch (e) {
@@ -69,14 +73,21 @@
   }
 
   function initialView() {
+    let saved = null;
     try {
-      const saved = localStorage.getItem(VIEW_KEY);
-      if (saved === 'day' || saved === 'week') return saved;
+      saved = localStorage.getItem(VIEW_KEY);
     } catch (e) {
       /* nessuna preferenza */
     }
-    return window.matchMedia('(min-width: 1024px)').matches ? 'week' : 'day';
+    return agendaInitialView({
+      search: window.location.search,
+      saved,
+      wide: window.matchMedia('(min-width: 1024px)').matches
+    });
   }
+
+  // admin.js entra in modalità lavoro o ferie: mostra la griglia senza cambiare la preferenza
+  window.showWeekForPlanning = () => setView('week', { persist: false });
 
   // ==================== ELENCO DEL GIORNO ====================
 
@@ -344,6 +355,6 @@
     }
   });
 
-  setView(initialView());
+  setView(initialView(), { persist: false });
   render();
 })();
