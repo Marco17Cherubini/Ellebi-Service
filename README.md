@@ -38,13 +38,15 @@ The app is a revisited version of the Lev Space booking system, customised aroun
 - **the mechanic plans the work on the weekly calendar**, in 15-minute blocks, next to the regular appointments; when the job is done the customer gets a pick-up email;
 - **the rules live on the server**: durations come from the price list, opening hours depend on the role, capacity is checked before accepting a drop-off, and every multi-step change is a single transaction.
 
-| Customer booking: only start times where a 90-minute job fits                                                         | Guest booking on mobile (dark theme)                                                      |
-| --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| ![Customer booking calendar showing the free start times for a 90-minute brake job](docs/images/customer-booking.png) | ![Guest booking on a phone, service selection step](docs/images/guest-booking-mobile.png) |
+![Home page: the workshop name as a monument behind a stylised 3D car in exploded view, the booking call to action and today's free quarter-hours](docs/images/fase2/dopo-home-desktop.webp)
+
+| Booking on a phone: only start times where the whole job fits                                                       | Workshop day view on a phone, including free gaps                                                                  |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| ![Booking step with day chips and free start times with their end time](docs/images/fase2/dopo-prenota-mobile.webp) | ![Admin day agenda listing the day's appointments and free gaps](docs/images/fase2/dopo-agenda-giorno-mobile.webp) |
 
 ### Results — and what they taught us
 
-The software works: bookings, drop-offs, planning, reports and the admin tools are in place and covered by **98 automated tests** plus browser checks on desktop and mobile.
+The software works: bookings, drop-offs, planning, reports and the admin tools are in place and covered by **118 automated tests** plus browser checks on desktop and mobile.
 
 Adoption is the hard part. Lev Space's customers are mostly **20–30 years old** and booked online from day one. Ellebi Service's customers are on average **45–60 years old**: many of them would rather pick up the phone than open a web app, so the calls the system was meant to remove did not go away on their own.
 
@@ -125,6 +127,31 @@ Also included: guest booking without an account, email confirmations and passwor
 
 ---
 
+## November 2026: redesign and fixes
+
+**Business problem.** The workshop's day is interrupted by phone calls; the app exists to move bookings online, but many customers still prefer the phone. **Adoption** is the real obstacle, so this round focused on making booking obvious and quick — without assuming anyone is unable to use it — and on fixing what could make the workshop distrust the data.
+
+**What changed**
+
+- **One booking flow** for guests and registered customers (`/prenota`, old URLs still work): vehicle → service → day and time → vehicle and contacts → summary → confirmation. Times come only from the server's per-service endpoint, so the page can no longer offer a slot that crosses the lunch break and gets rejected at the end. Drop-offs are explained plainly: a 30-minute reception, no promised return date.
+- **Client area** with upcoming bookings (move or cancel while allowed), saved vehicles (the API existed but was hidden) and a one-click "remember this vehicle".
+- **Workshop day view**: every booking of the day in time order — including VIP and workshop bookings outside the weekly grid, which were previously invisible — with free gaps, holidays and a call button. The weekly grid now warns when bookings fall outside it.
+- **New identity**: a dark-first "test bench at night" look, Archivo extended capitals, 45° machined corners, an orange signal colour, today's availability shown as telemetry, and a **stylised 3D car** that opens into an exploded view (body, glass cabin, seats, engine, chassis, wheels with discs and calipers). It is procedural and generic — not a real vehicle — and entirely optional: a still image rendered from the same model is always shown first, and booking never depends on it.
+- **Security and data fixes** (all with tests): sessions closed by a password reset, single-use reset links, admin tokens tied to an existing account, no internal notes or tokens in customer responses, no internal price in the public price list, banned customers cannot book as guests, guests can claim their email through a link, past or in-progress bookings cannot be cancelled by the customer, seasonal services checked on the booked date, drop-offs identified only by `tipo_servizio` (with migration), guest phone numbers kept, past work blocks kept as history.
+
+**Measured (lab, empty cache, Chromium headless with software GPU, not field data)**
+
+|                                                  | Before (`85d017c`) | After                                                                        |
+| ------------------------------------------------ | ------------------ | ---------------------------------------------------------------------------- |
+| Home, transferred (mobile, 3D excluded)          | 127 KB             | 186 KB                                                                       |
+| Home LCP, mobile (4× CPU, ~1.6 Mbps, 150 ms RTT) | 1.29 s             | 1.54 s                                                                       |
+| Home CLS                                         | 0.041              | 0                                                                            |
+| Booking page, transferred / LCP mobile           | 169 KB / 1.40 s    | 146 KB / 1.05 s                                                              |
+| 3D module (Three.js included), gzip              | —                  | 139 KB, ready in ~0.5 s (desktop)                                            |
+| 3D scene                                         | —                  | 19,474 triangles, 28 draw calls, pixel ratio ≤ 1.5, no rendering while still |
+
+Frame rate could not be measured meaningfully (software GPU, headless browser) and **no physical phone was tested**; see the limitations below.
+
 ## Under the hood
 
 ### Tech stack
@@ -134,7 +161,8 @@ Also included: guest booking without an account, email confirmations and passwor
 | Server   | Node.js + Express 4                            | Small, well known, easy to run as a single instance                                         |
 | Database | SQLite via [sql.js](https://sql.js.org) (WASM) | One file on a volume, no native build; atomic writes and transactions for multi-row work    |
 | Auth     | JWT in an `httpOnly`, `SameSite=Lax` cookie    | No token reachable from JavaScript; argon2id hashes (older bcrypt hashes upgraded at login) |
-| Frontend | HTML, CSS and vanilla JavaScript               | No build step; design tokens and layered CSS                                                |
+| Frontend | HTML, CSS and vanilla JavaScript               | No build step for pages; design tokens and layered CSS; self-hosted Archivo font            |
+| 3D       | Three.js, bundled once with esbuild            | `client-src/garage3d.js` → `frontend/js/garage3d.js`, loaded with a dynamic `import()` only |
 | Email    | Resend                                         | Booking confirmations, pick-up notices, password reset                                      |
 | Charts   | Chart.js, served from the npm package          | Admin reports, version pinned in the lockfile                                               |
 | Tests    | `node:test` (built into Node)                  | No test framework to install                                                                |
@@ -146,6 +174,8 @@ frontend/ (static pages, vanilla JS)          server/
   js/utils.js     apiRequest, escapeHTML,       server.js         startup: config checks, DB, retention, listen
                   sidebar, keyboard helper      app.js            security headers, JSON parser, static files, routes
   js/<page>.js    one script per page           routes/           auth · bookings · admin · catalog · deposits · pages
+  js/booking-flow.js  guest + customer booking
+  js/garage3d.js  built from client-src/
   styles/         tokens → base → layout        bookingService    availability, bookings, drop-offs, moves, work blocks
                   → components → pages          depositService    capacity, states, deposit board
                                                 catalogService · holidayService · vehicleService · reportService
@@ -157,10 +187,10 @@ Routes only translate HTTP; the workshop rules live in the services, which throw
 
 ### Quality and security
 
-- **98 automated tests** against the real server and a temporary SQLite file: availability and durations, opening hours by role, overlaps and concurrent requests, customer/guest/admin bookings, drop-offs and deposits, moves and cancellations, holidays, price list, auth and bans, rate limiting, error handling, reports, persistence, migrations, backup and demo seed.
+- **118 automated tests** against the real server and a temporary SQLite file: availability and durations, opening hours by role, overlaps and concurrent requests, customer/guest/admin bookings, drop-offs and deposits, moves and cancellations, holidays, price list, auth and bans, rate limiting, error handling, reports, persistence, migrations, backup and demo seed.
 - **Content Security Policy** with scripts only from the app and no inline handlers; every user-provided value is escaped before entering HTML, in pages and emails; JSON-only API; rate limiting on login and guest bookings.
 - **Data integrity**: the database file is written atomically (temporary file + rename) and multi-row operations run in transactions.
-- **Accessibility**: the booking wizards work with the keyboard only (Tab, Enter, Space) with a visible focus.
+- **Accessibility**: the booking flow works with the keyboard only, fields have visible labels and errors tied to them (`aria-describedby`), focus moves to each step's heading, touch targets are at least 44 px, and motion respects `prefers-reduced-motion`.
 - ESLint + Prettier, and a GitHub Actions workflow running lint, formatting check and tests on Node 22 and 24.
 
 ---
@@ -192,14 +222,15 @@ Demo logins: the admin from your `.env`, or any demo customer such as `giulia.bi
 
 ### Useful scripts
 
-| Command                                 | What it does                                         |
-| --------------------------------------- | ---------------------------------------------------- |
-| `npm run dev`                           | Start with auto-reload (nodemon)                     |
-| `npm test`                              | Run the test suite                                   |
-| `npm run lint` / `npm run format:check` | ESLint and Prettier checks                           |
-| `npm run seed`                          | Fill an **empty** database with demo data            |
-| `npm run backup`                        | Copy the database to `BACKUP_DIR` (keeps the last 4) |
-| `npm run start:prod`                    | Start in production with PM2                         |
+| Command                                 | What it does                                                  |
+| --------------------------------------- | ------------------------------------------------------------- |
+| `npm run dev`                           | Start with auto-reload (nodemon)                              |
+| `npm test`                              | Run the test suite                                            |
+| `npm run lint` / `npm run format:check` | ESLint and Prettier checks                                    |
+| `npm run seed`                          | Fill an **empty** database with demo data                     |
+| `npm run backup`                        | Copy the database to `BACKUP_DIR` (keeps the last 4)          |
+| `npm run start:prod`                    | Start in production with PM2                                  |
+| `npm run build:3d`                      | Rebuild `frontend/js/garage3d.js` after editing `client-src/` |
 
 ### Configuration
 
@@ -237,23 +268,25 @@ Before pushing, run `npm run lint`, `npm run format:check` and `npm test` — th
 
 ## Known limitations
 
-- **Single instance**: sql.js keeps the database in memory and saves it to one file, so the app must run as one process.
-- **VIP extended hours** are inherited from the barbershop version (early 08:00 slot, evening starts every 45 minutes up to 23:15) and the admin weekly calendar only shows the regular opening hours, so an evening VIP booking does not appear in the weekly grid. To be reviewed with the workshop.
-- **Admin calendar keyboard access** is limited: the booking wizards work with the keyboard, the drag & drop calendar is designed for mouse and touch.
-- **Sessions** are not revoked on logout or password change (they expire after 7 days); a password-reset link can be reused within its hour.
-- **Guest emails are not verified**: a guest booking made with the email of a registered customer is attached to that customer's account, and a guest cannot later register with the same email.
-- **Saved vehicles**: the API can store a customer's vehicles, but the booking page does not offer it yet (its saved-vehicle picker is hidden), so the per-vehicle history in the client list only covers vehicles saved through the API or the demo seed.
-- **Notifications**: a `notifications` table exists in the schema for planned service reminders, but no reminder is sent yet.
-- **No cancellation deadline**: customers can cancel or move a booking at any time.
-- Seasonal services are filtered on today's date, not on the date of the appointment; a service is also treated as a drop-off if its name contains "consegna".
-- Browser checks of the main flows are run locally, not in CI.
+- **Single instance**: sql.js keeps the database in memory and saves it to one file, so the app must run as one process (PM2 is pinned to one instance).
+- **No physical device tested**: mobile checks are emulated (Chromium at 320–1440 px); frame rate, battery and heat on real phones are unverified.
+- **3D**: auto-loads only on wide screens with WebGL, without data saver or reduced motion; phones get the still image and an explicit "Ruota in 3D" button. The model is a generic stylised car, not a reconstruction of a real one.
+- **No photographs** of the workshop exist in the project, and none were invented.
+- **VIP extended hours** (08:00 and evening starts up to 23:15) are inherited from the barbershop version and still to be confirmed with the workshop; they are now visible in the day view.
+- **Logout** clears the cookie but does not revoke the token on the server (a password reset does); sessions last 7 days.
+- **Guest emails are not verified**: a guest booking made with a registered customer's email appears in that account (decision D-9).
+- **Drop-off capacity** is taken when the drop-off is booked, not when the vehicle arrives (existing rule).
+- **Reminders**: the `notifications` table is unused; no reminder is sent.
+- **Admin weekly grid** is drag & drop (mouse and touch); the day view is the keyboard-friendly alternative.
+- Browser checks run locally with Playwright, not in CI.
 
 ## Project structure
 
 ```
 config/        opening hours, slot grid and defaults
 docs/          refactoring plan, user guide, portfolio checklist, screenshots
-frontend/      HTML pages, js/, styles/ (tokens, base, layout, components, pages)
+client-src/    source of the optional 3D module (built with `npm run build:3d`)
+frontend/      HTML pages, js/, styles/ (tokens, base, layout, components, pages), fonts/, images/
 server/        app, routes, services, database, seed and backup scripts
 test/          node:test suites and helpers
 ```
