@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" role="img" aria-labelledby="ve-title ve-desc">
+  <title id="ve-title">Auto stilizzata in vista esplosa</title>
+  <desc id="ve-desc">Disegno di un'auto generica scomposta in quattro gruppi: carrozzeria sollevata, gruppo motore sopra l'anteriore, telaio al centro e ruote abbassate. Illustrazione indicativa, non un veicolo reale.</desc>
+  <style>
+    .ink{fill:#16181a}.paper{fill:#eceae4}.paper3{fill:#d4d0c7}.ink2{fill:#43474d}.accent{fill:#f26b1d}
+    .glass{fill:#9aa3ab}
+    g.part{transition:transform 620ms cubic-bezier(.77,0,.175,1)}
+    svg:not(.is-assembled) g.body{transform:translateY(-78px)}
+    svg:not(.is-assembled) g.engine{transform:translate(10px,-176px) scale(1)}
+    svg:not(.is-assembled) g.wheel-f{transform:translate(34px,52px)}
+    svg:not(.is-assembled) g.wheel-r{transform:translate(-34px,52px)}
+    @media (prefers-reduced-motion:reduce){g.part{transition:none}}
+  </style>
+  <!-- Telaio: piano e longheroni -->
+  <g class="part chassis">
+    <rect class="ink2" x="118" y="292" width="566" height="16"/>
+    <rect class="ink" x="150" y="308" width="500" height="10"/>
+    <rect class="ink2" x="196" y="276" width="28" height="16"/>
+    <rect class="ink2" x="576" y="276" width="28" height="16"/>
+  </g>
+  <!-- Gruppo motore: blocco, testata, puleggia -->
+  <g class="part engine">
+    <rect class="accent" x="590" y="204" width="96" height="20"/>
+    <rect class="ink" x="598" y="199" width="72" height="6"/>
+    <circle class="ink" cx="582" cy="214" r="10"/>
+    <circle class="paper" cx="582" cy="214" r="3"/>
+    <rect class="ink" x="606" y="209" width="8" height="15"/>
+    <rect class="ink" x="626" y="209" width="8" height="15"/>
+    <rect class="ink" x="646" y="209" width="8" height="15"/>
+    <rect class="ink" x="666" y="209" width="8" height="15"/>
+  </g>
+  <!-- Carrozzeria: profilo di una berlina compatta generica, senza marchi -->
+  <g class="part body">
+    <path class="ink" d="M84 286 L84 236 Q86 206 128 196 L214 182 Q262 128 330 118 L470 116 Q516 118 556 150 L600 186 L700 204 Q738 212 742 244 L744 286 L652 286 A62 62 0 0 0 528 286 L272 286 A62 62 0 0 0 148 286 Z"/>
+    <path class="glass" d="M232 184 Q272 142 330 134 L392 132 L392 184 Z"/>
+    <path class="glass" d="M408 132 L466 132 Q506 134 538 160 L566 184 L408 184 Z"/>
+    <rect class="paper3" x="404" y="132" width="6" height="52"/>
+    <rect class="accent" x="716" y="222" width="22" height="12"/>
+    <rect class="paper3" x="86" y="226" width="14" height="14"/>
+    <rect class="ink2" x="300" y="206" width="22" height="5"/>
+    <rect class="ink2" x="452" y="206" width="22" height="5"/>
+  </g>
+  <!-- Ruote: pneumatico, cerchio, mozzo -->
+  <g class="part wheel-r">
+    <circle class="ink" cx="210" cy="292" r="56"/>
+    <circle class="paper3" cx="210" cy="292" r="32"/>
+    <circle class="ink2" cx="210" cy="292" r="12"/>
+    <rect class="ink2" x="207" y="262" width="6" height="18"/>
+    <rect class="ink2" x="207" y="304" width="6" height="18"/>
+    <rect class="ink2" x="180" y="289" width="18" height="6"/>
+    <rect class="ink2" x="222" y="289" width="18" height="6"/>
+  </g>
+  <g class="part wheel-f">
+    <circle class="ink" cx="590" cy="292" r="56"/>
+    <circle class="paper3" cx="590" cy="292" r="32"/>
+    <circle class="ink2" cx="590" cy="292" r="12"/>
+    <rect class="ink2" x="587" y="262" width="6" height="18"/>
+    <rect class="ink2" x="587" y="304" width="6" height="18"/>
+    <rect class="ink2" x="560" y="289" width="18" height="6"/>
+    <rect class="ink2" x="602" y="289" width="18" height="6"/>
+  </g>
+</svg>

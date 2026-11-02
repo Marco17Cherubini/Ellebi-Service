@@ -11,43 +11,53 @@
   <body>
     <!-- Sidebar Overlay -->
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
-    <div id="sidebar" class="sidebar">
+    <nav id="sidebar" class="sidebar" aria-label="Pannello officina">
       <div class="sidebar-header">
-        <a href="/admin" class="sidebar-logo-link">
-          <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="sidebar-logo" />
+        <a href="/admin" class="wordmark sidebar-logo-link" aria-label="Ellebi Service, agenda">
+          <span class="wordmark-block" aria-hidden="true"></span>Ellebi<span class="wordmark-sub"
+            >Officina</span
+          >
         </a>
-        <button type="button" id="close-sidebar" class="sidebar-close">&times;</button>
-      </div>
-      <nav class="sidebar-nav">
-        <a href="/admin" class="sidebar-item">
-          <span>Calendario Appuntamenti</span>
-        </a>
-        <a href="/admin/reports" class="sidebar-item">
-          <span>Resoconto Clientela</span>
-        </a>
-        <a href="/admin/clienti" class="sidebar-item">
-          <span>Gestione Clienti</span>
-        </a>
-        <a href="/admin/depositi" class="sidebar-item active">
-          <span>Lavori Straordinari</span>
-        </a>
-        <a href="/admin/listino" class="sidebar-item">
-          <span>Listino Servizi</span>
-        </a>
-      </nav>
-      <div class="sidebar-footer">
-        <button type="button" id="sidebar-logout" class="sidebar-item sidebar-logout">
-          <span>Logout</span>
+        <button type="button" id="close-sidebar" class="sidebar-close" aria-label="Chiudi il menu">
+          &times;
         </button>
       </div>
-    </div>
+      <div class="sidebar-nav">
+        <a href="/admin" class="sidebar-item">
+          <span>Agenda</span>
+        </a>
+        <a href="/admin/reports" class="sidebar-item">
+          <span>Report</span>
+        </a>
+        <a href="/admin/clienti" class="sidebar-item">
+          <span>Clienti</span>
+        </a>
+        <a href="/admin/depositi" class="sidebar-item active" aria-current="page">
+          <span>Lavori straordinari</span>
+        </a>
+        <a href="/admin/listino" class="sidebar-item">
+          <span>Listino</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <button type="button" id="sidebar-logout" class="sidebar-item sidebar-logout">
+          <span>Esci</span>
+        </button>
+      </div>
+    </nav>
 
     <div class="header">
       <div class="header-left">
-        <button type="button" id="hamburger-btn" class="hamburger-btn">☰</button>
-        <a href="/admin" class="header-logo-link">
-          <img src="/images/LB-Service-Logo.webp" alt="LB Service" class="header-logo" />
-        </a>
+        <button
+          type="button"
+          id="hamburger-btn"
+          class="hamburger-btn"
+          aria-label="Apri il menu"
+          aria-controls="sidebar"
+        >
+          Menu
+        </button>
+        <span class="header-title">Lavori straordinari</span>
       </div>
     </div>
 

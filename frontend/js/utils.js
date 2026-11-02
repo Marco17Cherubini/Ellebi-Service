@@ -104,8 +104,14 @@ function hideMessage(elementId) {
   }
 }
 
+// 'YYYY-MM-DD' come data locale: new Date('YYYY-MM-DD') la leggerebbe in UTC
+function parseLocalDate(dateString) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateString));
+  return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(dateString);
+}
+
 function formatDate(dateString) {
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   const days = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
   const months = [
     'gennaio',
@@ -131,7 +137,7 @@ function formatDate(dateString) {
 }
 
 function formatDateShort(dateString) {
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
@@ -153,5 +159,5 @@ function redirectToLogin() {
 }
 
 function redirectToDashboard() {
-  window.location.href = '/dashboard';
+  window.location.href = '/home';
 }

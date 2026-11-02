@@ -1,19 +1,22 @@
 /* ============================================================================
-   LB SERVICE - MODAL COMPONENT
-   Apple Style Modal with blur backdrop
+   FINESTRE MODALI — superficie piana su velo grafite, angoli vivi.
+   Su telefono salgono dal basso (foglio), su schermi larghi stanno al centro.
    ============================================================================ */
 
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   z-index: var(--z-modal);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .modal {
+    align-items: center;
+    padding: var(--space-6);
+  }
 }
 
 .modal.hidden {
@@ -22,67 +25,87 @@
 
 .modal-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background-color: var(--color-overlay);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .modal-content {
   position: relative;
   width: 100%;
-  max-width: 480px;
-  max-height: 90vh;
+  max-width: 520px;
+  max-height: 92svh;
   overflow-y: auto;
-  background-color: var(--color-bg-elevated);
-  border-radius: var(--radius-2xl);
-  padding: var(--space-8);
+  overscroll-behavior: contain;
+  background-color: var(--paper);
+  color: var(--ink);
+  padding: var(--space-6) var(--gutter) calc(var(--space-6) + env(safe-area-inset-bottom));
   box-shadow: var(--shadow-2xl);
+  animation: sheet-in 260ms var(--ease-out);
+}
+
+@media (min-width: 640px) {
+  .modal-content {
+    padding: var(--space-8);
+    animation-name: dialog-in;
+    animation-duration: 200ms;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    transform: scale(0.97);
+    opacity: 0;
+  }
 }
 
 .modal-large {
-  max-width: 600px;
+  max-width: 640px;
 }
 
 .modal-title {
+  font-family: var(--font-display);
   font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-  text-align: center;
+  font-weight: 700;
   margin-bottom: var(--space-2);
 }
 
 .modal-subtitle {
-  text-align: center;
-  color: var(--color-text-secondary);
+  color: var(--ink-2);
   margin-bottom: var(--space-6);
 }
 
 .modal-text {
-  text-align: center;
   margin-bottom: var(--space-4);
   line-height: var(--line-height-relaxed);
 }
 
 .modal-buttons {
   display: flex;
-  gap: var(--space-4);
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: flex-end;
   margin-top: var(--space-6);
 }
 
+.modal-buttons .btn {
+  flex: 1 1 10rem;
+}
+
 .modal-details {
-  background-color: var(--color-bg-secondary);
-  padding: var(--space-5);
-  border-radius: var(--radius-lg);
+  background-color: var(--paper-2);
+  padding: var(--space-4) var(--space-5);
   margin-bottom: var(--space-4);
 }
 
 .modal-details div {
   margin-bottom: var(--space-2);
-  font-size: var(--font-size-sm);
 }
 
 .modal-details div:last-child {

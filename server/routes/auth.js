@@ -1,7 +1,15 @@
 // Registrazione, login/logout, sessione corrente e recupero password
 const express = require('express');
 const config = require('../../config/config');
-const { registerUser, loginUser, generateResetToken, resetPassword } = require('../authService');
+const {
+  registerUser,
+  loginUser,
+  generateResetToken,
+  resetPassword,
+  verifySession,
+  getUserByEmail,
+  isBanned
+} = require('../authService');
 const { sendPasswordResetEmail } = require('../emailService');
 const { authenticateToken, authLimiter } = require('../middleware');
 const { asyncHandler, badRequest } = require('../errors');
@@ -9,6 +17,19 @@ const { asyncHandler, badRequest } = require('../errors');
 const router = express.Router();
 
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 giorni, come la scadenza del JWT
+
+function sessionUser(token) {
+  if (!token) return null;
+  try {
+    const decoded = verifySession(token);
+    if (decoded.isAdmin) return { email: decoded.email, isAdmin: true };
+    if (isBanned(decoded.email)) return null;
+    const user = getUserByEmail(decoded.email);
+    return user ? { ...user, isAdmin: false } : null;
+  } catch (error) {
+    return null;
+  }
+}
 
 function resetLink(token) {
   const baseUrl = process.env.BASE_URL || `http://localhost:${config.server.port}`;
@@ -53,6 +74,13 @@ router.post(
 router.post('/api/auth/logout', (req, res) => {
   res.clearCookie('token');
   res.json({ success: true, message: 'Logout effettuato' });
+});
+
+// Sessione facoltativa per le pagine pubbliche: 200 con user null invece di 401
+router.get('/api/auth/session', (req, res) => {
+  const user = sessionUser(req.cookies.token);
+  res.set('Cache-Control', 'no-store');
+  res.json({ success: true, user });
 });
 
 router.get('/api/auth/me', authenticateToken, (req, res) => {

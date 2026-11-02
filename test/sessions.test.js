@@ -125,3 +125,16 @@ test('la registrazione con email di un cliente già registrato resta rifiutata',
   const res = await api.request('POST', '/api/auth/register', { body: user });
   assert.equal(res.status, 400);
 });
+
+test('sessione facoltativa: 200 con utente nullo per gli anonimi', async () => {
+  const anon = await api.request('GET', '/api/auth/session');
+  assert.equal(anon.status, 200);
+  assert.equal(anon.data.user, null);
+
+  const user = makeUser('sessioneFacoltativa');
+  const cookie = await api.registerAndLogin(user);
+  const res = await api.request('GET', '/api/auth/session', { cookie });
+  assert.equal(res.data.user.email, user.email.toLowerCase());
+  assert.equal(res.data.user.password, undefined);
+  assert.equal(res.data.user.session_version, undefined);
+});

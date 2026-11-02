@@ -1,24 +1,16 @@
-/* ============================================================================
-   HAMBURGER MENU
-   ============================================================================ */
-
+/* Pulsante del menu: tre barre piene, area di tocco 48px */
 .hamburger-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  border-radius: var(--radius-md);
-  font-size: 1.4rem;
-  color: var(--color-text-primary);
+  gap: var(--space-2);
+  min-width: 48px;
+  height: 48px;
+  padding: 0 var(--space-3);
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  font-size: var(--font-size-base);
+  font-weight: 600;
   line-height: 1;
-  transition: background-color var(--transition-fast);
-}
-
-.hamburger-btn:hover {
-  background-color: var(--color-bg-secondary);
 }

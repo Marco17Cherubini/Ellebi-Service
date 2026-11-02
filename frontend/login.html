@@ -7,10 +7,21 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
 
-  <body>
-    <div class="center-container">
+  <body class="auth-page">
+    <a class="skip-link" href="#contenuto">Vai al contenuto</a>
+    <header class="site-bar">
+      <a class="wordmark" href="/" aria-label="Ellebi Service, pagina iniziale">
+        <span class="wordmark-block" aria-hidden="true"></span>Ellebi<span class="wordmark-sub"
+          >Service</span
+        >
+      </a>
+      <div class="site-bar-actions">
+        <a class="btn btn-primary btn-sm" href="/prenota">Prenota</a>
+      </div>
+    </header>
+    <main class="center-container auth" id="contenuto">
       <div class="form">
-        <h2 class="text-center">Accedi</h2>
+        <h1>Accedi</h1>
 
         <div id="success-message" class="form-success hidden"></div>
         <div id="error-message" class="form-error hidden"></div>
@@ -22,6 +33,7 @@
               type="email"
               id="email"
               name="email"
+              autocomplete="email"
               class="form-input"
               required
               placeholder="mario.rossi@example.com"
@@ -33,6 +45,7 @@
             <input
               type="password"
               id="password"
+              autocomplete="current-password"
               name="password"
               class="form-input"
               required
@@ -49,8 +62,11 @@
         <p class="text-center" style="margin-top: 8px">
           <a href="/reset-password" class="link">Password dimenticata?</a>
         </p>
+        <p class="auth-aside">
+          Per prenotare non serve un account: <a href="/prenota">prenota come ospite</a>.
+        </p>
       </div>
-    </div>
+    </main>
 
     <script src="/js/theme.js"></script>
     <script src="/js/login.js"></script>

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Prenota · Ellebi Service</title>
+    <meta name="theme-color" content="#eceae4" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles/pages/booking.css" />
+  </head>
+
+  <body class="booking-page">
+    <a class="skip-link" href="#flow">Vai alla prenotazione</a>
+
+    <header class="site-bar">
+      <a class="wordmark" href="/" aria-label="Ellebi Service, pagina iniziale">
+        <span class="wordmark-block" aria-hidden="true"></span>Ellebi<span class="wordmark-sub"
+          >Service</span
+        >
+      </a>
+      <div class="site-bar-actions">
+        <a class="btn btn-quiet btn-sm" href="tel:+393663043908">Preferisci chiamare?</a>
+      </div>
+    </header>
+
+    <main class="flow" id="flow">
+      <div class="flow-head">
+        <h1 id="flow-title">Prenota un intervento</h1>
+        <p class="flow-who" id="flow-who"></p>
+        <div class="progress" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <p class="progress-text" id="progress-text" aria-live="polite">Passo 1 di 5 · Veicolo</p>
+      </div>
+
+      <!-- Passo 1: veicolo -->
+      <section class="step" data-step="1" aria-labelledby="s1-title">
+        <h2 id="s1-title" tabindex="-1">Che veicolo porti?</h2>
+        <div class="choice-row" role="group" aria-labelledby="s1-title">
+          <button type="button" class="choice" data-vehicle="auto" aria-pressed="false">
+            <span class="choice-name">Auto</span>
+          </button>
+          <button type="button" class="choice" data-vehicle="moto" aria-pressed="false">
+            <span class="choice-name">Moto</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Passo 2: servizio -->
+      <section class="step" data-step="2" aria-labelledby="s2-title" hidden>
+        <h2 id="s2-title" tabindex="-1">Di cosa ha bisogno?</h2>
+        <div id="service-list" class="service-list" aria-live="polite">
+          <p class="loading-line">Caricamento dei servizi…</p>
+        </div>
+        <div id="consegna-info" class="notice consegna-info" hidden>
+          <strong>Consegna del veicolo.</strong> Prenoti 30 minuti per lasciare il veicolo e
+          spiegare il problema. Il lavoro viene pianificato dall'officina: la data di riconsegna non
+          è fissata in anticipo e ti scriviamo via email quando il veicolo è pronto.
+        </div>
+      </section>
+
+      <!-- Passo 3: giorno e ora -->
+      <section class="step" data-step="3" aria-labelledby="s3-title" hidden>
+        <h2 id="s3-title" tabindex="-1">Quando?</h2>
+        <p class="step-sub" id="duration-line"></p>
+        <div class="day-picker">
+          <div class="day-strip" id="day-strip" role="group" aria-label="Giorni di apertura"></div>
+          <label class="other-date">
+            <span>Un'altra data</span>
+            <input type="date" id="other-date" class="form-input" />
+          </label>
+        </div>
+        <div id="slot-area" class="slot-area" aria-live="polite"></div>
+      </section>
+
+      <!-- Passo 4: dati -->
+      <section class="step" data-step="4" aria-labelledby="s4-title" hidden>
+        <h2 id="s4-title" tabindex="-1">Veicolo e contatti</h2>
+        <form id="details-form" class="form" novalidate>
+          <fieldset class="fieldset">
+            <legend>Il veicolo</legend>
+            <div id="saved-vehicles" class="saved-vehicles" hidden></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="targa">Targa</label>
+                <input
+                  id="targa"
+                  name="targa"
+                  class="form-input text-uppercase"
+                  autocomplete="off"
+                  autocapitalize="characters"
+                  maxlength="10"
+                  required
+                  aria-describedby="targa-err"
+                />
+                <span class="field-error" id="targa-err"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="modello">Marca e modello</label>
+                <input
+                  id="modello"
+                  name="modello"
+                  class="form-input"
+                  maxlength="100"
+                  placeholder="Es. Fiat Panda"
+                  required
+                  aria-describedby="modello-err"
+                />
+                <span class="field-error" id="modello-err"></span>
+              </div>
+            </div>
+            <label class="check-row" id="remember-row" hidden>
+              <input type="checkbox" id="remember-vehicle" checked />
+              <span>Ricorda questo veicolo nel mio account</span>
+            </label>
+            <div class="form-group">
+              <label class="form-label" for="note"
+                >Note per l'officina <span class="optional">(facoltative)</span></label
+              >
+              <textarea
+                id="note"
+                name="note"
+                class="form-input"
+                maxlength="500"
+                rows="3"
+                aria-describedby="note-hint"
+              ></textarea>
+              <span class="form-hint" id="note-hint"
+                >Un rumore, una spia accesa, cosa è successo.</span
+              >
+            </div>
+          </fieldset>
+
+          <fieldset class="fieldset" id="contact-fields">
+            <legend>I tuoi contatti</legend>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="nome">Nome</label>
+                <input
+                  id="nome"
+                  class="form-input"
+                  autocomplete="given-name"
+                  maxlength="100"
+                  required
+                  aria-describedby="nome-err"
+                />
+                <span class="field-error" id="nome-err"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cognome">Cognome</label>
+                <input
+                  id="cognome"
+                  class="form-input"
+                  autocomplete="family-name"
+                  maxlength="100"
+                  required
+                  aria-describedby="cognome-err"
+                />
+                <span class="field-error" id="cognome-err"></span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input
+                  id="email"
+                  type="email"
+                  class="form-input"
+                  autocomplete="email"
+                  inputmode="email"
+                  maxlength="254"
+                  required
+                  aria-describedby="email-hint email-err"
+                />
+                <span class="form-hint" id="email-hint">Qui arriva la conferma.</span>
+                <span class="field-error" id="email-err"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="telefono">Telefono</label>
+                <input
+                  id="telefono"
+                  type="tel"
+                  class="form-input"
+                  autocomplete="tel"
+                  inputmode="tel"
+                  maxlength="20"
+                  required
+                  aria-describedby="telefono-hint telefono-err"
+                />
+                <span class="form-hint" id="telefono-hint"
+                  >Per avvisarti in caso di imprevisti.</span
+                >
+                <span class="field-error" id="telefono-err"></span>
+              </div>
+            </div>
+            <label class="check-row">
+              <input type="checkbox" id="privacy" required aria-describedby="privacy-err" />
+              <span
+                >Ho letto l'<a href="/privacy-policy.html" target="_blank" rel="noopener"
+                  >informativa privacy</a
+                >
+                e acconsento al trattamento dei dati per gestire la prenotazione.</span
+              >
+            </label>
+            <span class="field-error" id="privacy-err"></span>
+          </fieldset>
+        </form>
+      </section>
+
+      <!-- Passo 5: riepilogo -->
+      <section class="step" data-step="5" aria-labelledby="s5-title" hidden>
+        <h2 id="s5-title" tabindex="-1">Controlla e conferma</h2>
+        <dl class="summary" id="summary"></dl>
+        <p class="notice consegna-info" id="summary-consegna" hidden>
+          La riconsegna non ha una data fissa: l'officina pianifica il lavoro e ti scrive quando il
+          veicolo è pronto.
+        </p>
+        <div class="form-error" id="submit-error" role="alert" hidden></div>
+      </section>
+
+      <!-- Conferma -->
+      <section class="step done" data-step="done" aria-labelledby="done-title" hidden>
+        <div class="done-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <h2 id="done-title" tabindex="-1">Prenotazione confermata</h2>
+        <p id="done-text"></p>
+        <dl class="summary" id="done-summary"></dl>
+        <div class="btn-group">
+          <a class="btn btn-primary" id="done-primary" href="/">Torna alla pagina iniziale</a>
+          <a class="btn btn-outline" href="tel:+393663043908">Chiama l'officina</a>
+        </div>
+      </section>
+    </main>
+
+    <!-- Barra delle azioni: sempre a portata di pollice -->
+    <div class="action-bar" id="action-bar">
+      <button type="button" class="btn btn-outline" id="back-btn">Indietro</button>
+      <button type="button" class="btn btn-primary" id="next-btn" disabled>Continua</button>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/booking-flow.js"></script>
+  </body>
+</html>

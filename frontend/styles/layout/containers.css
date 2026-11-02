@@ -1,199 +1,161 @@
 /* ============================================================================
-   LB SERVICE - LAYOUT CONTAINERS
-   Container utilities and layout helpers
+   STRUTTURA — una sola coppia di margini (--gutter) per tutte le pagine,
+   barra superiore piana con il marchio composto e al massimo un'azione.
    ============================================================================ */
 
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: var(--space-6) var(--space-4);
-  /* Apple: 24pt verticale, 16pt laterale */
+  padding: var(--space-6) var(--gutter) var(--space-12);
 }
 
-@media (min-width: 768px) {
-  .container {
-    padding: var(--space-8) var(--space-8);
-    /* Apple: 32pt su tablet+ */
-  }
+.container-narrow {
+  max-width: 720px;
 }
 
 .center-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: var(--space-6);
+  align-items: stretch;
+  min-height: 70svh;
+  padding: var(--space-8) var(--gutter);
 }
 
-/* ============================================================================
-   HEADER
-   ============================================================================ */
+/* ==================== BARRA SUPERIORE ==================== */
 
-.header {
+.header,
+.site-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-4) var(--space-6);
-  background-color: var(--color-bg-primary);
-  border-bottom: 1px solid var(--color-border-secondary);
+  gap: var(--space-4);
+  min-height: 64px;
+  padding: var(--space-2) var(--gutter);
+  padding-top: max(var(--space-2), env(safe-area-inset-top));
+  background-color: var(--paper);
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 
-.header-left {
+.header-left,
+.header-actions,
+.site-bar-actions {
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
 
+.header-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Il logo raster resta nei documenti legali; le pagine usano il marchio composto */
 .header-logo {
-  height: 70px;
-  width: auto;
-  display: block;
-  object-fit: contain;
-  image-rendering: -webkit-optimize-contrast;
-}
-
-.header-logo-link {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  text-decoration: none;
-  border: none;
-  background: none;
-  padding: 0;
-  border-radius: var(--radius-md);
-  transition: opacity 0.2s ease;
-}
-
-.header-logo-link:hover {
-  opacity: 0.75;
-}
-
-.header-actions {
-  display: flex;
-  gap: var(--space-3);
-  align-items: center;
-}
-
-.header-btn {
-  min-height: 36px;
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--font-size-sm);
-}
-/* ============================================================================
-   WIZARD COMPONENT (STEPS & BREADCRUMBS)
-   ============================================================================ */
-
-.wizard-breadcrumb,
-.step-indicator {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-4, 16px);
-  margin-bottom: var(--space-8, 32px);
-}
-
-.bc-step,
-.step {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 8px);
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-text-tertiary, #888);
-  padding: 4px 10px;
-  border-radius: 20px;
-  transition: all 0.2s ease;
-}
-
-.bc-step.active,
-.step.active {
-  color: var(--color-text-primary, #000);
-}
-
-.step.completed {
-  color: var(--color-text-primary, #000);
-}
-
-.bc-step.current {
-  background-color: var(--color-accent, #ff6b00);
-  color: var(--color-bg-primary, #fff);
-}
-
-.bc-sep {
-  color: var(--color-text-tertiary, #888);
-  font-size: 0.85rem;
-}
-
-.step-number {
-  width: 28px;
-  height: 28px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.step.completed .step-number {
-  background-color: var(--color-text-primary, #000);
-  color: var(--color-bg-primary, #fff);
-}
-
-.wizard-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  color: var(--color-text-secondary, #888);
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0;
-  margin-bottom: 16px;
-}
-
-.wizard-back:hover {
-  color: var(--color-text-primary, #000);
-}
-
-.wizard-section,
-.guest-section {
-  animation: fadeIn 0.2s ease;
   display: none;
 }
 
-.wizard-section.active,
-.guest-section.active {
-  display: block;
+.header-select {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 2px solid var(--paper-3);
+  background: var(--paper);
+  border-radius: 0;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+/* ==================== MARCHIO COMPOSTO ==================== */
+/* "Ellebi" (L e B, lette in italiano) con il blocco arancio del quarto d'ora */
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--ink);
+  text-decoration: none;
 }
 
-@media (max-width: 480px) {
-  .wizard-breadcrumb,
-  .step-indicator {
-    gap: var(--space-2, 8px);
-  }
-  .step-label {
-    display: none;
-  }
+.wordmark:hover {
+  color: var(--ink);
+}
+
+.wordmark-block {
+  width: 14px;
+  height: 22px;
+  background: var(--accent);
+  flex: none;
+}
+
+.wordmark-sub {
+  font-family: var(--font-primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  color: var(--ink-2);
+  margin-left: 2px;
+}
+
+.sidebar .wordmark,
+.sidebar .wordmark-sub {
+  color: var(--on-graphite);
+}
+
+/* ==================== TESTATA DI PAGINA ==================== */
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.page-head h1 {
+  margin: 0;
+}
+
+.page-head p {
+  margin: var(--space-2) 0 0;
+  color: var(--ink-2);
+  max-width: 60ch;
+}
+
+/* ==================== ACCESSO E REGISTRAZIONE ==================== */
+
+.auth {
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: auto;
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-16);
+}
+
+.auth .form {
+  gap: var(--space-4);
+}
+
+.auth h1 {
+  font-size: var(--step-head);
+  margin-bottom: var(--space-4);
+}
+
+.auth .text-center {
+  text-align: left;
+}
+
+.auth-aside {
+  margin-top: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--paper-2);
 }

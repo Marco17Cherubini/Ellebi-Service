@@ -2,6 +2,7 @@
 // L'avvio (controlli di configurazione, database, retention, listen) è in server.js.
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const helmet = require('helmet');
 const path = require('path');
 const config = require('../config/config');
@@ -33,6 +34,10 @@ app.use(
 
 // L'API accetta solo JSON: senza parser urlencoded un form HTML di un altro sito
 // non può inviare richieste valide (difesa aggiuntiva contro il CSRF, oltre a SameSite=Lax)
+// Compressione gzip delle risposte testuali (pagine, CSS, JS, JSON): il modulo 3D
+// passa da circa 560 KB a circa 150 KB trasferiti
+app.use(compression());
+
 app.use(express.json({ limit: '16kb' }));
 app.use(cookieParser());
 
@@ -41,7 +46,16 @@ if (config.server.env === 'production') {
   app.set('trust proxy', 1);
 }
 
-app.use(express.static(FRONTEND_DIR));
+// I font non cambiano: cache lunga. Il resto si rivalida (ETag) a ogni visita.
+app.use(
+  express.static(FRONTEND_DIR, {
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('.woff2')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  })
+);
 
 // Chart.js (pagina Report) servito dalla dipendenza npm, con versione fissata nel lockfile
 const CHART_JS = path.join(path.dirname(require.resolve('chart.js')), 'chart.umd.js');

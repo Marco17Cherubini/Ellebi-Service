@@ -69,6 +69,17 @@
         "makeKeyboardActivatable": "readonly",
         "setupSidebar": "readonly"
       }
+    },
+    {
+      "files": ["client-src/**/*.js"],
+      "parserOptions": {
+        "sourceType": "module"
+      },
+      "env": {
+        "browser": true,
+        "es2022": true
+      }
     }
-  ]
+  ],
+  "ignorePatterns": ["frontend/js/garage3d.js"]
 }

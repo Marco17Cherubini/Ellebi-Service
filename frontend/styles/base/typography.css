@@ -1,6 +1,40 @@
 /* ============================================================================
-   LB SERVICE - TYPOGRAPHY
+   TIPOGRAFIA — Barlow (testo) e Barlow Semi Condensed (titoli), self-hosted.
+   Barlow nasce dalla segnaletica stradale californiana: lettere della strada,
+   terminali squadrati, cifre tabellari leggibili. Licenza OFL (fonts/OFL.txt).
    ============================================================================ */
+
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/barlow-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/barlow-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/barlow-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Barlow Semi Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/barlow-semi-condensed-700.woff2') format('woff2');
+}
 
 h1,
 h2,
@@ -8,55 +42,70 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--letter-spacing-tight);
-  line-height: var(--line-height-tight);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
   color: var(--color-text-primary);
+  text-wrap: balance;
 }
 
 h1 {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--space-8);
-}
-
-h2 {
-  font-size: var(--font-size-3xl);
+  font-size: var(--step-head);
   margin-bottom: var(--space-6);
 }
 
-h3 {
-  font-size: var(--font-size-2xl);
+h2 {
+  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
   margin-bottom: var(--space-4);
 }
 
-h4 {
+h3 {
   font-size: var(--font-size-xl);
   margin-bottom: var(--space-3);
 }
 
-h5 {
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--space-2);
-}
-
+h4,
+h5,
 h6 {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
+  font-family: var(--font-primary);
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  letter-spacing: 0;
   margin-bottom: var(--space-2);
 }
 
 p {
   margin-bottom: var(--space-4);
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+  text-wrap: pretty;
 }
 
 a {
-  color: var(--color-accent);
-  text-decoration: none;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-accent-hover);
+  color: var(--ink);
+}
+
+strong {
+  font-weight: 600;
+}
+
+/* Cifre allineate dove si leggono orari, targhe e quantità */
+time,
+.tabular,
+.time-slot,
+.slot-btn {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
 }

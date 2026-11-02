@@ -1,0 +1,467 @@
+/* ============================================================================
+   PRENOTAZIONE — una colonna su telefono, barra delle azioni in basso a portata
+   di pollice. I blocchi del quarto d'ora segnano l'avanzamento.
+   ============================================================================ */
+
+.booking-page {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+
+.flow {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--gutter) var(--space-12);
+}
+
+.flow-head h1 {
+  font-size: var(--step-head);
+  margin-bottom: var(--space-3);
+}
+
+.flow-who {
+  color: var(--ink-2);
+  margin-bottom: var(--space-5);
+}
+
+.flow-who:empty {
+  display: none;
+}
+
+.progress {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-bottom: var(--space-2);
+}
+
+.progress span {
+  height: 10px;
+  background: var(--paper-3);
+  transition: background-color 200ms var(--ease-out);
+}
+
+.progress span.is-on {
+  background: var(--accent);
+}
+
+.progress-text {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-8);
+}
+
+.step h2 {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--space-6);
+  outline: none;
+}
+
+.step-sub {
+  margin-top: calc(var(--space-4) * -1);
+  color: var(--ink-2);
+}
+
+.loading-line {
+  color: var(--ink-2);
+}
+
+/* ==================== VEICOLO ==================== */
+
+.choice-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.choice {
+  min-height: 120px;
+  padding: var(--space-5);
+  display: flex;
+  align-items: flex-end;
+  background: var(--paper-2);
+  border: 3px solid transparent;
+  color: var(--ink);
+  text-align: left;
+  transition:
+    border-color var(--transition-fast),
+    transform 120ms var(--ease-out);
+}
+
+.choice:active {
+  transform: scale(0.98);
+}
+
+.choice[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .choice:hover {
+    border-color: var(--ink);
+  }
+}
+
+.choice-name {
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+}
+
+/* ==================== SERVIZI ==================== */
+
+.service-list {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.service-group {
+  border: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.service-group legend,
+.slot-group legend,
+.fieldset legend {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+}
+
+.service-option {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 60px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper-2);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.service-option input {
+  width: 22px;
+  height: 22px;
+}
+
+.service-option:has(input:checked) {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.service-option:has(input:focus-visible) {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.service-name {
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+}
+
+.service-meta {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-align: right;
+}
+
+.consegna-info {
+  margin-top: var(--space-5);
+  border-left: 0;
+  background: var(--warn-bg);
+}
+
+/* ==================== GIORNO E ORA ==================== */
+
+.day-picker {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.day-strip {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  margin: 0 calc(var(--gutter) * -1);
+  padding: 0 var(--gutter) var(--space-2);
+  scrollbar-width: thin;
+}
+
+.day-chip {
+  flex: 0 0 64px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-2) 0;
+  min-height: 76px;
+  background: var(--paper-2);
+  border: 0;
+  color: var(--ink);
+}
+
+.day-chip-name,
+.day-chip-month {
+  font-size: var(--font-size-sm);
+}
+
+.day-chip-num {
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-chip[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.other-date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.other-date .form-input {
+  width: auto;
+  min-width: 12rem;
+}
+
+.slot-area {
+  display: grid;
+  gap: var(--space-6);
+  min-height: 160px;
+}
+
+.slot-group {
+  border: 0;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 4px;
+}
+
+.slot-btn {
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--paper-2);
+  border: 0;
+  color: var(--ink);
+  text-align: left;
+  transition: background-color var(--transition-fast);
+}
+
+.slot-start {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.slot-end {
+  font-size: var(--font-size-sm);
+  color: var(--ink-2);
+}
+
+.slot-btn[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.slot-btn[aria-pressed='true'] .slot-end {
+  color: var(--on-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .slot-btn:hover,
+  .day-chip:hover {
+    background: var(--paper-3);
+  }
+
+  .slot-btn[aria-pressed='true']:hover {
+    background: var(--accent-press);
+  }
+
+  .day-chip[aria-pressed='true']:hover {
+    background: var(--ink-2);
+  }
+}
+
+/* ==================== DATI ==================== */
+
+.fieldset {
+  border: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.fieldset + .fieldset {
+  margin-top: var(--space-8);
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.saved-vehicles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.saved-vehicles .form-label {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.vehicle-chip {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  background: var(--paper-2);
+  border: 2px solid var(--paper-3);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.vehicle-chip:hover {
+  border-color: var(--ink);
+}
+
+/* ==================== RIEPILOGO E CONFERMA ==================== */
+
+.summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-bottom: var(--space-5);
+}
+
+.summary dt {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--ink-2);
+  padding-top: var(--space-4);
+}
+
+.summary dd {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  padding-bottom: var(--space-4);
+  border-bottom: 2px solid var(--paper-3);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 640px) {
+  .summary {
+    grid-template-columns: 9rem 1fr;
+  }
+
+  .summary dt,
+  .summary dd {
+    padding: var(--space-4) 0;
+    border-bottom: 2px solid var(--paper-3);
+  }
+}
+
+#submit-error {
+  display: grid;
+  gap: var(--space-3);
+}
+
+#submit-error p {
+  margin: 0;
+}
+
+.done-mark {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--space-6);
+}
+
+.done-mark span {
+  width: 18px;
+  height: 40px;
+  background: var(--accent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .done-mark span {
+    animation: q-rise 420ms var(--ease-out) backwards;
+  }
+
+  .done-mark span:nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  .done-mark span:nth-child(3) {
+    animation-delay: 140ms;
+  }
+}
+
+@keyframes q-rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+
+/* ==================== BARRA DELLE AZIONI ==================== */
+
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-fixed);
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  padding: var(--space-3) var(--gutter) calc(var(--space-3) + env(safe-area-inset-bottom));
+  background: var(--paper);
+  box-shadow: 0 -1px 0 var(--paper-3);
+}
+
+.action-bar[hidden] {
+  display: none;
+}
+
+.action-bar .btn {
+  flex: 1 1 0;
+  max-width: 280px;
+}
+
+.action-bar #next-btn {
+  flex-grow: 2;
+}
+
+@media (min-width: 760px) {
+  .action-bar {
+    position: sticky;
+    max-width: 760px;
+    margin: 0 auto;
+    box-shadow: none;
+  }
+
+  .booking-page {
+    padding-bottom: 0;
+  }
+}
