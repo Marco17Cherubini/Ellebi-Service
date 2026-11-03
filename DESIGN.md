@@ -48,7 +48,7 @@ Scala: 13 (note) · 16 (corpo, minimo per i campi) · 20 (introduzione) · 28–
 
 ## 4. Griglia e spaziature
 
-Mobile first, progettato a 360–390 px. Margine pagina `--gutter` = `clamp(16px, 4vw, 40px)`. Scala 4 px (`--space-1` … `--space-20`). Bande della homepage separate da 96–128 px su desktop, 64 px su mobile. Contenuti del foglio entro 720 px; admin a tutta larghezza con colonna di navigazione da 248 px oltre i 1100 px.
+Mobile first in percentuale: pagine, colonne, schede, finestre e menu hanno larghezze in `%` (o frazioni `fr` di griglia), piene su telefono e più strette dove lo schermo cresce (es. ingresso 100 % → 60 % → 34 %, prenotazione 100 % → 85 % → 60 %, menu admin 20 %). In px restano solo icone, caselle, interruttori e la soglia di 44 px per il tocco; i punti di cambio sono in `em` (30, 37,5, 40, 47,5, 48, 64, 68,75, 75). Margine pagina `--gutter` = `5vw` (5 % dello schermo). Scala 4 px (`--space-1` … `--space-20`). Bande della homepage separate da 96–128 px su desktop, 64 px su mobile. Admin a tutta larghezza con colonna di navigazione al 20 % oltre i 68,75 em.
 
 ## 5. Componenti e stati
 

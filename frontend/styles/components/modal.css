@@ -12,7 +12,7 @@
   justify-content: center;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 40em) {
   .modal {
     align-items: center;
     padding: var(--space-6);
@@ -32,7 +32,6 @@
 .modal-content {
   position: relative;
   width: 100%;
-  max-width: 520px;
   max-height: 92svh;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -43,7 +42,7 @@
   animation: sheet-in 260ms var(--ease-out);
 }
 
-@media (min-width: 640px) {
+@media (min-width: 40em) {
   .modal-content {
     padding: var(--space-10);
     animation-name: dialog-in;
@@ -65,8 +64,20 @@
   }
 }
 
-.modal-large {
-  max-width: 640px;
+@media (min-width: 40em) {
+  .modal-content {
+    width: 75%;
+  }
+}
+
+@media (min-width: 64em) {
+  .modal-content {
+    width: 45%;
+  }
+
+  .modal-large {
+    width: 55%;
+  }
 }
 
 .modal-title {

@@ -4,7 +4,7 @@
    ============================================================================ */
 
 .clienti-container {
-  max-width: 900px;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -395,7 +395,7 @@
 
 .vhsr-date {
   color: var(--color-text-secondary, #888);
-  min-width: 130px;
+  flex: 0 0 35%;
 }
 
 .vhsr-service {
@@ -418,7 +418,7 @@
 }
 
 /* Telefono: nome e stato sulla prima riga, comandi sotto, nulla si sovrappone */
-@media (max-width: 599px) {
+@media (max-width: 37.4375em) {
   .user-item {
     flex-wrap: wrap;
     gap: var(--space-3);

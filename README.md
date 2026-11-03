@@ -176,7 +176,8 @@ The owner's feedback after the release: the public home had become a showcase (3
 - **Entry page as in the original app**: the round sign with the logo and the car (still image), then only **Accedi**, **Registrati** and **Prenota come ospite**. The same page for every visitor, with or without a session; no link to the admin area on any public page. The admin reaches the agenda only by signing in (and `/admin` stays protected on the server).
 - **The interactive 3D is no longer published**: `client-src/garage3d.js` is kept only to render the car still (`npm run build:3d && npm run render:stills`, bundle in the ignored `client-src/build/`).
 - **Mobile first, checked page by page** at 360, 390 and 430 px in the three roles: nothing wider than the screen. Fixes: the home price list (gone with the showcase), the admin price list (a card per service instead of a table that scrolled sideways), the client list (name and controls on two lines), the day strip of the booking flow (first day no longer flush with the edge), the theme switch (no longer over the footer text).
-- Tests: `test/entry.test.js` (entry links, no admin links on public pages) and `test/e2e/mobile-layout.e2e.js` (no page wider than the screen, admin session on the home).
+- **Layout in percentages**: widths of pages, columns, cards, dialogs and the admin menu are `%` or grid fractions, the side margin is `5vw`, breakpoints are in `em`; px only for icons, checkboxes and touch minimums.
+- Tests: `test/entry.test.js` (entry links, no admin links on public pages), `test/css-units.test.js` (no fixed px layout widths or px breakpoints) and `test/e2e/mobile-layout.e2e.js` (no page wider than the screen, admin session on the home).
 
 ## Under the hood
 
@@ -212,7 +213,7 @@ Routes only translate HTTP; the workshop rules live in the services, which throw
 
 ### Quality and security
 
-- **136 automated tests** against the real server and a temporary SQLite file: availability and durations, opening hours by role, overlaps and concurrent requests, customer/guest/admin bookings, drop-offs and deposits, moves and cancellations, holidays, price list, auth and bans, rate limiting, error handling, reports, persistence, migrations, backup and demo seed.
+- **138 automated tests** against the real server and a temporary SQLite file: availability and durations, opening hours by role, overlaps and concurrent requests, customer/guest/admin bookings, drop-offs and deposits, moves and cancellations, holidays, price list, auth and bans, rate limiting, error handling, reports, persistence, migrations, backup and demo seed.
 - **Content Security Policy** with scripts only from the app and no inline handlers; every user-provided value is escaped before entering HTML, in pages and emails; JSON-only API; rate limiting on login and guest bookings.
 - **Data integrity**: the database file is written atomically (temporary file + rename) and multi-row operations run in transactions.
 - **Accessibility**: the booking flow works with the keyboard only, fields have visible labels and errors tied to them (`aria-describedby`), focus moves to each step's heading, touch targets are at least 44 px, and motion respects `prefers-reduced-motion`.

@@ -69,7 +69,7 @@
   --space-16: 4rem;
   --space-20: 5rem;
   --section: clamp(4.5rem, 2.5rem + 6vw, 8rem); /* respiro tra le bande */
-  --gutter: clamp(20px, 4.5vw, 56px);
+  --gutter: 5vw; /* 5 % della larghezza dello schermo */
 
   /* ==================== TIPOGRAFIA ==================== */
   /* La trinità di Bugatti con sostituti open source (come indicato dal DESIGN.md):

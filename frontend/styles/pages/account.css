@@ -76,7 +76,7 @@
   color: var(--ink-2);
 }
 
-@media (min-width: 640px) {
+@media (min-width: 40em) {
   .booking-row {
     grid-template-columns: 8rem 1fr auto;
     align-items: center;

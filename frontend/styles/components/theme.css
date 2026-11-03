@@ -116,7 +116,7 @@ body:has(.action-bar) .theme-toggle {
   background: var(--paper);
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 63.9375em) {
   .theme-toggle {
     bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
     right: var(--space-3);

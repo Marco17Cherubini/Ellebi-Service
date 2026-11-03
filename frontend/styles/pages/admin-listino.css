@@ -52,7 +52,7 @@
 }
 
 .td-nome {
-  max-width: 220px;
+  width: 25%;
 }
 
 /* ─── Badges ─────────────────────────────────────────────────── */
@@ -208,8 +208,7 @@
   background: var(--color-surface, #fff);
   border-radius: 0;
   padding: 24px;
-  width: 520px;
-  max-width: 95vw;
+  width: 95%;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -358,8 +357,7 @@
   background: var(--color-surface, #fff);
   border-radius: 0;
   padding: 24px;
-  width: 360px;
-  max-width: 95vw;
+  width: 90%;
   text-align: center;
 }
 
@@ -425,7 +423,7 @@
 }
 
 /* ─── Telefono: una scheda per servizio, niente scorrimento laterale ─── */
-@media (max-width: 759px) {
+@media (max-width: 47.4375em) {
   .services-table-wrap {
     overflow-x: visible;
   }
@@ -490,5 +488,25 @@
   .services-table .td-actions .action-btn {
     flex: 1 1 0;
     min-height: 44px;
+  }
+}
+
+@media (min-width: 40em) {
+  .ls-modal {
+    width: 75%;
+  }
+
+  .ls-confirm-box {
+    width: 50%;
+  }
+}
+
+@media (min-width: 64em) {
+  .ls-modal {
+    width: 45%;
+  }
+
+  .ls-confirm-box {
+    width: 30%;
   }
 }

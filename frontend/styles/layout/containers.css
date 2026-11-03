@@ -5,13 +5,29 @@
 
 .container {
   width: 100%;
-  max-width: 1240px;
   margin: 0 auto;
   padding: var(--space-6) var(--gutter) var(--space-12);
 }
 
 .container-narrow {
-  max-width: 720px;
+  width: 100%;
+}
+
+/* Colonne in percentuale: piene su telefono, più strette dove lo schermo cresce */
+@media (min-width: 48em) {
+  .container-narrow {
+    width: 80%;
+  }
+}
+
+@media (min-width: 75em) {
+  .container {
+    width: 90%;
+  }
+
+  .container-narrow {
+    width: 60%;
+  }
 }
 
 .center-container {
@@ -142,7 +158,7 @@
 /* ==================== ACCESSO E REGISTRAZIONE ==================== */
 
 .auth {
-  max-width: 520px;
+  width: 100%;
   margin: 0 auto;
   min-height: auto;
   padding-top: var(--space-10);
@@ -227,10 +243,22 @@
 }
 
 /* Su schermi larghi il foglio è un riquadro centrato con tutti gli angoli arrotondati */
-@media (min-width: 760px) {
+@media (min-width: 47.5em) {
   .sheet {
     border-radius: 22px;
     margin-top: var(--space-6);
     margin-bottom: var(--space-12);
+  }
+}
+
+@media (min-width: 40em) {
+  .auth {
+    width: 70%;
+  }
+}
+
+@media (min-width: 64em) {
+  .auth {
+    width: 40%;
   }
 }

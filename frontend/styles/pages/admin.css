@@ -27,7 +27,7 @@
 
 .admin-calendar__grid {
   display: grid;
-  grid-template-columns: 58px repeat(6, minmax(80px, 1fr));
+  grid-template-columns: 10% repeat(6, minmax(0, 1fr));
   gap: 0;
 }
 
@@ -206,7 +206,6 @@
   border-bottom: none;
   flex-wrap: wrap;
   border-radius: 0 6px 0 0;
-  min-width: 538px;
 }
 
 .admin-calendar__legend-item {
@@ -397,7 +396,7 @@
 .modal-btn-cancel {
   background-color: var(--admin-btn-cancel-bg);
   color: var(--admin-btn-cancel-text);
-  min-width: 100px;
+  min-width: 30%;
   border: 2px solid var(--admin-btn-cancel-text);
   border-radius: var(--radius-md);
 }
@@ -405,7 +404,7 @@
 .modal-btn-confirm {
   background-color: var(--admin-btn-confirm-bg);
   color: var(--admin-btn-confirm-text);
-  min-width: 150px;
+  min-width: 30%;
   border-radius: var(--radius-md);
 }
 
@@ -413,7 +412,7 @@
   background-color: var(--admin-btn-delete-bg);
   color: var(--paper);
   border-color: var(--admin-btn-delete-bg);
-  min-width: 150px;
+  min-width: 30%;
   border-radius: var(--radius-md);
 }
 
@@ -535,7 +534,6 @@
   border-radius: 0;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   opacity: 0.95;
-  min-width: 120px;
   color: var(--color-text-primary);
 }
 
@@ -801,19 +799,30 @@ body.view-week .day-agenda {
 }
 
 .day-agenda {
-  max-width: 820px;
+  width: 100%;
 }
 
 .agenda-nav {
   display: grid;
-  grid-template-columns: 48px 1fr 48px;
+  grid-template-columns: 13% minmax(0, 1fr) 13%;
   align-items: center;
   gap: var(--space-3);
 }
 
+/* Frecce tonde: larghe quanto la loro colonna, mai sotto la soglia del dito */
 .agenda-nav .btn {
+  width: 100%;
+  min-width: 44px;
+  aspect-ratio: 1;
+  height: auto;
   padding: 0;
   font-size: var(--font-size-xl);
+}
+
+@media (min-width: 48em) {
+  .agenda-nav {
+    grid-template-columns: 7% minmax(0, 1fr) 7%;
+  }
 }
 
 .agenda-title {
@@ -1000,9 +1009,9 @@ body.view-week .day-agenda {
   display: none;
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 68.75em) {
   body:has(#sidebar) .planning-bar {
-    left: 248px;
+    left: 20%;
   }
 }
 
@@ -1049,7 +1058,7 @@ body:has(.planning-bar:not(.hidden)) .container {
 .pick-group {
   grid-column: 2 / -1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
   padding: var(--space-2) 0;
 }

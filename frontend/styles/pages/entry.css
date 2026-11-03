@@ -14,7 +14,6 @@
 .entry-main {
   flex: 1 0 auto;
   width: 100%;
-  max-width: 480px;
   margin: 0 auto;
   padding: max(var(--space-6), env(safe-area-inset-top)) var(--gutter) var(--space-8);
   display: flex;
@@ -43,8 +42,8 @@
   border-radius: 50%;
   background: var(--sign);
   box-shadow:
-    0 0 0 8px var(--blue-deep),
-    0 0 72px 10px rgba(47, 111, 214, 0.42);
+    0 0 0 0.5rem var(--blue-deep),
+    0 0 4.5rem 0.6rem rgba(47, 111, 214, 0.42);
 }
 
 .entry .sign img {
@@ -115,8 +114,21 @@
   white-space: nowrap;
 }
 
+/* Colonna in percentuale: piena su telefono, più stretta dove lo schermo cresce */
+@media (min-width: 40em) {
+  .entry-main {
+    width: 60%;
+  }
+}
+
+@media (min-width: 64em) {
+  .entry-main {
+    width: 34%;
+  }
+}
+
 /* Schermi alti: il contenuto si centra in verticale */
-@media (min-height: 760px) {
+@media (min-height: 47.5em) {
   .entry-main {
     justify-content: center;
   }
@@ -136,7 +148,7 @@
   from {
     opacity: 0;
     box-shadow:
-      0 0 0 8px var(--blue-deep),
+      0 0 0 0.5rem var(--blue-deep),
       0 0 0 0 rgba(47, 111, 214, 0);
   }
 }

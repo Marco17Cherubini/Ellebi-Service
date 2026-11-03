@@ -146,6 +146,7 @@ Segnalazione del titolare dopo il rilascio di `f89b1e8` (screenshot da iPhone): 
 | Elenco clienti stretto | Nome e controlli sulla stessa riga | Due righe sotto i 600 px | Screenshot 360 px |
 | Primo giorno attaccato al bordo | Aggancio dello scorrimento senza `scroll-padding` | `scroll-padding-inline` | Screenshot 360 px |
 | Selettore del tema sopra il footer | Pulsante fisso | Statico nella pagina d'ingresso | Screenshot 360/390 px |
+| Layout in px ("desktop first") | 68 larghezze fisse (contenitori 720–1240 px, colonne minime, menu 264 px) e punti di cambio in px | Larghezze in % e `fr`, margine `5vw`, punti di cambio in em; px solo per icone e soglie di tocco | `test/css-units.test.js`, rosso prima della correzione; fogli di controllo a 360/768/1440 |
 
 # Fase 1 (2026, portfolio cleanup): stato finale e decisioni
 
