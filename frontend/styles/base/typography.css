@@ -10,32 +10,40 @@
 @font-face {
   font-family: 'Saira Condensed';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 600;
   font-display: swap;
-  src: url('/fonts/saira-condensed-400.woff2') format('woff2');
+  src: url('/fonts/saira-condensed-600.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'EB Garamond';
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url('/fonts/eb-garamond-var.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
+  font-family: 'Barlow';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/jetbrains-mono-400.woff2') format('woff2');
+  src: url('/fonts/barlow-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/barlow-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Barlow';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/barlow-600.woff2') format('woff2');
 }
 
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--tracking-display);
   line-height: var(--line-height-tight);
@@ -50,23 +58,22 @@ h1 {
 
 h2 {
   font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.03em;
   margin-bottom: var(--space-4);
 }
 
 h3 {
   font-size: var(--font-size-xl);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   margin-bottom: var(--space-3);
 }
 
 h4,
 h5,
 h6 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  letter-spacing: 0;
   font-size: var(--font-size-lg);
   margin-bottom: var(--space-2);
 }

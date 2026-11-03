@@ -21,7 +21,8 @@
     "format:check": "prettier --check .",
     "seed": "node server/seed.js",
     "build:3d": "esbuild client-src/garage3d.js --bundle --format=esm --minify --legal-comments=eof --target=es2020 --outfile=frontend/js/garage3d.js",
-    "test:e2e": "node --test \"test/e2e/*.e2e.js\""
+    "test:e2e": "node --test \"test/e2e/*.e2e.js\"",
+    "render:stills": "node client-src/render-stills.js"
   },
   "keywords": [
     "workshop",

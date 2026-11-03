@@ -51,7 +51,7 @@
   };
 
   const $ = id => document.getElementById(id);
-  const state = { exploded: true, active: null, services: null, daySummary: null };
+  const state = { exploded: false, active: null, services: null, daySummary: null };
   let scene3d = null;
 
   function toDateString(d) {
@@ -416,8 +416,9 @@
 
     toggle.addEventListener('click', () => {
       state.exploded = !state.exploded;
-      toggle.textContent = state.exploded ? 'Vista esplosa' : 'Assemblata';
+      toggle.textContent = state.exploded ? 'Riassembla' : "Mostra l'esploso";
       toggle.setAttribute('aria-pressed', String(state.exploded));
+      stage.classList.toggle('is-exploded', state.exploded);
       poster.src = state.exploded ? '/images/auto-esplosa.webp' : '/images/auto-assemblata.webp';
       poster.alt = state.exploded
         ? 'Auto stilizzata in vista esplosa: abitacolo, carrozzeria, motore, telaio e ruote separati'

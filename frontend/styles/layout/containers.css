@@ -51,7 +51,6 @@
 .header-title {
   font-family: var(--font-display);
   font-size: var(--font-size-xl);
-  text-transform: uppercase;
   letter-spacing: var(--tracking-display);
   margin: 0;
 }
@@ -78,12 +77,14 @@
 .brand {
   display: inline-flex;
   flex: none;
-  background: #ffffff;
+  padding: 3px 8px;
+  background: var(--sign);
+  border-radius: 8px;
   line-height: 0;
 }
 
 .brand img {
-  height: 52px;
+  height: 42px;
   width: auto;
   display: block;
 }
@@ -100,7 +101,6 @@
   font-family: var(--font-display);
   font-size: 0.95rem;
   letter-spacing: 0.42em;
-  text-transform: uppercase;
   color: var(--ink);
   text-decoration: none;
 }
@@ -177,18 +177,60 @@
   isolation: isolate;
 }
 
-.auth-page::before,
-.booking-page::before {
-  content: '';
-  position: fixed;
-  z-index: -1;
-  inset: 0;
-  background: url('/images/motivo-battistrada.svg') right -24vw bottom -16vw / min(80vw, 760px) auto
-    no-repeat;
-  opacity: 0.32;
-  pointer-events: none;
+/* Pagine di lavoro: il foglio occupa tutta l'altezza disponibile sotto la barra */
+.auth-page .sheet,
+.booking-page .flow.sheet {
+  min-height: calc(100svh - 64px);
 }
 
 .auth-page .auth {
   position: relative;
+}
+
+/* ==================== FOGLIO CHIARO (DESIGN.md §1) ====================
+   Le pagine di lavoro (prenotazione, accesso, area cliente) stanno su un foglio
+   chiaro sopra il palco scuro. I token sono rimappati qui: ogni componente interno
+   (campi, opzioni, pulsanti, avvisi) diventa chiaro senza regole dedicate. */
+.sheet {
+  --paper: var(--sheet);
+  --paper-2: var(--sheet-card);
+  --paper-3: var(--sheet-line);
+  --hair-strong: #aeb6c1;
+  --card: var(--sheet-card);
+  --ink: var(--sheet-ink);
+  --ink-2: var(--sheet-ink-2);
+  --ink-3: #5d6673;
+  --link: #1f5bbf;
+  --accent-ink: #a8481a;
+  --ok: var(--sheet-ok);
+  --danger: var(--sheet-danger);
+  --warn: #8a5600;
+  --ok-bg: #dcefe3;
+  --warn-bg: #f6ead2;
+  --danger-bg: #f6dcd8;
+  --info-bg: #e3ecfa;
+  --slot-free: var(--sheet-ink);
+  --slot-busy: var(--sheet-line);
+  --color-text-primary: var(--sheet-ink);
+  --color-text-secondary: var(--sheet-ink-2);
+  --color-bg-primary: var(--sheet);
+  --color-bg-secondary: var(--sheet-card);
+  --color-border: var(--sheet-line);
+  color: var(--sheet-ink);
+  background: var(--sheet);
+  border-radius: 22px 22px 0 0;
+  color-scheme: light;
+}
+
+.sheet :focus-visible {
+  outline-color: var(--blue);
+}
+
+/* Su schermi larghi il foglio è un riquadro centrato con tutti gli angoli arrotondati */
+@media (min-width: 760px) {
+  .sheet {
+    border-radius: 22px;
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-12);
+  }
 }

@@ -40,11 +40,14 @@ import {
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 // ─── Proporzioni (metri) ──────────────────────────────────────────────────────
-const L = 4.3; // lunghezza
-const HALF_W = 0.88; // mezza larghezza della carrozzeria
-const WHEEL_X = [-1.36, 1.3]; // assale posteriore, anteriore
-const WHEEL_R = 0.34;
-const TRACK = 0.8; // distanza del centro ruota dall'asse
+// Riferimento concordato: una GT a motore centrale (proporzioni da berlinetta Ferrari),
+// resa generica e senza marchi. Muso basso e corto, abitacolo avanzato, fianchi posteriori
+// larghi, motore dietro i sedili. Non è la ricostruzione di un modello reale.
+const L = 4.56; // lunghezza
+const HALF_W = 0.98; // mezza larghezza della carrozzeria
+const WHEEL_X = [-1.36, 1.3]; // assale posteriore, anteriore (passo 2,66 m)
+const WHEEL_R = 0.345;
+const TRACK = 0.84; // distanza del centro ruota dall'asse
 
 const smooth = (a, b, x) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -53,32 +56,43 @@ const smooth = (a, b, x) => {
 const lerp = (a, b, t) => a + (b - a) * t;
 
 // Arrotondamento di muso e coda: la sezione si chiude dolcemente alle estremità
-const endScale = u => Math.pow(1 - Math.pow(Math.abs(2 * u - 1), 5), 1 / 5);
+const endScale = u =>
+  u > 0.5
+    ? Math.pow(1 - Math.pow(2 * u - 1, 3.2), 1 / 3.2) // muso arrotondato
+    : Math.pow(1 - Math.pow(1 - 2 * u, 6), 1 / 6); // coda tronca
 
 // Profilo inferiore con i passaruota ricavati dalla superficie
 function bottomY(x) {
-  let y = 0.2;
+  let y = 0.15;
   for (const wx of WHEEL_X) {
     const dx = x - wx;
-    const ra = 0.43;
-    if (Math.abs(dx) < ra) y = Math.max(y, 0.3 + Math.sqrt(ra * ra - dx * dx));
+    const ra = 0.44;
+    if (Math.abs(dx) < ra) y = Math.max(y, 0.32 + Math.sqrt(ra * ra - dx * dx));
   }
   return y;
 }
 
 // Linea di cintura: coda, fianco, cofano che scende verso il muso
+// u: 0 coda → 1 muso. Coda tronca, fianchi alti sopra la ruota posteriore, vita più bassa,
+// parafango anteriore e cofano che scende fino al muso
 function beltY(u) {
-  if (u < 0.12) return lerp(0.62, 0.86, smooth(0, 0.12, u));
-  if (u < 0.66) return lerp(0.86, 0.88, smooth(0.12, 0.66, u));
-  return lerp(0.88, 0.5, smooth(0.66, 1, u));
+  if (u < 0.07) return lerp(0.72, 0.88, smooth(0, 0.07, u));
+  if (u < 0.3) return lerp(0.88, 0.9, Math.sin(((u - 0.07) / 0.23) * Math.PI));
+  if (u < 0.62) return lerp(0.88, 0.82, smooth(0.3, 0.62, u));
+  if (u < 0.82) return lerp(0.82, 0.8, smooth(0.62, 0.82, u));
+  return lerp(0.8, 0.42, smooth(0.82, 1, u));
 }
 
+// Larghezza: fianchi posteriori pieni, vita stretta, parafango anteriore, muso affusolato
 function halfWidth(u) {
-  return HALF_W * lerp(0.86, 1, smooth(0, 0.25, u)) * lerp(1, 0.84, smooth(0.75, 1, u));
+  const haunch = Math.exp(-Math.pow((u - 0.2) / 0.12, 2)) * 0.06;
+  const front = Math.exp(-Math.pow((u - 0.78) / 0.1, 2)) * 0.03;
+  const base = lerp(0.88, 0.94, smooth(0, 0.15, u)) * lerp(1, 0.8, smooth(0.86, 1, u));
+  return HALF_W * (base + haunch + front);
 }
 
 // Superficie chiusa costruita per sezioni: superellisse tra yBottom e yTop
-function sectionSurface({ stations, around, u0, u1, section }) {
+function sectionSurface({ stations, around, u0, u1, section, colorAt = null }) {
   const pos = [];
   const idx = [];
   for (let i = 0; i <= stations; i++) {
@@ -119,13 +133,22 @@ function sectionSurface({ stations, around, u0, u1, section }) {
   }
   const g = new BufferGeometry();
   g.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  if (colorAt) {
+    // Bicolore: vernice sopra, grafite su minigonne e paraurti (y bassa)
+    const col = [];
+    for (let i = 0; i < pos.length; i += 3) col.push(...colorAt(pos[i], pos[i + 1]));
+    g.setAttribute('color', new Float32BufferAttribute(col, 3));
+  }
   g.setIndex(idx);
   g.computeVertexNormals();
   return g;
 }
 
+const PAINT = [1, 1, 1];
+const SILL = [0.09, 0.1, 0.11];
 function bodyGeometry() {
   return sectionSurface({
+    colorAt: (x, y) => (y < bottomY(x) + 0.09 ? SILL : PAINT),
     stations: 96,
     around: 44,
     u0: 0.002,
@@ -137,15 +160,17 @@ function bodyGeometry() {
       const yt = beltY(u);
       const mid = (yb + yt) / 2;
       const h = Math.max(0.04, (yt - yb) * lerp(0.35, 1, e));
-      return { x, yc: mid, h, w: halfWidth(u) * lerp(0.55, 1, e), wTop: halfWidth(u) * 0.94, n: 5 };
+      // Sezione più tonda verso il muso, più squadrata sui fianchi
+      const n = lerp(3.2, 5, smooth(1, 0.8, u));
+      return { x, yc: mid, h, w: halfWidth(u) * lerp(0.6, 1, e), wTop: halfWidth(u) * 0.9, n };
     }
   });
 }
 
 // Abitacolo vetrato: parabrezza inclinato, tetto, lunotto
 function cabinGeometry() {
-  const a = 0.2;
-  const b = 0.74;
+  const a = 0.3;
+  const b = 0.7;
   return sectionSurface({
     stations: 48,
     around: 32,
@@ -154,16 +179,17 @@ function cabinGeometry() {
     section: u => {
       const x = (u - 0.5) * L;
       const k = (u - a) / (b - a);
-      const rise = smooth(0, 0.36, k) * (1 - smooth(0.5, 1, k));
+      // Lunotto lungo e basso verso il cofano motore, parabrezza molto inclinato
+      const rise = smooth(0, 0.5, k) * (1 - smooth(0.6, 1, k));
       const base = beltY(u) - 0.06;
-      const top = base + 0.06 + rise * 0.5;
+      const top = base + 0.06 + rise * 0.4;
       return {
         x,
         yc: (base + top) / 2,
         h: top - base,
-        w: halfWidth(u) * 0.86,
-        wTop: halfWidth(u) * 0.66,
-        n: 6
+        w: halfWidth(u) * 0.78,
+        wTop: halfWidth(u) * 0.6,
+        n: 4
       };
     }
   });
@@ -172,9 +198,9 @@ function cabinGeometry() {
 function tyreGeometry() {
   // Sezione dello pneumatico ruotata attorno all'asse: spalla arrotondata, battistrada piatto
   const pts = [];
-  const r0 = 0.22;
+  const r0 = 0.25; // spalla bassa: cerchi grandi
   const r1 = WHEEL_R;
-  const w = 0.13;
+  const w = 0.14;
   pts.push(new Vector2(r0, -w));
   for (let i = 0; i <= 8; i++) {
     const a = -Math.PI / 2 + (i / 8) * (Math.PI / 2);
@@ -238,7 +264,7 @@ export async function mount(stage, options = {}) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, pixelRatio));
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.9;
+  renderer.toneMappingExposure = 0.82;
 
   const scene = new Scene();
   const pmrem = new PMREMGenerator(renderer);
@@ -254,9 +280,10 @@ export async function mount(stage, options = {}) {
   // Materiali condivisi
   const mat = {
     paint: new MeshPhysicalMaterial({
-      color: 0xc9601c,
-      metalness: 0.55,
-      roughness: 0.32,
+      color: 0xc4561a,
+      vertexColors: true,
+      metalness: 0.4,
+      roughness: 0.28,
       clearcoat: 1,
       clearcoatRoughness: 0.06
     }),
@@ -273,7 +300,20 @@ export async function mount(stage, options = {}) {
     dark: new MeshStandardMaterial({ color: 0x1b1d21, metalness: 0.4, roughness: 0.55 }),
     steel: new MeshStandardMaterial({ color: 0x6b7178, metalness: 0.85, roughness: 0.3 }),
     engine: new MeshStandardMaterial({ color: 0x3a3f46, metalness: 0.7, roughness: 0.35 }),
-    seat: new MeshStandardMaterial({ color: 0x23262b, roughness: 0.8 })
+    seat: new MeshStandardMaterial({ color: 0x23262b, roughness: 0.8 }),
+    lamp: new MeshStandardMaterial({
+      color: 0xdfe6ee,
+      metalness: 0.3,
+      roughness: 0.15,
+      emissive: 0x8fb4e8,
+      emissiveIntensity: 0.35
+    }),
+    tail: new MeshStandardMaterial({
+      color: 0x9b1712,
+      roughness: 0.3,
+      emissive: 0xb3201b,
+      emissiveIntensity: 0.6
+    })
   };
   const geos = [];
   const keep = g => (geos.push(g), g);
@@ -284,17 +324,27 @@ export async function mount(stage, options = {}) {
 
   // Carrozzeria
   const body = new Mesh(keep(bodyGeometry()), mat.paint);
-  // Fari e luci: piccoli blocchi chiari sul muso e scuri in coda
-  const lightGeo = keep(new BoxGeometry(0.06, 0.05, 0.3));
+  // Fari sottili sul muso, fanale posteriore a tutta larghezza, prese d'aria laterali
+  // davanti alle ruote posteriori, estrattore sotto la coda
+  // Fari: sottili, quasi annegati nella superficie del cofano (seguono la sua pendenza)
+  const headGeo = keep(new BoxGeometry(0.3, 0.025, 0.2));
+  const headU = (L / 2 - 0.36) / L + 0.5;
   [-1, 1].forEach(side => {
-    const head = new Mesh(lightGeo, mat.caliper);
-    head.position.set(L / 2 - 0.1, 0.4, side * 0.5);
-    head.rotation.y = side * 0.25;
+    const head = new Mesh(headGeo, mat.lamp);
+    head.position.set(L / 2 - 0.36, beltY(headU) - 0.05, side * 0.55);
+    head.rotation.set(0, side * 0.35, -0.42);
     body.add(head);
-    const tail = new Mesh(lightGeo, mat.dark);
-    tail.position.set(-L / 2 + 0.17, 0.66, side * 0.5);
-    body.add(tail);
+    const intakeSide = new Mesh(keep(new BoxGeometry(0.42, 0.2, 0.06)), mat.dark);
+    intakeSide.position.set(-0.68, 0.56, side * HALF_W * 0.95);
+    intakeSide.rotation.y = side * -0.12;
+    body.add(intakeSide);
   });
+  const tailLight = new Mesh(keep(new BoxGeometry(0.04, 0.03, 1.15)), mat.tail);
+  tailLight.position.set(-L / 2 + 0.11, 0.75, 0);
+  body.add(tailLight);
+  const diffuser = new Mesh(keep(new BoxGeometry(0.3, 0.1, 1.3)), mat.dark);
+  diffuser.position.set(-L / 2 + 0.2, 0.24, 0);
+  body.add(diffuser);
   root.add(body);
 
   // Abitacolo vetrato
@@ -342,7 +392,8 @@ export async function mount(stage, options = {}) {
   pulley.rotation.z = Math.PI / 2;
   pulley.position.set(0.34, -0.04, 0.12);
   engine.add(block, headBox, cover, intake, pulley);
-  const ENGINE_BASE = { x: 1.3, y: 0.33 };
+  // Motore centrale, dietro i sedili
+  const ENGINE_BASE = { x: -0.95, y: 0.4 };
   root.add(engine);
 
   // Telaio: pianale, longheroni, assali
@@ -463,7 +514,8 @@ export async function mount(stage, options = {}) {
   }
 
   // ─── Pose ───────────────────────────────────────────────────────────────────
-  const OFF = { body: 0.95, cabin: 1.6, seats: 0.36, engineY: 0.42, engineX: 1.55, wheelZ: 0.62 };
+  // Esploso: carrozzeria e abitacolo salgono, il motore esce dalla coda, le ruote si allargano
+  const OFF = { body: 0.95, cabin: 1.6, seats: 0.36, engineY: 0.3, engineX: -1.75, wheelZ: 0.62 };
   let t = exploded && (!intro || reducedMotion) ? 1 : 0;
   let target = exploded ? 1 : 0;
   let yaw = -0.62;

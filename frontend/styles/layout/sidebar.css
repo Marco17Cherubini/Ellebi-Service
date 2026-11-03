@@ -59,7 +59,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   text-decoration: none;
 }
 
@@ -100,7 +99,6 @@
   color: var(--ink);
   font-family: var(--font-display);
   font-size: var(--font-size-xl);
-  text-transform: uppercase;
   letter-spacing: 0.1em;
   text-decoration: none;
   background: none;

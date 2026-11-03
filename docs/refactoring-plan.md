@@ -118,7 +118,22 @@ Nessun dato da correggere: in produzione non è stato creato alcun appuntamento 
 
 ---
 
-## Fase 1 (2026, portfolio cleanup): stato finale e decisioni
+## Fase 3: verifica dei difetti segnalati e direzione "L'insegna" (3 novembre 2026)
+
+Partenza da `c7dc5fb`. Baseline: 124 test verdi, lint e formattazione puliti.
+
+| Difetto | Esito | Causa | Correzione | Verifica |
+|---|---|---|---|---|
+| A. Lavori straordinari da telefono | Riprodotto | La vista Giorno (predefinita sotto i 1024 px) non aveva strumenti di pianificazione; la correzione precedente forzava la griglia settimanale. `saveOre` ignorava gli errori | Pianificazione nella vista Giorno con pulsanti per i quarti d'ora; barra Salva/Annulla fuori dalla griglia; stop se le ore non si salvano; pianificazione reale (minuti, prossimo blocco) nelle schede, distinta dallo stato | `test/extra-work.test.js` (concorrenza, stati, tutto o niente), `test/agenda-view.test.js`, e2e telefono (tocco, tastiera, reload) e desktop (mouse) |
+| B. Accesso admin | API: non riprodotto (tutte 401/403 per anonimo e cliente). Pagine: riprodotto (HTML admin servito a tutti) | Nessun controllo sulle pagine e sui `.html` statici | `pageGuard` lato server prima dei file statici; etichette "Agenda officina" e "Le tue prenotazioni" | `test/page-guard.test.js`, matrice di 38 rotte × 3 sessioni |
+| C. "Ruota in 3D" blocca i controlli | Riprodotto sotto i 760 px; desktop non riprodotto | La tela (`inset: 0`) copriva le etichette in flusso dentro lo stesso contenitore; `.btn` annullava `[hidden]` | Etichette sopra la tela; `[hidden]` sempre nascosto | `test/e2e/home-3d.e2e.js` a 360/390/768 px, rosso prima della correzione |
+| D. Durate | Riprodotto ("15 min", "quarti d'ora liberi", "30 min · consegna") | Testi pubblici | Intervallo reale dal listino, accoglienza ≠ lavorazione, "da concordare" se la durata manca (`durata_definita`) | `test/durations.test.js` |
+
+Direzione visiva: tre proposte (mockup), scelta del titolare **B · L'insegna**; logo ricalcato in vettoriale (sovrapposizione col raster 96 % scuro, 95 % arancio; 36 KB compresso contro 51 KB); auto costruita in codice con proporzioni da GT a motore centrale (tre giri di revisione da cinque angolazioni). Limite dichiarato: credibile ma stilizzata, non fotorealistica. Riferimenti awesome-design-md letti: Ferrari, BMW M, Renault (`fcc7028`).
+
+Non verificato: telefono fisico, fps reali (GPU software), invio email reale.
+
+# Fase 1 (2026, portfolio cleanup): stato finale e decisioni
 
 Documento di lavoro del refactoring di Ellebi Service: rendere il progetto ordinato, affidabile e presentabile nel portfolio. Riporta decisioni, stato dei task, problemi trovati, verifiche eseguite e passi aperti.
 

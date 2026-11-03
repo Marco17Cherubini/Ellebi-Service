@@ -1,27 +1,18 @@
 /* ============================================================================
-   PAGINA PUBBLICA — sistema Bugatti applicato a un'officina
-   Nero puro, titoli maiuscoli a lettere molto spaziate, fili sottili al posto di
-   riquadri e ombre, tanto respiro. Il cerchio e il battistrada del logo (ricalcati)
-   fanno da palcoscenico all'auto in vista esplosa, che è anche il menu del sito.
-   L'unico colore è il rame del logo, sull'azione principale e su pochi segni.
+   PAGINA PUBBLICA — direzione B · L'insegna (DESIGN.md)
+   L'officina vista dalla strada di sera: l'insegna rotonda con il logo autentico,
+   illuminata di blu, e l'auto davanti. Arancio solo per le azioni.
+   Mobile: insegna e auto, poi titolo e pulsanti. Desktop: testo a sinistra, auto a destra.
    ============================================================================ */
 
 .landing .site-bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  background: transparent;
+  position: relative;
+  background: var(--paper);
   z-index: var(--z-sticky);
 }
 
 .site-bar-word {
   display: none;
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
-  color: var(--ink);
 }
 
 .site-link {
@@ -30,10 +21,8 @@
   align-items: center;
   padding: 0 var(--space-3);
   color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -51,106 +40,109 @@
   }
 }
 
-@media (min-width: 1024px) {
-  .site-bar-word {
-    display: block;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-}
-
 /* ==================== PALCO ==================== */
 
 .stage {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-6);
+  grid-template-areas:
+    'car'
+    'panel'
+    'head'
+    'foot'
+    'tools';
+  gap: var(--space-5);
   justify-items: center;
   text-align: center;
-  padding: 108px var(--gutter) var(--space-12);
+  padding: var(--space-6) var(--gutter) var(--space-12);
   overflow: hidden;
   isolation: isolate;
 }
 
-@media (min-width: 1024px) {
-  .stage {
-    gap: var(--space-4);
-    padding-top: 96px;
-  }
-
-  .stage-foot {
-    margin-top: 0;
-  }
-}
-
-/* Il cerchio del logo dietro l'auto: i due archi neri e le fasce del battistrada.
-   È figlio del palco dell'auto, così resta centrato su di essa a ogni larghezza. */
-.stage-ring {
-  position: absolute;
-  z-index: -1;
-  left: 50%;
-  top: 50%;
-  height: 128%;
-  width: auto;
-  aspect-ratio: 703 / 783;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.ring-crescent {
-  fill: #1c1c1c;
-}
-
-.ring-tread {
-  fill: var(--accent);
-  fill-opacity: 0.32;
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: rotate(calc(var(--yaw, 0) * 16deg));
-}
-
 .stage-head {
+  grid-area: head;
   width: 100%;
+}
+
+.stage-car {
+  grid-area: car;
+}
+
+.stage-tools {
+  grid-area: tools;
+}
+
+.part-panel {
+  grid-area: panel;
+}
+
+.stage-foot {
+  grid-area: foot;
 }
 
 .stage-title {
   margin: 0;
-  font-size: clamp(2.5rem, 0.8rem + 6.2vw, 6.25rem);
-  line-height: 1.02;
-  letter-spacing: 0.1em;
-  padding-left: 0.1em;
+  font-size: clamp(2rem, 1.2rem + 3.6vw, 4rem);
+  line-height: 1;
 }
 
 .stage-caption {
-  margin: var(--space-5) 0 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--ink-3);
+  margin: var(--space-3) 0 0;
+  font-size: var(--font-size-lg);
+  color: var(--ink-2);
 }
 
+/* L'auto: il riquadro ha le proporzioni dell'immagine e della tela 3D (le etichette
+   usano coordinate in percentuale su questo riquadro). L'insegna sporge in alto. */
 .stage-car {
   position: relative;
-  width: min(100%, 980px);
+  width: min(100%, 940px);
+  margin-top: clamp(150px, 40vw, 260px);
   aspect-ratio: 1120 / 688;
   touch-action: pan-y;
 }
 
-@media (min-width: 1024px) {
-  /* L'auto deve stare sopra la piega insieme al titolo */
+/* Su telefono l'auto esce un po' dai margini: più grande, l'insegna resta centrata */
+@media (max-width: 759px) {
   .stage-car {
-    width: min(100%, 980px, calc((100svh - 400px) * 1.628));
-    min-width: 560px;
+    width: calc(100% + 2 * var(--gutter));
+    max-width: none;
   }
 }
 
+/* L'insegna: disco crema con il logo vettoriale, anello blu profondo, alone blu */
+.sign {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  bottom: 47%;
+  width: min(80%, 540px);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--sign);
+  box-shadow:
+    0 0 0 clamp(6px, 1.4vw, 12px) var(--blue-deep),
+    0 0 clamp(60px, 14vw, 140px) clamp(8px, 2vw, 22px) rgba(47, 111, 214, 0.42);
+  pointer-events: none;
+}
+
+.sign img {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 84%;
+  height: auto;
+  transform: translate(-50%, -50%);
+}
+
 .stage-poster {
+  position: relative;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 24px 18px rgba(0, 0, 0, 0.55));
   transition: opacity 400ms var(--ease-out);
 }
 
@@ -173,8 +165,42 @@
 }
 
 .garage3d-canvas:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--blue);
   outline-offset: -2px;
+}
+
+@media (min-width: 1024px) {
+  .stage {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    grid-template-areas:
+      'head car'
+      'foot car'
+      'panel tools';
+    align-items: center;
+    justify-items: start;
+    text-align: left;
+    column-gap: var(--space-10);
+    padding-top: var(--space-16);
+    min-height: min(100svh - 72px, 920px);
+  }
+
+  .stage-head {
+    align-self: end;
+  }
+
+  .stage-car {
+    width: 100%;
+    margin-top: 240px;
+    justify-self: center;
+  }
+
+  .stage-tools {
+    justify-self: center;
+  }
+
+  .stage-title {
+    font-size: clamp(3rem, 1.2rem + 3.4vw, 4.75rem);
+  }
 }
 
 /* ==================== ETICHETTE SUI PEZZI ==================== */
@@ -244,8 +270,10 @@
   border-color: var(--ink);
 }
 
+/* Sopra i pezzi solo in vista esplosa: con l'auto assemblata le etichette si
+   sovrapporrebbero, quindi restano in fila sotto l'auto */
 @media (min-width: 760px) {
-  .hotspots {
+  .stage-car.is-exploded .hotspots {
     position: absolute;
     inset: 0;
     z-index: 2;
@@ -254,11 +282,11 @@
     pointer-events: none;
   }
 
-  .hotspot {
+  .stage-car.is-exploded .hotspot {
     pointer-events: auto;
   }
 
-  .hotspot {
+  .stage-car.is-exploded .hotspot {
     position: absolute;
     left: calc(var(--x) * 1%);
     top: calc(var(--y) * 1%);
@@ -270,16 +298,16 @@
       border-color 180ms var(--ease-out);
   }
 
-  .hotspot.is-left {
+  .stage-car.is-exploded .hotspot.is-left {
     flex-direction: row-reverse;
     transform: translate(calc(-100% + 14px), -50%);
   }
 
-  .hotspot:active {
+  .stage-car.is-exploded .hotspot:active {
     transform: translate(-14px, -50%) scale(0.97);
   }
 
-  .hotspot.is-left:active {
+  .stage-car.is-exploded .hotspot.is-left:active {
     transform: translate(calc(-100% + 14px), -50%) scale(0.97);
   }
 }
@@ -481,46 +509,65 @@
 
 .stage-foot {
   display: grid;
-  gap: var(--space-6);
-  width: min(100%, 1180px);
-  padding-top: var(--space-8);
-  border-top: 1px solid var(--paper-3);
-  margin-top: var(--space-4);
-  text-align: left;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 560px;
 }
 
 .stage-lead {
   font-size: var(--step-lead);
-  line-height: 1.35;
-  max-width: 34ch;
+  line-height: 1.4;
   color: var(--ink-2);
   margin: 0;
 }
 
 .stage-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: var(--space-3);
-  align-items: flex-start;
 }
 
-.stage-actions .btn {
-  flex: 1 1 15rem;
+/* Su telefono i pulsanti vengono prima del testo: restano nella prima schermata */
+@media (max-width: 1023px) {
+  .stage-actions {
+    order: -1;
+  }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1024px) {
   .stage-foot {
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: var(--space-12);
+    align-self: start;
   }
 
   .stage-actions {
-    justify-content: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
+/* Movimento: l'insegna si accende, l'auto entra. Una sola volta. */
+@media (prefers-reduced-motion: no-preference) {
+  .sign {
+    animation: sign-on 700ms var(--ease-out) both;
   }
 
-  .stage-actions .btn {
-    flex: 0 0 auto;
+  .stage-poster {
+    animation: car-in 700ms var(--ease-out) 150ms both;
+  }
+}
+
+@keyframes sign-on {
+  from {
+    opacity: 0;
+    box-shadow:
+      0 0 0 clamp(6px, 1.4vw, 12px) var(--blue-deep),
+      0 0 0 0 rgba(47, 111, 214, 0);
+  }
+}
+
+@keyframes car-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
   }
 }
 
@@ -565,13 +612,15 @@
 }
 
 .way-figure {
-  margin: 0 0 var(--space-6);
+  margin: 0 0 var(--space-5);
   font-family: var(--font-display);
-  font-size: var(--step-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
   line-height: 1;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--accent-ink);
+  white-space: nowrap;
 }
 
 .way h3 {
@@ -743,15 +792,6 @@
   justify-items: center;
   gap: var(--space-8);
   overflow: hidden;
-}
-
-.cta-band::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: -20% 0;
-  background: url('/images/motivo-battistrada.svg') center / auto 140% no-repeat;
-  opacity: 0.4;
 }
 
 .cta-band h2 {

@@ -49,7 +49,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--ink-3);
   margin-bottom: var(--space-10);
 }
@@ -109,7 +108,6 @@
 .choice-name {
   font-family: var(--font-display);
   font-size: var(--font-size-3xl);
-  text-transform: uppercase;
   letter-spacing: var(--tracking-display);
 }
 
@@ -131,7 +129,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--ink-3);
   margin-bottom: var(--space-3);
 }
@@ -171,7 +168,6 @@
 .service-name {
   font-family: var(--font-display);
   font-size: var(--font-size-xl);
-  text-transform: uppercase;
   letter-spacing: 0.07em;
 }
 
@@ -179,7 +175,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--ink-3);
   text-align: right;
 }
@@ -227,7 +222,6 @@
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--ink-3);
 }
 
@@ -255,7 +249,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--ink-3);
 }
 
@@ -367,7 +360,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .vehicle-chip:hover {
@@ -386,7 +378,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
   color: var(--ink-3);
   padding-top: var(--space-5);
 }
@@ -492,5 +483,26 @@
 
   .booking-page {
     padding-bottom: 0;
+  }
+}
+
+/* La barra delle azioni fa parte del foglio, ma senza angoli né margini */
+.action-bar.sheet {
+  border-radius: 0;
+  margin: 0;
+}
+
+.flow.sheet {
+  padding-top: var(--space-6);
+}
+
+/* Lo spazio per la barra fissa sta nel foglio, non nel fondo scuro della pagina */
+.booking-page {
+  padding-bottom: 0;
+}
+
+@media (max-width: 759px) {
+  .flow.sheet {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom));
   }
 }

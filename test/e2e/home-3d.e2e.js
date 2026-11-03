@@ -42,7 +42,15 @@ for (const width of [360, 390, 768]) {
     const n = await hotspots.count();
     assert.ok(n >= 5);
     for (let i = 0; i < n; i++) {
-      await hotspots.nth(i).click({ timeout: 5000 });
+      // Aprire un pannello può far scorrere la pagina fino a esso: si aspetta che lo scroll finisca
+      await page.waitForFunction(
+        () =>
+          new Promise(r => {
+            const y = scrollY;
+            setTimeout(() => r(scrollY === y), 250);
+          })
+      );
+      await hotspots.nth(i).click({ timeout: 10000 });
       assert.equal(await hotspots.nth(i).getAttribute('aria-expanded'), 'true');
     }
 

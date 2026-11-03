@@ -107,7 +107,6 @@
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .badge-banned {
@@ -117,7 +116,6 @@
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 /* ==================== USER ACTIONS ==================== */
@@ -298,7 +296,6 @@
 .vh-title {
   font-size: 0.75rem;
   font-weight: 500;
-  text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-text-secondary, #888);
   margin-bottom: 8px;
@@ -381,7 +378,6 @@
   font-weight: 500;
   margin-bottom: 6px;
   color: var(--color-text-secondary, #888);
-  text-transform: uppercase;
 }
 
 .vh-storico-row {
