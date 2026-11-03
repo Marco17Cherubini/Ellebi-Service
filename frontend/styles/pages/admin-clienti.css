@@ -4,7 +4,7 @@
    ============================================================================ */
 
 .clienti-container {
-  max-width: 900px;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -395,7 +395,7 @@
 
 .vhsr-date {
   color: var(--color-text-secondary, #888);
-  min-width: 130px;
+  flex: 0 0 35%;
 }
 
 .vhsr-service {
@@ -415,4 +415,39 @@
 /* ─── Sidebar nav updates ─── */
 .sidebar-nav a.sidebar-item {
   display: block;
+}
+
+/* Telefono: nome e stato sulla prima riga, comandi sotto, nulla si sovrappone */
+@media (max-width: 37.4375em) {
+  .user-item {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .user-info {
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .user-name {
+    overflow-wrap: anywhere;
+  }
+
+  .user-actions {
+    flex: 1 1 100%;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .action-checkbox {
+    width: 24px;
+    height: 24px;
+  }
+
+  .btn-vehicles-toggle {
+    min-height: 44px;
+    padding-inline: var(--space-4);
+  }
 }

@@ -8,7 +8,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: min(320px, 88vw);
+  width: 85%;
   height: 100%;
   background-color: var(--paper);
   color: var(--ink);
@@ -138,10 +138,10 @@
 }
 
 /* Schermi larghi: la navigazione resta sempre visibile */
-@media (min-width: 1100px) {
+@media (min-width: 68.75em) {
   .sidebar {
     transform: none;
-    width: 264px;
+    width: 20%;
     z-index: var(--z-sticky);
   }
 
@@ -151,7 +151,7 @@
   }
 
   body:has(#sidebar) {
-    padding-left: 264px;
+    padding-left: 20%; /* stessa larghezza del menu */
   }
 
   body:has(#sidebar) .hamburger-btn {

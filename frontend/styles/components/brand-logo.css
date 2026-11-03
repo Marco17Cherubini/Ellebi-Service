@@ -5,9 +5,8 @@
 .brand-logo {
   margin-bottom: 1.5rem;
   display: inline-block;
-  width: 100%;
-  max-width: 340px;
-  height: 260px;
+  width: 80%;
+  aspect-ratio: 340 / 260;
   max-height: 40vh;
   background-image: url('/images/LB-Service-Logo.webp');
   background-size: contain;

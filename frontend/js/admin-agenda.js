@@ -82,7 +82,7 @@
     return agendaInitialView({
       search: window.location.search,
       saved,
-      wide: window.matchMedia('(min-width: 1024px)').matches
+      wide: window.matchMedia('(min-width: 64em)').matches
     });
   }
 
@@ -95,7 +95,7 @@
   // si può passare da una vista all'altra senza perderla.
 
   window.onPlanningStart = async depositId => {
-    const wide = window.matchMedia('(min-width: 1024px)').matches;
+    const wide = window.matchMedia('(min-width: 64em)').matches;
     setView(wide ? 'week' : 'day', { persist: false });
     // Si parte dal primo giorno con orari ancora prenotabili
     const d = parseDate(day);

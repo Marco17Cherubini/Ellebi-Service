@@ -312,7 +312,7 @@
 }
 
 .dc-ore-input {
-  width: 70px;
+  width: 25%;
   padding: 6px 8px;
   border: 1px solid var(--color-border, #e0e0e0);
   border-radius: 0;

@@ -9,7 +9,7 @@
 }
 
 .flow {
-  max-width: 760px;
+  width: 100%;
   margin: 0 auto;
   padding: var(--space-4) var(--gutter) var(--space-12);
 }
@@ -135,7 +135,7 @@
 
 .service-option {
   display: grid;
-  grid-template-columns: 24px 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-4);
   min-height: 64px;
@@ -199,11 +199,13 @@
   overscroll-behavior-x: contain;
   margin: 0 calc(var(--gutter) * -1);
   padding: 0 var(--gutter) var(--space-2);
+  /* l'aggancio rispetta il margine: il primo giorno non tocca il bordo dello schermo */
+  scroll-padding-inline: var(--gutter);
   scrollbar-width: thin;
 }
 
 .day-chip {
-  flex: 0 0 68px;
+  flex: 0 0 18%; /* cinque giorni e mezzo visibili: si capisce che la striscia scorre */
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
@@ -269,7 +271,7 @@
 
 .slot-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 
@@ -389,7 +391,7 @@
   overflow-wrap: anywhere;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 40em) {
   .summary {
     grid-template-columns: 9rem 1fr;
   }
@@ -466,18 +468,15 @@
 
 .action-bar .btn {
   flex: 1 1 0;
-  max-width: 280px;
 }
 
 .action-bar #next-btn {
   flex-grow: 2;
 }
 
-@media (min-width: 760px) {
+@media (min-width: 47.5em) {
   .action-bar {
     position: sticky;
-    max-width: 760px;
-    margin: 0 auto;
     box-shadow: 0 -1px 0 var(--paper-3);
   }
 
@@ -486,10 +485,25 @@
   }
 }
 
-/* La barra delle azioni fa parte del foglio, ma senza angoli né margini */
+/* La barra delle azioni fa parte del foglio, ma senza angoli */
 .action-bar.sheet {
   border-radius: 0;
-  margin: 0;
+}
+
+/* Foglio e barra hanno la stessa larghezza in percentuale e restano centrati */
+@media (min-width: 47.5em) {
+  .flow,
+  .action-bar.sheet {
+    width: 85%;
+    margin-inline: auto;
+  }
+}
+
+@media (min-width: 64em) {
+  .flow,
+  .action-bar.sheet {
+    width: 60%;
+  }
 }
 
 .flow.sheet {
@@ -501,7 +515,7 @@
   padding-bottom: 0;
 }
 
-@media (max-width: 759px) {
+@media (max-width: 47.4375em) {
   .flow.sheet {
     padding-bottom: calc(112px + env(safe-area-inset-bottom));
   }

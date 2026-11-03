@@ -110,7 +110,7 @@ body {
   font-size: 0.85rem;
   color: var(--color-text-secondary);
 }
-@media (max-width: 768px) {
+@media (max-width: 48em) {
   body {
     height: auto;
     overflow: auto;

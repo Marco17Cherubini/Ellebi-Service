@@ -1,5 +1,11 @@
 .legal-page-main {
-  max-width: 920px;
+  width: 100%;
+}
+
+@media (min-width: 64em) {
+  .legal-page-main {
+    width: 70%;
+  }
 }
 
 .legal-page-intro {

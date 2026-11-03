@@ -2,14 +2,14 @@
    ADATTAMENTI GENERALI — il resto è mobile-first nei singoli componenti
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (max-width: 48em) {
   .grid-2,
   .grid-3 {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30em) {
   .btn-group > .btn {
     flex: 1 1 100%;
   }
