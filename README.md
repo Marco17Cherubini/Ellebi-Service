@@ -40,9 +40,9 @@ The app is a revisited version of the Lev Space booking system, customised aroun
 
 ![Entry page on a phone: the round sign with the logo, the car, and the three ways in: sign in, register, book as a guest](docs/images/fase4/ingresso-mobile.webp)
 
-| Booking on a phone: only start times where the whole job fits                                                       | Workshop day view on a phone, including free gaps                                                                  |
-| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| ![Booking step with day chips and free start times with their end time](docs/images/fase2/dopo-prenota-mobile.webp) | ![Admin day agenda listing the day's appointments and free gaps](docs/images/fase2/dopo-agenda-giorno-mobile.webp) |
+| Booking on a phone: only start times where the whole job fits                                                  | Workshop day view on a phone, including free gaps                                                             |
+| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| ![Booking step with day chips and free start times with their end time](docs/images/fase4/prenota-mobile.webp) | ![Admin day agenda listing the day's appointments and free gaps](docs/images/fase4/agenda-giorno-mobile.webp) |
 
 ### Results — and what they taught us
 
@@ -99,19 +99,19 @@ Each service in the price list has its own duration. The server computes availab
 
 Services marked as _consegna_ (drop-off) create a 30-minute reception appointment **and** a deposit card. Deposits move through _in attesa_ → _in corso_ → _completato_, with customer notes, internal notes and remaining hours. A configurable limit stops new drop-offs when the workshop is full.
 
-![Deposit board: one vehicle waiting, one in progress with notes and remaining hours](docs/images/deposits.png)
+![Lavori straordinari page: one drop-off waiting, one in progress, with plan buttons and the completed history](docs/images/fase4/lavori-straordinari.webp)
 
 ### Work planned on the same calendar
 
 From a deposit card the mechanic opens the weekly calendar and assigns the estimated hours in 15-minute blocks. Each block is validated like an appointment, and the whole plan is saved or rejected as one transaction. Moving the reception appointment keeps its link with the deposit; cancelling it removes the deposit and its blocks.
 
-![Admin weekly calendar with appointments (yellow) and drop-offs (purple)](docs/images/admin-calendar.png)
+![Admin weekly calendar: appointments and drop-offs on the 15-minute grid, free quarters to add](docs/images/fase4/admin-settimana.webp)
 
 ### Price list with seasonal services
 
 The admin edits services, vehicle type (car or motorcycle), duration and internal price from the _Listino_ page. Seasonal services (for example winter tyre changes, 15 November – 15 April) appear to customers only inside their window.
 
-![Price list page with car and motorcycle services, durations and seasonal flags](docs/images/price-list.png)
+![Price list page with car and motorcycle services, durations, prices, seasonal flags and on/off switches](docs/images/fase4/listino.webp)
 
 ### Customers
 
@@ -121,7 +121,7 @@ The admin client list shows registered customers and guests. Customers can be ma
 
 Weekly and monthly charts of appointments per day, counted in the workshop's time zone (work blocks on deposits are not counted as bookings).
 
-![Monthly report with appointments per day](docs/images/reports.png)
+![Weekly report with appointments per day and totals](docs/images/fase4/report.webp)
 
 Also included: guest booking without an account, email confirmations and password reset via Resend, light/dark theme, drag & drop of appointments and drag-select of holidays in the admin calendar, automatic retention of expired personal data in production.
 
@@ -163,9 +163,7 @@ Frame rate could not be measured meaningfully (software GPU, headless browser) a
 
 **New identity, direction B "L'insegna"** ([DESIGN.md](DESIGN.md)): the original logo, traced to vector, is a round lit sign behind the car; a dark stage presents, a light sheet is used for booking, sign-in and the client area; Ellebi orange is for actions, blue for structure and light; Saira Condensed titles and Barlow text, self-hosted. The car is a procedural mid-engine GT with Ferrari-like proportions, generic and unbranded (not a real model); the stills are rendered from it (`npm run render:stills`).
 
-| Home on a phone                                                                                                          | Booking                                                              | Planning on a phone                                                                                                 |
-| ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| ![Home on a phone: the logo as a lit sign behind the car, title and booking buttons](docs/images/fase3/home-mobile.webp) | ![Booking on the light sheet](docs/images/fase3/prenota-mobile.webp) | ![Admin day view with free quarter-hours as buttons and the save bar](docs/images/fase3/pianificazione-mobile.webp) |
+_The second-round home (3D menu) was replaced in the third round; its screenshots are kept in `docs/images/fase3/` as history._
 
 Lab measurements (Chromium headless, software GPU, 4× CPU, ~1.6 Mbps): home 271 KB → 206 KB, LCP 1.80 s → 1.63 s, CLS 0; booking 211 KB → 158 KB; optional 3D 141 KB gzip, 19,498 triangles, 30 draw calls. Not verified on a physical phone.
 
@@ -179,20 +177,24 @@ The owner's feedback after the release: the public home had become a showcase (3
 - **Layout in percentages**: widths of pages, columns, cards, dialogs and the admin menu are `%` or grid fractions, the side margin is `5vw`, breakpoints are in `em`; px only for icons, checkboxes and touch minimums.
 - Tests: `test/entry.test.js` (entry links, no admin links on public pages), `test/css-units.test.js` (no fixed px layout widths or px breakpoints) and `test/e2e/mobile-layout.e2e.js` (no page wider than the screen, admin session on the home).
 
+| Entry page on a phone                                                                  | Admin price list on a phone                                                              |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| ![Entry page: sign, car and the three ways in](docs/images/fase4/ingresso-mobile.webp) | ![Admin price list as one card per service](docs/images/fase4/listino-admin-mobile.webp) |
+
 ## Under the hood
 
 ### Tech stack
 
-| Layer    | Choice                                         | Why                                                                                                                       |
-| -------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Server   | Node.js + Express 4                            | Small, well known, easy to run as a single instance                                                                       |
-| Database | SQLite via [sql.js](https://sql.js.org) (WASM) | One file on a volume, no native build; atomic writes and transactions for multi-row work                                  |
-| Auth     | JWT in an `httpOnly`, `SameSite=Lax` cookie    | No token reachable from JavaScript; argon2id hashes (older bcrypt hashes upgraded at login)                               |
-| Frontend | HTML, CSS and vanilla JavaScript               | No build step for pages; design tokens and layered CSS; self-hosted Saira Condensed, EB Garamond and JetBrains Mono (OFL) |
-| 3D       | Three.js, bundled with esbuild (not published) | `client-src/garage3d.js` → `client-src/build/`, used only to render the car still of the entry page                       |
-| Email    | Resend                                         | Booking confirmations, pick-up notices, password reset                                                                    |
-| Charts   | Chart.js, served from the npm package          | Admin reports, version pinned in the lockfile                                                                             |
-| Tests    | `node:test` (built into Node)                  | No test framework to install                                                                                              |
+| Layer    | Choice                                         | Why                                                                                                                 |
+| -------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Server   | Node.js + Express 4                            | Small, well known, easy to run as a single instance                                                                 |
+| Database | SQLite via [sql.js](https://sql.js.org) (WASM) | One file on a volume, no native build; atomic writes and transactions for multi-row work                            |
+| Auth     | JWT in an `httpOnly`, `SameSite=Lax` cookie    | No token reachable from JavaScript; argon2id hashes (older bcrypt hashes upgraded at login)                         |
+| Frontend | HTML, CSS and vanilla JavaScript               | No build step for pages; design tokens and layered CSS in percentages; self-hosted Saira Condensed and Barlow (OFL) |
+| 3D       | Three.js, bundled with esbuild (not published) | `client-src/garage3d.js` → `client-src/build/`, used only to render the car still of the entry page                 |
+| Email    | Resend                                         | Booking confirmations, pick-up notices, password reset                                                              |
+| Charts   | Chart.js, served from the npm package          | Admin reports, version pinned in the lockfile                                                                       |
+| Tests    | `node:test` (built into Node)                  | No test framework to install                                                                                        |
 
 ### Architecture
 
@@ -298,8 +300,8 @@ Before pushing, run `npm run lint`, `npm run format:check` and `npm test` — th
 
 - **Single instance**: sql.js keeps the database in memory and saves it to one file, so the app must run as one process (PM2 is pinned to one instance).
 - **No physical device tested**: mobile checks are emulated (Chromium at 320–1440 px); frame rate, battery and heat on real phones are unverified.
-- **No photographs**: the project has no pictures of the workshop and none were invented; the Bugatti system leans on photography, here the 3D car and the logo motif take that place. The Taste inspector's "at least four pictures" floor is therefore not met.
-- **Three typefaces and a light theme**: the three families come from the Bugatti `DESIGN.md` (which has no light mode; the optional light theme was kept because the original app had a theme toggle).
+- **No photographs**: the project has no pictures of the workshop and none were invented; the logo sign and the rendered car take their place on the entry page.
+- **Light theme**: dark is the default; the optional light theme was kept because the original app had a theme toggle.
 - **3D**: no longer on the site; the car on the entry page is a still rendered from a generic stylised model, not a reconstruction of a real one.
 - **VIP extended hours** (08:00 and evening starts up to 23:15) are inherited from the barbershop version and still to be confirmed with the workshop; they are now visible in the day view.
 - **Logout** clears the cookie but does not revoke the token on the server (a password reset does); sessions last 7 days.
