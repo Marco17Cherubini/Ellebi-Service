@@ -92,3 +92,59 @@ test("anche l'officina non può sovrapporre un appuntamento o altri blocchi", as
     .bookings.length;
   assert.equal(afterCount, before);
 });
+
+function deposit() {
+  return api
+    .request('GET', '/api/admin/deposits/all', { cookie: admin })
+    .then(r => r.data.deposits.find(d => String(d.id) === String(depositId)));
+}
+
+test("l'admin vede quanto lavoro è davvero in agenda, separato dallo stato", async () => {
+  const d = await deposit();
+  assert.equal(d.pianificato_futuro_minuti, 60);
+  assert.deepEqual(d.prossimo_blocco, { giorno: day, ora: '10:00' });
+
+  // Un altro deposito portato "in corso" a mano non blocca alcun orario
+  const other = await api.request('POST', '/api/bookings', {
+    cookie: customer,
+    body: bookingPayload(findService('Distribuzione'), futureWeekday(2, 4), '08:30')
+  });
+  const status = await api.request('POST', `/api/admin/deposits/${other.data.deposit.id}/status`, {
+    cookie: admin,
+    body: { stato: 'in_corso' }
+  });
+  assert.equal(status.status, 200);
+  const all = (await api.request('GET', '/api/admin/deposits/all', { cookie: admin })).data
+    .deposits;
+  const manual = all.find(x => String(x.id) === String(other.data.deposit.id));
+  assert.equal(manual.stato, 'in_corso');
+  assert.equal(manual.pianificato_futuro_minuti, 0);
+  assert.equal(manual.prossimo_blocco, null);
+});
+
+test('due pianificazioni simultanee sugli stessi orari: una sola va a buon fine', async () => {
+  const slots = [
+    { giorno: day, ora: '15:00' },
+    { giorno: day, ora: '15:15' }
+  ];
+  const [a, b] = await Promise.all([schedule(slots), schedule(slots)]);
+  assert.deepEqual([a.status, b.status].sort(), [200, 400]);
+  const all = await api.request('GET', '/api/admin/bookings', { cookie: admin });
+  const at15 = all.data.bookings.filter(
+    x => x.giorno === day && (x.ora === '15:00' || x.ora === '15:15')
+  );
+  assert.equal(at15.length, 2);
+});
+
+test('rimettere il deposito "in attesa" libera i blocchi futuri e l\'orario torna prenotabile', async () => {
+  const res = await api.request('POST', `/api/admin/deposits/${depositId}/status`, {
+    cookie: admin,
+    body: { stato: 'in_attesa' }
+  });
+  assert.equal(res.status, 200);
+  const d = await deposit();
+  assert.equal(d.pianificato_futuro_minuti, 0);
+  const pub = await api.request('GET', `/api/slots/${day}`);
+  assert.equal(slotAt(pub.data.slots, '10:00').available, true);
+  assert.equal(slotAt(pub.data.slots, '15:00').available, true);
+});

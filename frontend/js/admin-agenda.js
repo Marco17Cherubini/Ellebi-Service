@@ -3,7 +3,7 @@
 // officina), i blocchi di lavoro sui depositi, le ferie e i tratti liberi.
 // Usa lo stato e le funzioni di admin.js (allBookings, allHolidays, showDetailModal,
 // openBookingModal, getTimeSlotsForDate): va caricato dopo admin.js.
-/* global allBookings, allHolidays, showDetailModal, openBookingModal, getTimeSlotsForDate, renderCalendar:writable, currentWeekStart, extraWorkMode, holidayMode, agendaInitialView */
+/* global allBookings, allHolidays, showDetailModal, openBookingModal, getTimeSlotsForDate, renderCalendar:writable, currentWeekStart, extraWorkMode, holidayMode, agendaInitialView, selectedExtraWorkSlots, extraWorkHoursTotal, addToDragSelection, dragMode:writable, apiRequest */
 (function () {
   'use strict';
 
@@ -57,8 +57,8 @@
 
   // persist: false per i cambi forzati (pianificazione), che non toccano la preferenza
   function setView(view, { persist = true } = {}) {
-    // Durante la pianificazione di un lavoro o delle ferie serve la griglia settimanale
-    if (view === 'day' && (extraWorkMode || holidayMode)) view = 'week';
+    // Le ferie si selezionano solo sulla griglia settimanale; i lavori anche nella vista Giorno
+    if (view === 'day' && holidayMode) view = 'week';
     document.body.classList.toggle('view-day', view === 'day');
     document.body.classList.toggle('view-week', view === 'week');
     document.querySelectorAll('.view-btn').forEach(b => {
@@ -86,8 +86,109 @@
     });
   }
 
-  // admin.js entra in modalità lavoro o ferie: mostra la griglia senza cambiare la preferenza
+  // admin.js entra in modalità ferie: mostra la griglia senza cambiare la preferenza
   window.showWeekForPlanning = () => setView('week', { persist: false });
+
+  // ==================== PIANIFICAZIONE DI UN LAVORO ====================
+  // Su telefono si pianifica dalla vista Giorno: ogni quarto d'ora libero è un pulsante.
+  // La selezione è la stessa della griglia settimanale (selectedExtraWorkSlots in admin.js):
+  // si può passare da una vista all'altra senza perderla.
+
+  window.onPlanningStart = async depositId => {
+    const wide = window.matchMedia('(min-width: 1024px)').matches;
+    setView(wide ? 'week' : 'day', { persist: false });
+    // Si parte dal primo giorno con orari ancora prenotabili
+    const d = parseDate(day);
+    for (let i = 0; i < 14 && !hasFutureQuarters(toDateString(d)); i++) {
+      d.setDate(d.getDate() + 1);
+    }
+    day = toDateString(d);
+    render();
+    try {
+      const res = await apiRequest('/admin/deposits/all');
+      const dep = (res.deposits || []).find(x => String(x.id) === String(depositId));
+      if (dep) {
+        $('planning-title').textContent =
+          'Pianifica il lavoro · ' +
+          [dep.targa, dep.servizio, [dep.nome, dep.cognome].filter(Boolean).join(' ')]
+            .filter(Boolean)
+            .join(' · ');
+      }
+    } catch (e) {
+      /* resta il titolo generico */
+    }
+  };
+
+  window.onPlanningChange = () => {
+    if (document.body.classList.contains('view-day')) render();
+  };
+
+  function nowMinutes() {
+    const n = new Date();
+    return n.getHours() * 60 + n.getMinutes();
+  }
+
+  // Quarti d'ora del giorno che possono ancora essere pianificati (non passati)
+  function futureQuarters(date) {
+    const today = toDateString(new Date());
+    if (date < today) return [];
+    const grid = getTimeSlotsForDate(date);
+    return date > today ? grid : grid.filter(t => toMin(t) > nowMinutes());
+  }
+
+  function hasFutureQuarters(date) {
+    return parseDate(date).getDay() !== 0 && futureQuarters(date).length > 0;
+  }
+
+  function isSelected(date, time) {
+    return selectedExtraWorkSlots.some(x => x.giorno === date && x.ora === time);
+  }
+
+  // Seleziona o deseleziona un quarto d'ora con le stesse regole della griglia (limite ore)
+  function togglePlanned(date, time) {
+    dragMode = isSelected(date, time) ? 'remove' : 'add';
+    addToDragSelection(date, time, false);
+    render();
+    const again = document.querySelector('.pick-btn[data-time="' + time + '"]');
+    if (again) again.focus();
+  }
+
+  function pickRow(e) {
+    const li = document.createElement('li');
+    li.className = 'agenda-row agenda-pick';
+    const when = document.createElement('div');
+    when.className = 'agenda-when';
+    when.innerHTML =
+      '<span class="agenda-start">' +
+      toTime(e.start) +
+      '</span><span class="agenda-end">' +
+      toTime(e.end) +
+      '</span>';
+    const group = document.createElement('div');
+    group.className = 'pick-group';
+    group.setAttribute('role', 'group');
+    group.setAttribute('aria-label', 'Libero dalle ' + toTime(e.start) + ' alle ' + toTime(e.end));
+    const allowed = new Set(futureQuarters(day));
+    const full = selectedExtraWorkSlots.length * 0.25 >= extraWorkHoursTotal;
+    for (let t = e.start; t < e.end; t += 15) {
+      const time = toTime(t);
+      if (!allowed.has(time)) continue;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pick-btn';
+      btn.dataset.time = time;
+      const on = isSelected(day, time);
+      btn.setAttribute('aria-pressed', String(on));
+      btn.textContent = time;
+      btn.disabled = !on && full;
+      btn.setAttribute('aria-label', 'Lavoro dalle ' + time + ' alle ' + toTime(t + 15));
+      btn.addEventListener('click', () => togglePlanned(day, time));
+      group.appendChild(btn);
+    }
+    if (!group.children.length) return null;
+    li.append(when, group);
+    return li;
+  }
 
   // ==================== ELENCO DEL GIORNO ====================
 
@@ -202,7 +303,16 @@
       return;
     }
 
-    entries.forEach(e => list.appendChild(row(e)));
+    const planning = typeof extraWorkMode !== 'undefined' && extraWorkMode;
+    entries.forEach(e => {
+      const el = planning && e.kind === 'free' ? pickRow(e) : row(e);
+      if (el) list.appendChild(el);
+    });
+    if (planning) {
+      const chosen = selectedExtraWorkSlots.filter(x => x.giorno === day).length;
+      $('agenda-summary').textContent +=
+        ' · ' + (chosen ? chosen * 15 + ' minuti scelti in questo giorno' : 'nessun orario scelto');
+    }
   }
 
   function row(e) {
@@ -235,7 +345,7 @@
           : minutes + ' min');
       body.appendChild(label);
       li.appendChild(body);
-      if (e.kind === 'free' && day >= toDateString(new Date())) {
+      if (e.kind === 'free' && day >= toDateString(new Date()) && !extraWorkMode) {
         const add = document.createElement('button');
         add.type = 'button';
         add.className = 'btn btn-outline btn-sm agenda-add';

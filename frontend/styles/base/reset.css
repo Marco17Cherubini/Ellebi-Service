@@ -96,3 +96,8 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+/* L'attributo hidden vince sempre: componenti come .btn impostano display e lo annullerebbero */
+[hidden] {
+  display: none !important;
+}

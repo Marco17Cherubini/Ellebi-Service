@@ -179,9 +179,12 @@
 
 /* ==================== ETICHETTE SUI PEZZI ==================== */
 
+/* Le etichette stanno sempre sopra la tela 3D: su telefono sono in fila sotto l'auto, ma
+   dentro lo stesso contenitore che la tela copre per intero (position: absolute; inset: 0) */
 .hotspots {
   list-style: none;
-  position: static;
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;

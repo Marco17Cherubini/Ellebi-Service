@@ -1582,13 +1582,9 @@ function addToDragSelection(date, time, isHoliday) {
     }
 
     // Feedback visuale al termine/rimozione
-    if (selectedExtraWorkSlots.length * 0.25 >= extraWorkHoursTotal) {
-      document.getElementById('extrawork-hours-left').style.color = 'var(--ok)';
-      document.getElementById('extrawork-mode-indicator').style.borderColor = 'var(--ok)';
-    } else {
-      document.getElementById('extrawork-hours-left').style.color = '';
-      document.getElementById('extrawork-mode-indicator').style.borderColor = 'var(--ink-2)';
-    }
+    document
+      .getElementById('extrawork-mode-indicator')
+      .classList.toggle('is-complete', selectedExtraWorkSlots.length * 0.25 >= extraWorkHoursTotal);
     return;
   }
   const alreadySelected = selectedHolidaySlots.some(s => s.giorno === date && s.ora === time);
@@ -1996,9 +1992,9 @@ function enterExtraWorkMode(depositId, hours) {
   const calendarEl = document.querySelector('.admin-calendar');
   if (calendarEl) calendarEl.classList.add('extrawork-mode');
 
-  // La pianificazione avviene sulla griglia settimanale: su telefono la pagina si apre
-  // nella vista Giorno, che la nasconderebbe insieme ai pulsanti Salva e Annulla
-  if (typeof window.showWeekForPlanning === 'function') window.showWeekForPlanning();
+  // La barra di pianificazione è fuori dalla griglia: su schermi larghi si sceglie sulla
+  // griglia settimanale, su telefono nella vista Giorno (quarti d'ora come pulsanti)
+  if (typeof window.onPlanningStart === 'function') window.onPlanningStart(depositId);
 
   // Inizializza i gestori drag mouse/touch
   setupHolidayTouch();
@@ -2031,12 +2027,17 @@ function cancelExtraWork() {
 }
 
 function updateExtraWorkHoursLeft() {
+  const oreSelezionate = selectedExtraWorkSlots.length * 0.25; // 15 minuti = 0.25 ore
+  const rimanenti = Math.max(0, extraWorkHoursTotal - oreSelezionate);
   const hoursLeftEl = document.getElementById('extrawork-hours-left');
-  if (hoursLeftEl) {
-    const oreSelezionate = selectedExtraWorkSlots.length * 0.25; // 15 minuti = 0.25 ore
-    const rimanenti = Math.max(0, extraWorkHoursTotal - oreSelezionate);
-    hoursLeftEl.textContent = rimanenti.toFixed(2);
+  if (hoursLeftEl) hoursLeftEl.textContent = rimanenti.toLocaleString('it-IT');
+  const selectedEl = document.getElementById('planning-selected');
+  if (selectedEl) {
+    selectedEl.textContent = selectedExtraWorkSlots.length
+      ? '· selezionati ' + selectedExtraWorkSlots.length * 15 + ' minuti'
+      : '';
   }
+  if (typeof window.onPlanningChange === 'function') window.onPlanningChange();
 }
 
 async function saveExtraWork() {

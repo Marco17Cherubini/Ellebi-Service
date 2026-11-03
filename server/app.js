@@ -12,7 +12,7 @@ const bookingRoutes = require('./routes/bookings');
 const adminRoutes = require('./routes/admin');
 const catalogRoutes = require('./routes/catalog');
 const depositRoutes = require('./routes/deposits');
-const { router: pageRoutes, FRONTEND_DIR } = require('./routes/pages');
+const { router: pageRoutes, pageGuard, FRONTEND_DIR } = require('./routes/pages');
 
 const app = express();
 
@@ -45,6 +45,9 @@ app.use(cookieParser());
 if (config.server.env === 'production') {
   app.set('trust proxy', 1);
 }
+
+// Pagine admin e area cliente solo con la sessione giusta (prima dei file statici)
+app.use(pageGuard);
 
 // I font non cambiano: cache lunga. Il resto si rivalida (ETag) a ogni visita.
 app.use(

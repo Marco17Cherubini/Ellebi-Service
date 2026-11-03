@@ -79,6 +79,17 @@
         "browser": true,
         "es2022": true
       }
+    },
+    {
+      "files": ["test/e2e/**/*.js"],
+      "env": {
+        "node": true,
+        "browser": true,
+        "es2022": true
+      },
+      "globals": {
+        "selectedExtraWorkSlots": "readonly"
+      }
     }
   ],
   "ignorePatterns": ["frontend/js/garage3d.js"]

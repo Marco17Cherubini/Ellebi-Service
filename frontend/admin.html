@@ -75,6 +75,28 @@
     </div>
 
     <div class="container">
+      <!-- Pianificazione di un lavoro straordinario: visibile in vista Giorno e Settimana -->
+      <section
+        id="extrawork-mode-indicator"
+        class="planning-bar hidden"
+        aria-labelledby="planning-title"
+      >
+        <div class="planning-info">
+          <h2 class="planning-title" id="planning-title">Pianifica il lavoro</h2>
+          <p class="planning-count" aria-live="polite">
+            Da assegnare: <strong id="extrawork-hours-left">0</strong> ore
+            <span class="planning-selected" id="planning-selected"></span>
+          </p>
+          <p class="planning-hint" id="planning-hint">
+            Scegli i quarti d'ora liberi, anche in giorni diversi, poi salva.
+          </p>
+        </div>
+        <div class="planning-actions">
+          <button type="button" id="cancel-extrawork-btn" class="btn btn-outline">Annulla</button>
+          <button type="button" id="save-extrawork-btn" class="btn btn-primary">Salva</button>
+        </div>
+      </section>
+
       <div class="view-switch" role="group" aria-label="Vista dell'agenda">
         <button type="button" class="view-btn" data-view="day" aria-pressed="true">Giorno</button>
         <button type="button" class="view-btn" data-view="week" aria-pressed="false">
@@ -158,45 +180,6 @@
             >
               Annulla
             </button>
-          </div>
-
-          <div id="extrawork-mode-indicator" class="admin-calendar__extrawork-mode hidden">
-            <div
-              style="
-                flex: 1 1 100%;
-                text-align: center;
-                margin-bottom: 0.5rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.25rem;
-              "
-            >
-              <span id="extrawork-mode-text"
-                >LAVORO STRAORDINARIO — Ore da allocare:
-                <strong id="extrawork-hours-left" style="font-size: 1.1em">0</strong></span
-              >
-              <small style="font-size: 0.8em; opacity: 0.8"
-                >Trascina per selezionare gli slot</small
-              >
-            </div>
-            <div style="display: flex; gap: 0.5rem; width: 100%; justify-content: center">
-              <button
-                type="button"
-                id="cancel-extrawork-btn"
-                class="btn admin-calendar__btn--holiday-cancel"
-                style="flex: 1"
-              >
-                Annulla
-              </button>
-              <button
-                type="button"
-                id="save-extrawork-btn"
-                class="btn admin-calendar__btn--extrawork-save"
-                style="flex: 1"
-              >
-                Salva
-              </button>
-            </div>
           </div>
         </div>
 

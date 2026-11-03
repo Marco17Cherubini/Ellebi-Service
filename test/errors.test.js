@@ -44,10 +44,15 @@ test('errore imprevisto: 500 senza dettagli interni', async () => {
 });
 
 test('le pagine principali sono servite con URL senza estensione', async () => {
+  // Le pagine admin richiedono la sessione admin (anonimi e clienti: page-guard.test.js)
+  const cookie = await api.adminCookie();
   for (const url of ['/', '/login', '/dashboard', '/admin', '/admin/depositi']) {
-    const res = await fetch(api.baseUrl + url);
+    const res = await fetch(api.baseUrl + url, { headers: { Cookie: cookie } });
     assert.equal(res.status, 200, url);
     assert.match(res.headers.get('content-type'), /text\/html/);
   }
-  assert.equal((await fetch(`${api.baseUrl}/admin/vip`)).status, 404);
+  assert.equal(
+    (await fetch(`${api.baseUrl}/admin/vip`, { headers: { Cookie: cookie } })).status,
+    404
+  );
 });

@@ -62,6 +62,9 @@ function publicService(service) {
     tipo_veicolo: service.tipo_veicolo,
     tipo_servizio: service.tipo_servizio,
     durata_minuti: getServiceDuration(service),
+    // false se il listino non indica una durata (in agenda si riserva comunque il valore
+    // predefinito di getServiceDuration): il sito dice "da concordare" invece di un numero
+    durata_definita: isConsegnaService(service) || parseInt(service.durata_minuti, 10) > 0,
     campi_extra: service.campi_extra,
     stagionale: service.stagionale,
     data_inizio_stagione: service.data_inizio_stagione,

@@ -319,7 +319,9 @@
         meta.className = 'service-meta';
         meta.textContent = isConsegna(svc)
           ? '30 min di accoglienza'
-          : formatDuration(svc.durata_minuti);
+          : svc.durata_definita === false
+            ? 'durata da concordare'
+            : formatDuration(svc.durata_minuti);
         label.append(input, name, meta);
         fs.appendChild(label);
       });
@@ -344,7 +346,12 @@
     const svc = state.service;
     $('duration-line').textContent = isConsegna(svc)
       ? svc.nome + ': accoglienza di 30 minuti per lasciare il veicolo.'
-      : svc.nome + ': ' + formatDuration(svc.durata_minuti) + ' in officina.';
+      : svc.durata_definita === false
+        ? svc.nome +
+          ": durata da concordare con l'officina; in agenda si riservano " +
+          formatDuration(svc.durata_minuti) +
+          '.'
+        : svc.nome + ': ' + formatDuration(svc.durata_minuti) + ' in officina.';
 
     const strip = $('day-strip');
     strip.textContent = '';

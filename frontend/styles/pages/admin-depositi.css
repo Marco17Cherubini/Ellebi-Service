@@ -551,3 +551,13 @@
 [data-theme='dark'] .deposit-login-banner .banner-close {
   color: var(--ink);
 }
+
+/* Lavoro in agenda (blocchi pianificati), distinto dallo stato del deposito */
+.dc-plan {
+  margin: var(--space-3) 0 0;
+  font-size: var(--font-size-sm);
+}
+
+.dc-plan.is-empty {
+  color: var(--warn);
+}

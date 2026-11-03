@@ -1,15 +1,21 @@
-// Vista iniziale dell'agenda officina: la pianificazione richiede sempre la griglia settimanale.
-// Regressione: su telefono l'agenda si apriva in vista Giorno anche arrivando da
-// "Pianifica a calendario", nascondendo griglia e pulsante Salva: i blocchi non venivano creati.
+// Vista iniziale dell'agenda officina.
+// Regressione: su telefono "Pianifica a calendario" apriva la vista Giorno senza strumenti di
+// pianificazione (erano solo nella griglia settimanale): i blocchi non venivano creati.
+// Ora la vista Giorno ha i propri pulsanti per i quarti d'ora; la griglia resta per schermi larghi.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { agendaInitialView } = require('../frontend/js/agenda-view');
 
-test('arrivando da "Pianifica a calendario" la vista è sempre la settimana', () => {
-  for (const wide of [true, false]) {
-    for (const saved of [null, 'day', 'week']) {
-      assert.equal(agendaInitialView({ search: '?assignDeposit=3&hours=2', saved, wide }), 'week');
-    }
+test('"Pianifica a calendario": settimana su schermi larghi, giorno su telefono', () => {
+  for (const saved of [null, 'day', 'week']) {
+    assert.equal(
+      agendaInitialView({ search: '?assignDeposit=3&hours=2', saved, wide: true }),
+      'week'
+    );
+    assert.equal(
+      agendaInitialView({ search: '?assignDeposit=3&hours=2', saved, wide: false }),
+      'day'
+    );
   }
 });
 

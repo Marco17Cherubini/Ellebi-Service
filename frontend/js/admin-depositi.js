@@ -325,10 +325,29 @@ function buildDepositCard(deposit) {
     '" placeholder="h">' +
     '<span style="font-size:0.8rem;color:var(--color-text-secondary,#888);">ore</span>' +
     '</div>' +
+    planningLine(deposit) +
     '</div>' +
     footerHtml +
     '</div>'
   );
+}
+
+// Quanto lavoro è davvero in agenda: lo stato "in corso" da solo non blocca orari
+function planningLine(deposit) {
+  var min = parseInt(deposit.pianificato_futuro_minuti, 10) || 0;
+  var next = deposit.prossimo_blocco;
+  var text = min
+    ? 'In agenda: ' +
+      formatMinutes(min) +
+      (next ? ' · prossimo ' + formatDate(next.giorno) + ', ore ' + next.ora : '')
+    : 'Nessun orario in agenda: usa "Pianifica a calendario" per bloccare il tempo di lavoro.';
+  return '<p class="dc-plan' + (min ? '' : ' is-empty') + '">' + escapeHTML(text) + '</p>';
+}
+
+function formatMinutes(min) {
+  var h = Math.floor(min / 60);
+  var m = min % 60;
+  return (h ? h + ' h' : '') + (h && m ? ' ' : '') + (m ? m + ' min' : '');
 }
 
 // ── Event listeners ───────────────────────────────────────────
@@ -357,8 +376,12 @@ function attachCardListeners(container) {
         if (oreVal > 0) {
           btn.classList.add('dc-btn-saving');
           btn.disabled = true;
-          await saveOre(id, oreVal);
-          window.location.href = '/admin.html?assignDeposit=' + id + '&hours=' + oreVal;
+          if (!(await saveOre(id, oreVal))) {
+            btn.classList.remove('dc-btn-saving');
+            btn.disabled = false;
+            return;
+          }
+          window.location.href = '/admin?assignDeposit=' + id + '&hours=' + oreVal;
         } else {
           alert('Inserire un numero di ore (es. 2.5) prima di pianificare.');
         }
@@ -524,14 +547,18 @@ async function saveNota(id, nota) {
   }
 }
 
+// Salva le ore residue; restituisce true se il server le ha accettate.
+// In caso di errore lo segnala: chi chiama non deve proseguire (es. verso la pianificazione).
 async function saveOre(id, ore) {
   try {
     await apiRequest('/admin/deposits/' + id + '/ore', {
       method: 'PUT',
       body: JSON.stringify({ ore_residue: parseFloat(ore) || 0 })
     });
+    return true;
   } catch (e) {
-    /* silenzioso */
+    alert('Ore non salvate: ' + (e.message || 'errore di rete') + '. Riprova.');
+    return false;
   }
 }
 
