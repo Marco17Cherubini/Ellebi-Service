@@ -1,18 +1,19 @@
 /* ============================================================================
-   MODULI — campi pieni ad angoli vivi, etichetta sempre visibile sopra,
-   errore collegato al campo (aria-describedby) e scritto per esteso.
+   MODULI — campi senza riquadro, solo un filo sotto (sistema Bugatti): il filo
+   si inspessisce e diventa bianco al focus. Etichetta sempre visibile sopra,
+   errore scritto per esteso e collegato al campo (aria-describedby).
    ============================================================================ */
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-1);
   margin-bottom: var(--space-4);
 }
 
@@ -23,18 +24,20 @@
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
 .form-label {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
 .form-hint {
   font-size: var(--font-size-sm);
-  color: var(--ink-2);
+  color: var(--ink-3);
 }
 
 .form-input,
@@ -42,21 +45,30 @@ select.form-input,
 textarea.form-input {
   width: 100%;
   min-height: 48px;
-  padding: var(--space-3) var(--space-4);
-  border: 2px solid var(--paper-3);
+  padding: var(--space-3) 0;
+  border: 0;
+  border-bottom: 1px solid var(--hair-strong);
   border-radius: 0;
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
-  font-size: max(16px, var(--font-size-base)); /* niente zoom automatico su iOS */
+  font-family: var(--font-primary);
+  font-size: max(16px, var(--font-size-base));
   transition:
     border-color var(--transition-fast),
-    background-color var(--transition-fast);
+    box-shadow var(--transition-fast);
 }
 
 textarea.form-input {
   min-height: 96px;
   resize: vertical;
   line-height: 1.5;
+  border: 1px solid var(--hair-strong);
+  padding: var(--space-3);
+}
+
+select.form-input option {
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .form-input::placeholder {
@@ -70,21 +82,35 @@ textarea.form-input {
 .form-input:focus {
   outline: none;
   border-color: var(--ink);
-  background: var(--paper);
+  box-shadow: 0 1px 0 var(--ink);
 }
 
 .form-input:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 0;
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 1px 0 var(--accent);
+}
+
+textarea.form-input:focus-visible {
+  box-shadow: none;
 }
 
 .form-input[aria-invalid='true'] {
   border-color: var(--danger);
+  box-shadow: 0 1px 0 var(--danger);
 }
 
 .form-input:disabled {
-  background: var(--paper-2);
   color: var(--ink-3);
+  border-style: dashed;
+}
+
+input[type='date'].form-input {
+  color-scheme: dark;
+}
+
+[data-theme='light'] input[type='date'].form-input {
+  color-scheme: light;
 }
 
 .text-uppercase,
@@ -93,8 +119,9 @@ textarea.form-input {
 }
 
 .field-error {
-  font-size: var(--font-size-sm);
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.04em;
   color: var(--danger);
 }
 
@@ -103,24 +130,23 @@ textarea.form-input {
 .notice {
   padding: var(--space-3) var(--space-4);
   font-size: var(--font-size-sm);
-  font-weight: 500;
-  line-height: 1.45;
+  line-height: 1.5;
+  color: var(--ink);
 }
 
 .form-error {
   background: var(--danger-bg);
-  color: var(--ink);
-  border-left: 0;
+  box-shadow: inset 0 0 0 1px var(--danger);
 }
 
 .form-success {
   background: var(--ok-bg);
-  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ok);
 }
 
 .notice {
   background: var(--paper-2);
-  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--paper-3);
 }
 
 .check-row {
@@ -128,7 +154,7 @@ textarea.form-input {
   gap: var(--space-3);
   align-items: flex-start;
   font-size: var(--font-size-sm);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .check-row input[type='checkbox'] {

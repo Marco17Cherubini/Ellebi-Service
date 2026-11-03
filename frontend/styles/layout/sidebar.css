@@ -1,18 +1,20 @@
 /* ============================================================================
-   NAVIGAZIONE DELL'OFFICINA — cassetto su telefono e tablet, colonna fissa
-   su schermi larghi. Campo grafite, voce attiva segnata dal blocco arancio.
+   NAVIGAZIONE DELL'OFFICINA — cassetto nero con filo su telefono e tablet,
+   colonna fissa su schermi larghi. Voci in Display maiuscolo; la pagina attiva
+   porta un punto rame.
    ============================================================================ */
 
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: min(300px, 86vw);
+  width: min(320px, 88vw);
   height: 100%;
-  background-color: var(--graphite);
-  color: var(--on-graphite);
+  background-color: var(--paper);
+  color: var(--ink);
+  box-shadow: inset -1px 0 0 var(--paper-3);
   transform: translateX(-100%);
-  transition: transform 260ms var(--ease-out);
+  transition: transform 280ms var(--ease-out);
   z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
@@ -45,11 +47,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-5) var(--space-5) var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  box-shadow: 0 1px 0 var(--paper-3);
 }
 
 .sidebar-logo-link {
-  color: var(--on-graphite);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
   text-decoration: none;
 }
 
@@ -66,13 +76,14 @@
   font-size: 1.75rem;
   line-height: 1;
   background: none;
-  border: 0;
-  color: var(--on-graphite);
+  border: 1px solid var(--hair-strong);
+  border-radius: var(--radius-full);
+  color: var(--ink);
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: var(--space-2) 0;
+  padding: var(--space-4) 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -82,36 +93,32 @@
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-3);
-  min-height: 52px;
+  min-height: 60px;
   padding: 0 var(--space-6);
-  color: var(--on-graphite);
-  font-size: var(--font-size-lg);
-  font-weight: 500;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   text-decoration: none;
   background: none;
   border: 0;
   width: 100%;
   text-align: left;
-  transition: background-color var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
 .sidebar-item:hover {
-  background-color: rgba(255, 255, 255, 0.07);
-  color: var(--on-graphite);
+  color: var(--accent-ink);
 }
 
-.sidebar-item.active {
-  font-weight: 600;
-}
-
-.sidebar-item.active::before {
+.sidebar-item.active::after {
   content: '';
-  position: absolute;
-  left: 0;
-  top: 12px;
-  bottom: 12px;
   width: 8px;
+  height: 8px;
+  border-radius: 50%;
   background: var(--accent);
 }
 
@@ -122,17 +129,21 @@
 
 .sidebar-footer {
   padding: var(--space-3) 0 var(--space-5);
+  box-shadow: 0 -1px 0 var(--paper-3);
 }
 
 .sidebar-logout {
-  color: #f3b38c;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-label);
 }
 
 /* Schermi larghi: la navigazione resta sempre visibile */
 @media (min-width: 1100px) {
   .sidebar {
     transform: none;
-    width: 248px;
+    width: 264px;
     z-index: var(--z-sticky);
   }
 
@@ -142,7 +153,7 @@
   }
 
   body:has(#sidebar) {
-    padding-left: 248px;
+    padding-left: 264px;
   }
 
   body:has(#sidebar) .hamburger-btn {

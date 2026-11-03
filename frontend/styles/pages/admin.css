@@ -36,8 +36,8 @@
   color: var(--admin-header-text);
   padding: var(--space-2) var(--space-1);
   text-align: center;
-  font-weight: 600;
-  font-size: 0.7rem;
+  font-weight: 500;
+  font-size: 0.8125rem;
   position: sticky;
   top: 0;
   z-index: 20;
@@ -110,8 +110,8 @@
 }
 
 .booking-item .name {
-  font-weight: 700;
-  font-size: 0.7rem;
+  font-weight: 500;
+  font-size: 0.8125rem;
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -127,7 +127,7 @@
 .booking-veicolo-badge {
   display: inline-block;
   font-size: 0.55rem;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.03em;
   padding: 1px 4px;
   border-radius: 0;
@@ -266,7 +266,7 @@
   background-color: var(--admin-holiday-mode-bg);
   border: 2px solid var(--admin-holiday-mode-border);
   color: var(--admin-holiday-text);
-  font-weight: 600;
+  font-weight: 500;
   flex-grow: 1;
   border-radius: var(--radius-xs);
 }
@@ -276,23 +276,15 @@
 }
 
 .admin-calendar__btn--holiday-save {
-  background-color: var(--admin-holiday-bg);
-  color: var(--admin-holiday-text);
-  border-color: var(--admin-holiday-btn-border);
-  padding: 5px 15px;
-  font-size: 0.85rem;
-}
-
-.admin-calendar__btn--holiday-save:hover {
-  background-color: var(--admin-holiday-btn-border);
+  --btn-edge: var(--info);
+  --btn-fill: var(--info);
+  --btn-ink: var(--paper);
 }
 
 .admin-calendar__btn--holiday-cancel {
-  background-color: var(--admin-btn-cancel-bg);
-  color: var(--admin-btn-cancel-text);
-  border-color: var(--admin-btn-cancel-text);
-  padding: 5px 15px;
-  font-size: 0.85rem;
+  --btn-edge: var(--ink-3);
+  --btn-fill: var(--paper);
+  --btn-ink: var(--ink);
 }
 
 .admin-cell.is-holiday {
@@ -304,7 +296,7 @@
   color: var(--admin-holiday-text);
   text-align: center;
   padding: 30px 10px;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.9rem;
 }
 
@@ -364,7 +356,7 @@
   background-color: var(--paper-3);
   border: 2px solid var(--ink-2);
   color: var(--ink);
-  font-weight: 600;
+  font-weight: 500;
   border-radius: var(--radius-sm);
 
   /* Rende il banner fisso a schermo in fondo visibile */
@@ -384,19 +376,11 @@
   display: none;
 }
 
+/* Pulsanti della barra di pianificazione: varianti del pulsante smussato (buttons.css) */
 .admin-calendar__btn--extrawork-save {
-  background-color: var(--ink);
-  color: white;
-  border: 1px solid var(--ink);
-  padding: 5px 15px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  border-radius: var(--radius-xs);
-  font-weight: 600;
-}
-
-.admin-calendar__btn--extrawork-save:hover {
-  background-color: var(--ink);
+  --btn-edge: var(--accent);
+  --btn-fill: var(--accent);
+  --btn-ink: var(--on-accent);
 }
 
 .admin-cell.is-extrawork-draft {
@@ -439,7 +423,7 @@
 
 .modal-question {
   text-align: center;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1.1rem;
   margin-top: var(--space-4);
   color: var(--color-text-primary);
@@ -481,7 +465,7 @@
 }
 
 .suggestion-name {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .suggestion-details {
@@ -556,7 +540,7 @@
 }
 
 .booking-drag-ghost .name {
-  font-weight: 700;
+  font-weight: 500;
   font-size: 0.85rem;
   margin-bottom: var(--space-1);
 }
@@ -728,7 +712,7 @@ body.is-dragging-booking * {
   color: var(--admin-holiday-text, var(--info));
   border-radius: 50%;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -785,7 +769,7 @@ body.is-dragging-booking * {
   background: var(--paper-2);
   border: 0;
   color: var(--ink);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .view-btn[aria-pressed='true'] {
@@ -900,7 +884,7 @@ body.view-week .day-agenda {
 }
 
 .agenda-closed {
-  background: repeating-linear-gradient(-45deg, var(--paper-2) 0 8px, var(--paper-3) 8px 16px);
+  background: var(--paper-3);
 }
 
 .agenda-when {
@@ -914,7 +898,7 @@ body.view-week .day-agenda {
 .agenda-start {
   font-family: var(--font-display);
   font-size: var(--font-size-xl);
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.1;
 }
 
@@ -952,7 +936,7 @@ body.view-week .day-agenda {
 }
 
 .plate-inline {
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.04em;
 }
 
@@ -962,7 +946,7 @@ body.view-week .day-agenda {
   background: var(--warn-bg);
   color: var(--ink);
   font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .agenda-label {
@@ -983,7 +967,7 @@ body.view-week .day-agenda {
   gap: var(--space-3);
   margin-bottom: var(--space-4);
   background: var(--warn-bg);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .deposit-banner a {

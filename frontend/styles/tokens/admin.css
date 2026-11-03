@@ -18,12 +18,12 @@
   --admin-no-booking-text: var(--ink-3);
 
   --admin-booking-cell-bg: var(--paper);
-  --admin-booking-item-bg: #3a1c0c;
-  --admin-booking-item-border: #3a1c0c;
+  --admin-booking-item-bg: #2a170a;
+  --admin-booking-item-border: #2a170a;
   --admin-booking-item-left-border: var(--accent);
   --admin-booking-service-text: var(--ink-2);
 
-  --admin-deposit-bg: #142338;
+  --admin-deposit-bg: #161d26;
   --admin-deposit-border: var(--info);
   --admin-work-bg: var(--ink);
   --admin-work-text: var(--paper);
@@ -70,7 +70,7 @@
 }
 
 [data-theme='light'] {
-  --admin-booking-item-bg: #fbd3bd;
-  --admin-booking-item-border: #fbd3bd;
-  --admin-deposit-bg: #d3def0;
+  --admin-booking-item-bg: #f3d2b8;
+  --admin-booking-item-border: #f3d2b8;
+  --admin-deposit-bg: #d6e0ee;
 }

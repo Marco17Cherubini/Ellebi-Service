@@ -18,7 +18,7 @@ html {
   text-size-adjust: 100%;
   accent-color: var(--accent);
   caret-color: var(--accent-ink);
-  scrollbar-color: var(--ink-3) var(--paper-2);
+  scrollbar-color: var(--hair-strong) var(--paper);
 }
 
 body {
@@ -52,10 +52,10 @@ button {
   cursor: pointer;
 }
 
-/* Focus visibile e coerente: un riquadro pieno nel colore del marchio */
+/* Focus visibile e coerente: anello rame, sempre ben distinto dal filo bianco */
 :focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 /* Link "salta al contenuto" per chi usa la tastiera */

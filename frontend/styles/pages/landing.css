@@ -1,8 +1,9 @@
 /* ============================================================================
-   PAGINA PUBBLICA — "La meccanica prende forma"
-   L'officina presentata come il lancio di un'auto: palco scuro, il nome come
-   monumento dietro la vettura in vista esplosa, schede tecniche al posto delle card,
-   gli orari come telemetria. Un solo arancio segnale per azioni e cifre.
+   PAGINA PUBBLICA — sistema Bugatti applicato a un'officina
+   Nero puro, titoli maiuscoli a lettere molto spaziate, fili sottili al posto di
+   riquadri e ombre, tanto respiro. Il cerchio e il battistrada del logo (ricalcati)
+   fanno da palcoscenico all'auto in vista esplosa, che è anche il menu del sito.
+   L'unico colore è il rame del logo, sull'azione principale e su pochi segni.
    ============================================================================ */
 
 .landing .site-bar {
@@ -13,15 +14,25 @@
   z-index: var(--z-sticky);
 }
 
+.site-bar-word {
+  display: none;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
 .site-link {
   display: none;
   min-height: 44px;
   align-items: center;
-  padding: 0 var(--space-2);
+  padding: 0 var(--space-3);
   color: var(--ink);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   text-decoration: none;
 }
@@ -34,19 +45,18 @@
   display: inline-flex;
 }
 
-@media (max-width: 479px) {
-  .landing .wordmark-sub {
-    display: none;
-  }
-
-  .landing .site-bar-actions {
-    gap: var(--space-1);
-  }
-}
-
 @media (min-width: 720px) {
   .site-link {
     display: inline-flex;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-bar-word {
+    display: block;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 
@@ -55,44 +65,86 @@
 .stage {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr;
-  grid-template-areas:
-    'car'
-    'copy'
-    'telemetry';
-  gap: var(--space-8);
-  padding: 88px var(--gutter) var(--space-12);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  justify-items: center;
+  text-align: center;
+  padding: 108px var(--gutter) var(--space-12);
   overflow: hidden;
   isolation: isolate;
-  background: var(--paper);
 }
 
-/* Il nome, grande come l'auto, dietro la vettura */
-.stage-monument {
+@media (min-width: 1024px) {
+  .stage {
+    gap: var(--space-4);
+    padding-top: 96px;
+  }
+
+  .stage-foot {
+    margin-top: 0;
+  }
+}
+
+/* Il cerchio del logo dietro l'auto: i due archi neri e le fasce del battistrada.
+   È figlio del palco dell'auto, così resta centrato su di essa a ogni larghezza. */
+.stage-ring {
   position: absolute;
   z-index: -1;
   left: 50%;
-  top: 92px;
-  transform: translateX(-50%);
+  top: 50%;
+  height: 128%;
+  width: auto;
+  aspect-ratio: 703 / 783;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.ring-crescent {
+  fill: #1c1c1c;
+}
+
+.ring-tread {
+  fill: var(--accent);
+  fill-opacity: 0.32;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(calc(var(--yaw, 0) * 16deg));
+}
+
+.stage-head {
+  width: 100%;
+}
+
+.stage-title {
   margin: 0;
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-stretch: 125%;
-  font-size: clamp(5rem, 1rem + 22vw, 24rem);
-  line-height: 0.8;
-  letter-spacing: -0.04em;
+  font-size: clamp(2.5rem, 0.8rem + 6.2vw, 6.25rem);
+  line-height: 1.02;
+  letter-spacing: 0.1em;
+  padding-left: 0.1em;
+}
+
+.stage-caption {
+  margin: var(--space-5) 0 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--paper-2);
-  user-select: none;
+  color: var(--ink-3);
 }
 
 .stage-car {
-  grid-area: car;
   position: relative;
-  margin: 0 calc(var(--gutter) * -0.5);
+  width: min(100%, 980px);
   aspect-ratio: 1120 / 688;
   touch-action: pan-y;
+}
+
+@media (min-width: 1024px) {
+  /* L'auto deve stare sopra la piega insieme al titolo */
+  .stage-car {
+    width: min(100%, 980px, calc((100svh - 400px) * 1.628));
+    min-width: 560px;
+  }
 }
 
 .stage-poster {
@@ -121,222 +173,360 @@
 }
 
 .garage3d-canvas:focus-visible {
-  box-shadow: inset 0 0 0 3px var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
-.stage-controls {
-  position: absolute;
-  z-index: 2; /* sopra la tela 3D */
-  left: calc(var(--gutter) * 0.5);
-  bottom: 0;
+/* ==================== ETICHETTE SUI PEZZI ==================== */
+
+.hotspots {
+  list-style: none;
+  position: static;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  justify-content: center;
   gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+  padding: 0;
 }
 
-.chip {
+.hotspot-item {
+  display: contents;
+}
+
+.hotspot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   min-height: 44px;
   padding: 0 var(--space-4);
-  background: rgba(11, 12, 14, 0.55);
-  border: 2px solid var(--paper-3);
+  background: rgba(0, 0, 0, 0.6);
   color: var(--ink);
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  border: 1px solid var(--ink-3);
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
   transition:
-    border-color 160ms var(--ease-out),
+    background-color 180ms var(--ease-out),
+    color 180ms var(--ease-out),
+    border-color 180ms var(--ease-out),
     transform 120ms var(--ease-out);
 }
 
-[data-theme='light'] .chip {
-  background: rgba(232, 234, 237, 0.7);
-}
-
-.chip:active {
+.hotspot:active {
   transform: scale(0.97);
 }
 
-.chip[aria-pressed='true'] {
-  border-color: var(--accent);
+.hotspot-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .chip:hover {
-    border-color: var(--ink);
+.hotspot:hover,
+.hotspot.is-hover {
+  border-color: var(--ink);
+}
+
+.hotspot[aria-expanded='true'] {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+@media (min-width: 760px) {
+  .hotspots {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    margin: 0;
+    display: block;
+    pointer-events: none;
   }
+
+  .hotspot {
+    pointer-events: auto;
+  }
+
+  .hotspot {
+    position: absolute;
+    left: calc(var(--x) * 1%);
+    top: calc(var(--y) * 1%);
+    min-height: 40px;
+    transform: translate(-14px, -50%);
+    transition:
+      background-color 180ms var(--ease-out),
+      color 180ms var(--ease-out),
+      border-color 180ms var(--ease-out);
+  }
+
+  .hotspot.is-left {
+    flex-direction: row-reverse;
+    transform: translate(calc(-100% + 14px), -50%);
+  }
+
+  .hotspot:active {
+    transform: translate(-14px, -50%) scale(0.97);
+  }
+
+  .hotspot.is-left:active {
+    transform: translate(calc(-100% + 14px), -50%) scale(0.97);
+  }
+}
+
+.stage-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
 }
 
 .stage-status {
-  font-size: var(--font-size-sm);
-  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
 }
 
-.stage-copy {
-  grid-area: copy;
+/* ==================== PANNELLO DEL PEZZO ==================== */
+
+.part-panel {
+  position: relative;
+  width: min(100%, 560px);
+  padding: var(--space-8);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--hair-strong);
+  text-align: left;
 }
 
-.stage-title {
-  font-size: clamp(2rem, 1rem + 4.2vw, 4.25rem);
-  line-height: 0.95;
-  margin: 0 0 var(--space-5);
+.part-panel[hidden] {
+  display: none;
 }
 
-.stage-place {
-  margin: calc(var(--space-2) * -1) 0 var(--space-3);
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--accent-ink);
+.part-panel.is-entering {
+  animation: panel-in 240ms var(--ease-out);
 }
 
-.stage-lead {
-  font-size: var(--step-lead);
-  line-height: 1.35;
-  max-width: 32ch;
-  color: var(--ink-2);
-  margin-bottom: var(--space-8);
-}
-
-.stage-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-
-.stage-actions .btn {
-  flex: 1 1 14rem;
-}
-
-@media (min-width: 560px) {
-  .stage-actions .btn {
-    flex: 0 0 auto;
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
 }
 
-/* ==================== TELEMETRIA DEGLI ORARI ==================== */
-
-.telemetry {
-  grid-area: telemetry;
-  margin: 0;
-  padding: var(--space-5);
-  background: var(--paper-2);
-  clip-path: polygon(0 0, calc(100% - var(--cut-lg)) 0, 100% var(--cut-lg), 100% 100%, 0 100%);
+.part-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--hair-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
-.telemetry figcaption {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  margin-bottom: var(--space-4);
+.part-close:hover {
+  border-color: var(--ink);
 }
 
-.telemetry-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-stretch: 125%;
-  text-transform: uppercase;
-  font-size: var(--font-size-base);
-  letter-spacing: 0.02em;
+.part-title {
+  margin: 0 var(--space-10) var(--space-3) 0;
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
+  outline: none;
 }
 
-.telemetry-summary {
-  font-size: var(--font-size-sm);
+.part-text {
   color: var(--ink-2);
+  margin-bottom: var(--space-5);
 }
 
-.telemetry-bars {
+.part-body {
+  display: grid;
+}
+
+.row-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2) var(--space-5);
+  align-items: baseline;
+  padding: var(--space-5) 0;
+  border-top: 1px solid var(--paper-3);
+  color: var(--ink);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.row-link:last-child {
+  border-bottom: 1px solid var(--paper-3);
+}
+
+.row-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.row-meta {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.row-kind {
+  grid-column: 1 / -1;
+  font-size: var(--font-size-sm);
+  color: var(--ink-3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row-link:hover .row-title {
+    color: var(--accent-ink);
+  }
+
+  .row-link:hover .row-meta {
+    color: var(--ink);
+  }
+}
+
+.part-note {
+  margin: var(--space-4) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--ink-3);
+}
+
+.part-lines {
   display: grid;
   gap: var(--space-3);
+  font-size: var(--font-size-lg);
 }
 
+.part-lines a {
+  color: var(--ink);
+}
+
+/* Telemetria degli orari di oggi: ogni segmento è un quarto d'ora */
 .day-shift {
   display: grid;
-  grid-template-columns: repeat(16, 1fr);
-  gap: 4px;
-}
-
-.day-shift:empty {
-  display: none;
+  gap: 2px;
+  margin-top: var(--space-2);
 }
 
 .day-shift-label {
   grid-column: 1 / -1;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--ink-2);
+  margin-top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
-/* Ogni segmento è un quarto d'ora: acceso se libero, spento se occupato */
 .day-shift .q {
-  height: 26px;
+  height: 28px;
   background: var(--slot-free);
-  transform: skewX(-16deg);
 }
 
 .day-shift .q.is-busy {
-  background: var(--slot-busy);
+  background: var(--paper-3);
 }
 
 .day-shift .q.is-past {
   background: transparent;
-  box-shadow: inset 0 0 0 2px var(--paper-3);
+  box-shadow: inset 0 0 0 1px var(--paper-3);
 }
 
 .day-shift .q.is-first {
   background: var(--accent);
 }
 
-@media (min-width: 1024px) {
-  .stage {
-    min-height: min(100svh, 980px);
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
-    grid-template-rows: 1fr auto;
-    grid-template-areas:
-      'car car'
-      'copy telemetry';
-    column-gap: var(--space-12);
-    row-gap: var(--space-4);
-    padding-top: 76px;
-    padding-bottom: var(--space-8);
+@media (min-width: 1100px) {
+  .part-panel {
+    position: absolute;
+    right: var(--gutter);
+    top: 236px;
+    z-index: 3;
+    width: 400px;
   }
 
+  /* Con il pannello aperto l'auto scorre a sinistra e non resta coperta */
   .stage-car {
-    margin: 0 auto;
-    height: clamp(320px, calc(100svh - 400px), 660px);
-    width: auto;
-    max-width: 100%;
-    align-self: center;
+    transition: transform 320ms var(--ease-out);
   }
 
-  .stage-controls {
-    left: 0;
-  }
-
-  .stage-copy {
-    align-self: end;
-  }
-
-  .stage-title {
-    max-width: 22ch;
-    font-size: clamp(2rem, 0.8rem + 3vw, 3.5rem);
-  }
-
-  .stage-lead {
-    margin-bottom: var(--space-5);
-  }
-
-  .telemetry {
-    align-self: end;
+  .stage.has-panel .stage-car {
+    transform: translateX(-17%);
   }
 }
 
-/* ==================== DUE MODI ==================== */
+/* ==================== FONDO DEL PALCO ==================== */
+
+.stage-foot {
+  display: grid;
+  gap: var(--space-6);
+  width: min(100%, 1180px);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--paper-3);
+  margin-top: var(--space-4);
+  text-align: left;
+}
+
+.stage-lead {
+  font-size: var(--step-lead);
+  line-height: 1.35;
+  max-width: 34ch;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+.stage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.stage-actions .btn {
+  flex: 1 1 15rem;
+}
+
+@media (min-width: 900px) {
+  .stage-foot {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--space-12);
+  }
+
+  .stage-actions {
+    justify-content: flex-end;
+  }
+
+  .stage-actions .btn {
+    flex: 0 0 auto;
+  }
+}
+
+/* ==================== SEZIONI ==================== */
 
 .ways,
 .services,
 .contact {
-  padding: clamp(4rem, 3rem + 6vw, 9rem) var(--gutter) 0;
+  padding: var(--section) var(--gutter) 0;
   max-width: 1360px;
   margin: 0 auto;
 }
@@ -344,63 +534,45 @@
 .ways h2,
 .services h2,
 .contact h2 {
-  font-size: clamp(1.625rem, 1rem + 3.6vw, 4.5rem);
+  font-size: var(--step-head);
   margin-bottom: var(--space-10);
-  max-width: 16ch;
 }
 
+/* Appuntamento / consegna: due colonne, la seconda sfalsata verso il basso */
 .ways-grid {
   display: grid;
-  gap: 4px;
+  gap: var(--space-12);
 }
 
 @media (min-width: 800px) {
   .ways-grid {
     grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: start;
+  }
+
+  .way-offset {
+    margin-top: var(--space-20);
   }
 }
 
 .way {
-  padding: var(--space-8) var(--space-6) var(--space-10);
-  background: var(--paper-2);
-  clip-path: polygon(0 0, calc(100% - var(--cut-lg)) 0, 100% var(--cut-lg), 100% 100%, 0 100%);
-}
-
-.way-alt {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.way-alt h3,
-.way-alt p {
-  color: var(--on-accent);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--ink-3);
 }
 
 .way-figure {
-  margin: 0 0 var(--space-8);
+  margin: 0 0 var(--space-6);
   font-family: var(--font-display);
-  font-weight: 900;
-  font-stretch: 125%;
-  font-size: clamp(4.5rem, 2rem + 10vw, 9rem);
-  line-height: 0.8;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-  color: var(--accent-ink);
-}
-
-.way-alt .way-figure {
-  color: var(--on-accent);
-}
-
-.way-figure small {
-  font-size: 0.22em;
-  letter-spacing: 0.06em;
-  margin-left: 0.3em;
-  vertical-align: top;
+  font-size: var(--step-display);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
 }
 
 .way h3 {
-  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  font-size: var(--font-size-2xl);
 }
 
 .way p {
@@ -408,120 +580,125 @@
   margin: 0;
 }
 
-/* ==================== SCHEDA SERVIZI ==================== */
-
-.services-head {
+/* Servizi: titolo a sinistra che resta in vista, elenco a filo a destra */
+.services {
   display: grid;
-  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-10);
 }
 
 .services-head h2 {
-  margin-bottom: 0;
+  margin-bottom: var(--space-4);
 }
 
 .services-head p {
-  max-width: 52ch;
-  color: var(--ink-2);
-}
-
-@media (min-width: 960px) {
-  .services-head {
-    grid-template-columns: 1fr auto;
-    align-items: end;
-  }
+  max-width: 34ch;
+  color: var(--ink-3);
 }
 
 .services-cols {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-12);
-  margin-top: var(--space-10);
 }
 
-@media (min-width: 800px) {
-  .services-cols {
-    grid-template-columns: 1fr 1fr;
+@media (min-width: 960px) {
+  .services {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
     gap: var(--space-16);
+    align-items: start;
+  }
+
+  .services-head {
+    position: sticky;
+    top: 96px;
   }
 }
 
-.services-group h3 {
+.services-group-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  margin-bottom: var(--space-4);
+}
+
+.services-group-head h3 {
   font-size: var(--font-size-2xl);
-  padding-bottom: var(--space-3);
-  margin-bottom: 0;
-  border-bottom: 4px solid var(--accent);
+  margin: 0;
 }
 
-.services-group h3 small {
-  font-family: var(--font-primary);
-  font-stretch: 100%;
-  text-transform: none;
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--ink-2);
-}
-
-.services-list {
-  list-style: none;
-}
-
-.services-list li {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--space-4);
-  align-items: baseline;
-  padding: var(--space-4) 0;
-  border-bottom: 2px solid var(--paper-3);
-}
-
-.svc-name {
-  font-weight: 600;
-  font-size: var(--font-size-lg);
-}
-
-.svc-kind {
-  display: block;
-  font-size: var(--font-size-sm);
-  color: var(--ink-2);
-  font-weight: 400;
-}
-
-.is-consegna .svc-kind {
-  color: var(--accent-ink);
-}
-
-.svc-time {
-  font-family: var(--font-display);
-  font-stretch: 125%;
-  font-weight: 800;
-  font-size: var(--font-size-xl);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  text-align: right;
-}
-
-.svc-time small {
-  display: block;
-  font-family: var(--font-primary);
-  font-stretch: 100%;
-  font-weight: 500;
+.services-count {
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
-  color: var(--ink-2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
-/* ==================== CONTATTI ==================== */
-
+/* Contatti: la disposizione speculare ai servizi */
 .contact-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-12);
+}
+
+/* Su telefono prima il numero, poi la tabella degli orari */
+.contact-lines {
+  order: -1;
 }
 
 @media (min-width: 900px) {
   .contact-grid {
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-16);
     align-items: start;
+  }
+
+  .contact-lines {
+    order: 2;
+  }
+}
+
+.hours {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-lg);
+}
+
+.hours th,
+.hours td {
+  text-align: left;
+  padding: var(--space-5) var(--space-3) var(--space-5) 0;
+  border-top: 1px solid var(--paper-3);
+  vertical-align: top;
+  font-weight: 400;
+}
+
+.hours tr:last-child th,
+.hours tr:last-child td {
+  border-bottom: 1px solid var(--paper-3);
+}
+
+.hours th {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+
+.hours td {
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+@media (max-width: 480px) {
+  .hours {
+    font-size: var(--font-size-base);
+  }
+
+  .hours th {
+    white-space: normal;
   }
 }
 
@@ -539,11 +716,9 @@
 
 .contact-big {
   font-family: var(--font-display);
-  font-weight: 900;
-  font-stretch: 125%;
-  font-size: clamp(2.25rem, 1rem + 6vw, 6rem);
-  line-height: 0.9;
-  letter-spacing: -0.03em;
+  font-size: var(--step-head);
+  line-height: 1;
+  letter-spacing: 0.08em;
   text-decoration: none;
   font-variant-numeric: tabular-nums;
   margin-bottom: var(--space-4);
@@ -553,152 +728,153 @@
   color: var(--accent-ink);
 }
 
-.hours {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-  font-size: var(--font-size-lg);
-}
+/* ==================== FASCIA FINALE ==================== */
 
-.hours th,
-.hours td {
-  text-align: left;
-  padding: var(--space-4) var(--space-3) var(--space-4) 0;
-  border-bottom: 2px solid var(--paper-3);
-  vertical-align: top;
-}
-
-.hours th {
-  font-weight: 600;
-}
-
-.hours td {
-  white-space: nowrap;
-}
-
-@media (max-width: 480px) {
-  .hours {
-    font-size: var(--font-size-base);
-  }
-
-  .hours th {
-    white-space: normal;
-  }
-}
-
-/* ==================== CHIUSURA ==================== */
-
-.site-foot {
-  margin-top: clamp(4rem, 3rem + 6vw, 9rem);
-  padding: var(--space-10) var(--gutter) calc(var(--space-8) + env(safe-area-inset-bottom));
-  background: var(--accent);
-  color: var(--on-accent);
+.cta-band {
+  position: relative;
+  isolation: isolate;
+  margin-top: var(--section);
+  padding: var(--section) var(--gutter);
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-8);
   overflow: hidden;
 }
 
-.site-foot-mark {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-stretch: 125%;
-  text-transform: uppercase;
-  font-size: clamp(4rem, 0.5rem + 21vw, 22rem);
-  line-height: 0.78;
-  letter-spacing: -0.045em;
-  color: var(--on-accent);
-  margin: 0 0 var(--space-10) -0.04em;
-  white-space: nowrap;
+.cta-band::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -20% 0;
+  background: url('/images/motivo-battistrada.svg') center / auto 140% no-repeat;
+  opacity: 0.4;
+}
+
+.cta-band h2 {
+  max-width: 20ch;
+  margin: 0;
+  font-size: var(--step-head);
+}
+
+/* ==================== PIEDE ==================== */
+
+.site-foot {
+  padding: var(--space-16) var(--gutter) calc(var(--space-8) + env(safe-area-inset-bottom));
+  background: var(--paper);
+  border-top: 1px solid var(--paper-3);
+}
+
+.site-foot-main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-10);
+  margin-bottom: var(--space-10);
+}
+
+.brand-lg img {
+  height: auto;
+  width: min(207px, 56vw);
 }
 
 .site-foot-links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2) var(--space-6);
-  margin-bottom: var(--space-6);
-}
-
-.site-foot-links a,
-.site-foot-legal {
-  color: var(--on-accent);
+  gap: var(--space-2) var(--space-8);
 }
 
 .site-foot-links a {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
-  font-weight: 700;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.site-foot-links a:hover {
+  color: var(--ink);
 }
 
 .site-foot-legal {
-  font-size: var(--font-size-sm);
-  margin: 0;
   max-width: 70ch;
+  margin: 0 0 var(--space-12);
+  font-size: var(--font-size-sm);
+  color: var(--ink-3);
+}
+
+.site-foot-mark {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.6em;
+  text-transform: uppercase;
+  color: var(--ink);
+  padding-left: 0.6em;
 }
 
 /* ==================== MOVIMENTO ==================== */
-/* Un solo momento firmato: il palco entra una volta (nome, auto, testo, telemetria).
-   Poi niente si muove da solo. Con riduzione del movimento tutto è già al suo posto. */
+/* Un solo momento firmato: l'auto entra, poi le etichette una dopo l'altra.
+   Con riduzione del movimento tutto è già al suo posto. */
 @media (prefers-reduced-motion: no-preference) {
-  .stage-monument {
-    animation: monument-in 900ms var(--ease-out) both;
-  }
-
   .stage-car {
-    animation: car-in 900ms var(--ease-out) 120ms both;
+    animation: car-in 900ms var(--ease-out) both;
   }
 
-  .stage-copy > *,
-  .telemetry {
-    animation: rise-in 600ms var(--ease-out) both;
+  .hotspot {
+    animation: tag-in 500ms var(--ease-out) both;
   }
 
-  .stage-copy > :nth-child(1) {
-    animation-delay: 260ms;
+  .hotspot-item:nth-child(1) .hotspot {
+    animation-delay: 500ms;
   }
 
-  .stage-copy > :nth-child(2) {
-    animation-delay: 330ms;
+  .hotspot-item:nth-child(2) .hotspot {
+    animation-delay: 580ms;
   }
 
-  .stage-copy > :nth-child(3) {
-    animation-delay: 400ms;
+  .hotspot-item:nth-child(3) .hotspot {
+    animation-delay: 660ms;
   }
 
-  .telemetry {
-    animation-delay: 470ms;
+  .hotspot-item:nth-child(4) .hotspot {
+    animation-delay: 740ms;
   }
 
-  .day-shift.is-filled .q {
-    animation: q-on 380ms var(--ease-out) backwards;
-    animation-delay: calc(500ms + var(--i, 0) * 16ms);
-  }
-}
-
-@keyframes monument-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 24px);
+  .hotspot-item:nth-child(5) .hotspot {
+    animation-delay: 820ms;
   }
 }
 
 @keyframes car-in {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: translateY(16px);
   }
 }
 
-@keyframes rise-in {
+@keyframes tag-in {
   from {
+    opacity: 0;
+  }
+}
+
+/* Comparsa progressiva: una volta sola, trasformazione e opacità */
+@media (prefers-reduced-motion: no-preference) {
+  .js-reveal .reveal:not(.is-in) {
     opacity: 0;
     transform: translateY(18px);
   }
-}
 
-@keyframes q-on {
-  from {
-    opacity: 0;
+  .js-reveal .reveal {
+    transition:
+      opacity 600ms var(--ease-out) var(--d, 0ms),
+      transform 600ms var(--ease-out) var(--d, 0ms);
   }
 }

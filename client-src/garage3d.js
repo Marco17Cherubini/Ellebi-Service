@@ -31,6 +31,9 @@ import {
   CanvasTexture,
   Vector2,
   PMREMGenerator,
+  Raycaster,
+  Color,
+  Vector3,
   ACESFilmicToneMapping,
   SRGBColorSpace
 } from 'three';
@@ -209,6 +212,9 @@ export async function mount(stage, options = {}) {
     reducedMotion = false,
     pixelRatio = 1.5,
     onLost = () => {},
+    onPick = () => {},
+    onHover = () => {},
+    onFrame = () => {},
     preserveDrawingBuffer = false
   } = options;
 
@@ -248,9 +254,9 @@ export async function mount(stage, options = {}) {
   // Materiali condivisi
   const mat = {
     paint: new MeshPhysicalMaterial({
-      color: 0xff4400,
-      metalness: 0.15,
-      roughness: 0.4,
+      color: 0xc9601c,
+      metalness: 0.55,
+      roughness: 0.32,
       clearcoat: 1,
       clearcoatRoughness: 0.06
     }),
@@ -388,6 +394,74 @@ export async function mount(stage, options = {}) {
   shadow.position.y = 0.002;
   root.add(shadow);
 
+  // ─── Pezzi selezionabili (menu) ─────────────────────────────────────────────
+  // Ogni pezzo ha materiali propri (clonati) così si può evidenziare da solo; ogni mesh
+  // sa a quale pezzo appartiene (userData.part) per il raggio di selezione.
+  const PARTS = {
+    carrozzeria: [body],
+    cabina: [cabin, seats],
+    motore: [engine],
+    telaio: [chassis],
+    ruote: [tyres, rims, hubs, spokes, discs, calipers]
+  };
+  const partMaterials = {};
+  const pickables = [];
+  Object.entries(PARTS).forEach(([name, roots]) => {
+    partMaterials[name] = [];
+    roots.forEach(r =>
+      r.traverse(o => {
+        if (!o.isMesh) return;
+        o.material = o.material.clone();
+        if (o.material.emissive) partMaterials[name].push(o.material);
+        o.userData.part = name;
+        pickables.push(o);
+      })
+    );
+  });
+  const HIGHLIGHT = new Color(0xd97030);
+  function setHighlight(name) {
+    Object.entries(partMaterials).forEach(([part, list]) =>
+      list.forEach(m => {
+        m.emissive.copy(HIGHLIGHT);
+        m.emissiveIntensity = part === name ? 0.55 : 0;
+      })
+    );
+    requestRender();
+  }
+
+  // Punti di ancoraggio delle etichette: seguono i pezzi, anche in vista esplosa
+  const anchors = {
+    carrozzeria: new Object3D(),
+    cabina: new Object3D(),
+    motore: new Object3D(),
+    telaio: new Object3D(),
+    ruote: new Object3D()
+  };
+  anchors.carrozzeria.position.set(-0.75, 0.55, 0.85);
+  body.add(anchors.carrozzeria);
+  anchors.cabina.position.set(0.05, 1.25, 0);
+  cabin.add(anchors.cabina);
+  anchors.motore.position.set(0, 0.1, 0);
+  engine.add(anchors.motore);
+  anchors.telaio.position.set(-0.4, 0.27, 0.62);
+  chassis.add(anchors.telaio);
+  root.add(anchors.ruote);
+  const anchorVec = new Vector3();
+  function project(name) {
+    root.updateMatrixWorld(true);
+    anchors[name].getWorldPosition(anchorVec);
+    anchorVec.project(camera);
+    return {
+      x: +((anchorVec.x * 0.5 + 0.5) * 100).toFixed(2),
+      y: +((-anchorVec.y * 0.5 + 0.5) * 100).toFixed(2)
+    };
+  }
+  function allPositions() {
+    const out = {};
+    Object.keys(anchors).forEach(n => (out[n] = project(n)));
+    return out;
+  }
+
   // ─── Pose ───────────────────────────────────────────────────────────────────
   const OFF = { body: 0.95, cabin: 1.6, seats: 0.36, engineY: 0.42, engineX: 1.55, wheelZ: 0.62 };
   let t = exploded && (!intro || reducedMotion) ? 1 : 0;
@@ -435,6 +509,8 @@ export async function mount(stage, options = {}) {
     [tyres, rims, hubs, spokes, discs, calipers].forEach(
       m => (m.instanceMatrix.needsUpdate = true)
     );
+    const fw = wheels[2];
+    anchors.ruote.position.set(fw.x, WHEEL_R + 0.1, fw.z + fw.side * OFF.wheelZ * e);
     root.rotation.y = yaw;
   }
 
@@ -468,6 +544,7 @@ export async function mount(stage, options = {}) {
     }
     pose();
     renderer.render(scene, camera);
+    onFrame(allPositions(), yaw);
     if (moving) requestRender();
     else last = 0;
   }
@@ -476,21 +553,57 @@ export async function mount(stage, options = {}) {
     if (!frame && visible && !disposed && !document.hidden) frame = requestAnimationFrame(render);
   }
 
-  // Rotazione: solo trascinamento orizzontale (lo scroll verticale resta alla pagina) e frecce
+  // Rotazione: solo trascinamento orizzontale (lo scroll verticale resta alla pagina) e frecce.
+  // Un tocco senza trascinamento seleziona il pezzo sotto il dito.
+  const raycaster = new Raycaster();
+  const ndc = new Vector2();
+  function partAt(ev) {
+    const r = canvas.getBoundingClientRect();
+    ndc.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+    raycaster.setFromCamera(ndc, camera);
+    const hit = raycaster.intersectObjects(pickables, false)[0];
+    return hit ? hit.object.userData.part : null;
+  }
   let dragX = null;
+  let startX = 0;
+  let moved = 0;
+  let hoverPart = null;
   const onDown = ev => {
-    dragX = ev.clientX;
+    dragX = startX = ev.clientX;
+    moved = 0;
     canvas.setPointerCapture(ev.pointerId);
   };
   const onMove = ev => {
-    if (dragX === null) return;
+    if (dragX === null) {
+      const part = partAt(ev);
+      if (part !== hoverPart) {
+        hoverPart = part;
+        canvas.style.cursor = part ? 'pointer' : 'grab';
+        onHover(part);
+      }
+      return;
+    }
     const dx = ev.clientX - dragX;
     dragX = ev.clientX;
+    moved = Math.max(moved, Math.abs(ev.clientX - startX));
     yaw += dx * 0.008;
     yawVel = dx * 0.0016;
     requestRender();
   };
-  const onUp = () => (dragX = null);
+  const onUp = ev => {
+    if (dragX !== null && moved < 6) {
+      const part = partAt(ev);
+      if (part) onPick(part);
+    }
+    dragX = null;
+  };
+  const onCancel = () => (dragX = null);
+  const onLeave = () => {
+    if (hoverPart) {
+      hoverPart = null;
+      onHover(null);
+    }
+  };
   const onKey = ev => {
     if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') {
       ev.preventDefault();
@@ -501,7 +614,8 @@ export async function mount(stage, options = {}) {
   canvas.addEventListener('pointerdown', onDown);
   canvas.addEventListener('pointermove', onMove);
   canvas.addEventListener('pointerup', onUp);
-  canvas.addEventListener('pointercancel', onUp);
+  canvas.addEventListener('pointercancel', onCancel);
+  canvas.addEventListener('pointerleave', onLeave);
   canvas.addEventListener('keydown', onKey);
 
   const onVisibility = () => requestRender();
@@ -533,6 +647,8 @@ export async function mount(stage, options = {}) {
       target = value ? 1 : 0;
       requestRender();
     },
+    highlight: setHighlight,
+    positions: allPositions,
     isExploded: () => target === 1,
     stats() {
       return {
@@ -561,6 +677,8 @@ export async function mount(stage, options = {}) {
       canvas.removeEventListener('webglcontextlost', onContextLost);
       geos.forEach(g => g.dispose());
       Object.values(mat).forEach(m => m.dispose());
+      Object.values(partMaterials).forEach(list => list.forEach(m => m.dispose()));
+      canvas.removeEventListener('pointerleave', onLeave);
       shadowMat.dispose();
       shadowTex.dispose();
       envRT.dispose();

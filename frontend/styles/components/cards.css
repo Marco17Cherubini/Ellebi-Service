@@ -1,24 +1,22 @@
 /* ============================================================================
-   SUPERFICI — separate da un gradino di tono, mai da bordi o ombre.
+   SUPERFICI — un filo sottile attorno, nessuna ombra e nessun raggio.
    ============================================================================ */
 
-.card {
+.card,
+.stat-card {
   background-color: var(--paper-2);
-  padding: var(--space-5);
+  box-shadow: inset 0 0 0 1px var(--paper-3);
+  padding: var(--space-6);
 }
 
 .card-title {
   font-family: var(--font-display);
   font-size: var(--font-size-xl);
-  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   margin-bottom: var(--space-2);
 }
 
 .card-description {
-  color: var(--ink-2);
-}
-
-.stat-card {
-  background: var(--paper-2);
-  padding: var(--space-5);
+  color: var(--ink-3);
 }
