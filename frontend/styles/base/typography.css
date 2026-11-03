@@ -1,27 +1,44 @@
 /* ============================================================================
-   TIPOGRAFIA — Archivo variabile (OFL, fonts/OFL-Archivo.txt), un solo file.
-   Titoli in maiuscolo e larghezza 125%: la voce delle schede tecniche e delle
-   livree da corsa. Testo a larghezza normale, cifre tabellari per orari e targhe.
+   TIPOGRAFIA — la trinità del sistema Bugatti, con caratteri open source
+   (OFL, vedi frontend/fonts/OFL-*.txt), tutti self-hosted e solo peso 400:
+     · Saira Condensed  → titoli: MAIUSCOLO, tracking 0.07em, mai in grassetto
+     · EB Garamond      → testo corrente (serif, frase normale)
+     · JetBrains Mono   → pulsanti, navigazione, didascalie, orari, targhe
+   L'enfasi viene da dimensione, spaziatura e maiuscole, non dal peso.
    ============================================================================ */
 
 @font-face {
-  font-family: 'Archivo';
+  font-family: 'Saira Condensed';
   font-style: normal;
-  font-weight: 100 900;
-  font-stretch: 62% 125%;
+  font-weight: 400;
   font-display: swap;
-  src: url('/fonts/archivo-var.woff2') format('woff2');
+  src: url('/fonts/saira-condensed-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-var.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-400.woff2') format('woff2');
 }
 
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-stretch: 125%;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: -0.01em;
-  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--line-height-tight);
   color: var(--color-text-primary);
   text-wrap: balance;
 }
@@ -32,32 +49,36 @@ h1 {
 }
 
 h2 {
-  font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.5rem);
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem);
+  letter-spacing: 0.06em;
   margin-bottom: var(--space-4);
 }
 
 h3 {
   font-size: var(--font-size-xl);
+  letter-spacing: 0.05em;
   margin-bottom: var(--space-3);
 }
 
 h4,
 h5,
 h6 {
-  font-family: var(--font-primary);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   font-size: var(--font-size-lg);
   margin-bottom: var(--space-2);
 }
 
 p {
   margin-bottom: var(--space-4);
-  color: var(--color-text-primary);
+  color: var(--ink-2);
   text-wrap: pretty;
 }
 
 a {
-  color: var(--accent-ink);
+  color: var(--link);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.22em;
@@ -69,7 +90,18 @@ a:hover {
 }
 
 strong {
-  font-weight: 650;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Etichette di precisione: monospazio, maiuscolo, tracking largo */
+.label,
+.caption {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
 time,

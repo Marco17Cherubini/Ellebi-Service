@@ -38,7 +38,7 @@ The app is a revisited version of the Lev Space booking system, customised aroun
 - **the mechanic plans the work on the weekly calendar**, in 15-minute blocks, next to the regular appointments; when the job is done the customer gets a pick-up email;
 - **the rules live on the server**: durations come from the price list, opening hours depend on the role, capacity is checked before accepting a drop-off, and every multi-step change is a single transaction.
 
-![Home page: the workshop name as a monument behind a stylised 3D car in exploded view, the booking call to action and today's free quarter-hours](docs/images/fase2/dopo-home-desktop.webp)
+![Home page: the logo's circle and tread behind a stylised 3D car in exploded view; each part is a menu entry](docs/images/fase2/dopo-menu-auto-desktop.webp)
 
 | Booking on a phone: only start times where the whole job fits                                                       | Workshop day view on a phone, including free gaps                                                                  |
 | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -136,18 +136,18 @@ Also included: guest booking without an account, email confirmations and passwor
 - **One booking flow** for guests and registered customers (`/prenota`, old URLs still work): vehicle → service → day and time → vehicle and contacts → summary → confirmation. Times come only from the server's per-service endpoint, so the page can no longer offer a slot that crosses the lunch break and gets rejected at the end. Drop-offs are explained plainly: a 30-minute reception, no promised return date.
 - **Client area** with upcoming bookings (move or cancel while allowed), saved vehicles (the API existed but was hidden) and a one-click "remember this vehicle".
 - **Workshop day view**: every booking of the day in time order — including VIP and workshop bookings outside the weekly grid, which were previously invisible — with free gaps, holidays and a call button. The weekly grid now warns when bookings fall outside it.
-- **New identity**: a dark-first "test bench at night" look, Archivo extended capitals, 45° machined corners, an orange signal colour, today's availability shown as telemetry, and a **stylised 3D car** that opens into an exploded view (body, glass cabin, seats, engine, chassis, wheels with discs and calipers). It is procedural and generic — not a real vehicle — and entirely optional: a still image rendered from the same model is always shown first, and booking never depends on it.
+- **New identity**, built on the Bugatti `DESIGN.md` from [awesome-design-md](https://github.com/VoltAgent/awesome-design-md): pure black, uppercase letter-spaced Saira Condensed titles at weight 400, EB Garamond body, JetBrains Mono for buttons, labels and times, hairlines instead of boxes or shadows, pill buttons. The one accent is the copper of the workshop's own logo, kept for the main action. The original logo file is shown untouched on a plate; its circle and tread arcs were traced from it into an SVG that serves as the stage behind the car and a faint backdrop on forms. The home page is a menu built from a **stylised 3D car** that opens into an exploded view: each part (Meccanica, Gomme e freni, Consegna, Orari, Contatti) opens a panel with the real services from the price list, today's free quarter-hours, or the contacts, and a service links straight into the booking flow. It is procedural and generic (not a real vehicle) and entirely optional: a still image rendered from the same model, with the labels already in place, is always shown first, and booking never depends on 3D.
 - **Security and data fixes** (all with tests): sessions closed by a password reset, single-use reset links, admin tokens tied to an existing account, no internal notes or tokens in customer responses, no internal price in the public price list, banned customers cannot book as guests, guests can claim their email through a link, past or in-progress bookings cannot be cancelled by the customer, seasonal services checked on the booked date, drop-offs identified only by `tipo_servizio` (with migration), guest phone numbers kept, past work blocks kept as history.
 
 **Measured (lab, empty cache, Chromium headless with software GPU, not field data)**
 
 |                                                  | Before (`85d017c`) | After                                                                        |
 | ------------------------------------------------ | ------------------ | ---------------------------------------------------------------------------- |
-| Home, transferred (mobile, 3D excluded)          | 127 KB             | 186 KB                                                                       |
-| Home LCP, mobile (4× CPU, ~1.6 Mbps, 150 ms RTT) | 1.29 s             | 1.54 s                                                                       |
+| Home, transferred (mobile, 3D excluded)          | 127 KB             | 271 KB (fonts 84 KB, logo 51 KB, car image 42 KB, ring SVG inline)           |
+| Home LCP, mobile (4× CPU, ~1.6 Mbps, 150 ms RTT) | 1.29 s             | 1.76 s                                                                       |
 | Home CLS                                         | 0.041              | 0                                                                            |
-| Booking page, transferred / LCP mobile           | 169 KB / 1.40 s    | 146 KB / 1.05 s                                                              |
-| 3D module (Three.js included), gzip              | —                  | 139 KB, ready in ~0.5 s (desktop)                                            |
+| Booking page, transferred / LCP mobile           | 169 KB / 1.40 s    | 211 KB / 1.20 s                                                              |
+| 3D module (Three.js included), gzip              | —                  | 140 KB, ready in ~0.5 s (desktop)                                            |
 | 3D scene                                         | —                  | 19,474 triangles, 28 draw calls, pixel ratio ≤ 1.5, no rendering while still |
 
 Frame rate could not be measured meaningfully (software GPU, headless browser) and **no physical phone was tested**; see the limitations below.
@@ -156,16 +156,16 @@ Frame rate could not be measured meaningfully (software GPU, headless browser) a
 
 ### Tech stack
 
-| Layer    | Choice                                         | Why                                                                                         |
-| -------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Server   | Node.js + Express 4                            | Small, well known, easy to run as a single instance                                         |
-| Database | SQLite via [sql.js](https://sql.js.org) (WASM) | One file on a volume, no native build; atomic writes and transactions for multi-row work    |
-| Auth     | JWT in an `httpOnly`, `SameSite=Lax` cookie    | No token reachable from JavaScript; argon2id hashes (older bcrypt hashes upgraded at login) |
-| Frontend | HTML, CSS and vanilla JavaScript               | No build step for pages; design tokens and layered CSS; self-hosted Archivo font            |
-| 3D       | Three.js, bundled once with esbuild            | `client-src/garage3d.js` → `frontend/js/garage3d.js`, loaded with a dynamic `import()` only |
-| Email    | Resend                                         | Booking confirmations, pick-up notices, password reset                                      |
-| Charts   | Chart.js, served from the npm package          | Admin reports, version pinned in the lockfile                                               |
-| Tests    | `node:test` (built into Node)                  | No test framework to install                                                                |
+| Layer    | Choice                                         | Why                                                                                                                       |
+| -------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Server   | Node.js + Express 4                            | Small, well known, easy to run as a single instance                                                                       |
+| Database | SQLite via [sql.js](https://sql.js.org) (WASM) | One file on a volume, no native build; atomic writes and transactions for multi-row work                                  |
+| Auth     | JWT in an `httpOnly`, `SameSite=Lax` cookie    | No token reachable from JavaScript; argon2id hashes (older bcrypt hashes upgraded at login)                               |
+| Frontend | HTML, CSS and vanilla JavaScript               | No build step for pages; design tokens and layered CSS; self-hosted Saira Condensed, EB Garamond and JetBrains Mono (OFL) |
+| 3D       | Three.js, bundled once with esbuild            | `client-src/garage3d.js` → `frontend/js/garage3d.js`, loaded with a dynamic `import()` only                               |
+| Email    | Resend                                         | Booking confirmations, pick-up notices, password reset                                                                    |
+| Charts   | Chart.js, served from the npm package          | Admin reports, version pinned in the lockfile                                                                             |
+| Tests    | `node:test` (built into Node)                  | No test framework to install                                                                                              |
 
 ### Architecture
 
@@ -270,8 +270,9 @@ Before pushing, run `npm run lint`, `npm run format:check` and `npm test` — th
 
 - **Single instance**: sql.js keeps the database in memory and saves it to one file, so the app must run as one process (PM2 is pinned to one instance).
 - **No physical device tested**: mobile checks are emulated (Chromium at 320–1440 px); frame rate, battery and heat on real phones are unverified.
+- **No photographs**: the project has no pictures of the workshop and none were invented; the Bugatti system leans on photography, here the 3D car and the logo motif take that place. The Taste inspector's "at least four pictures" floor is therefore not met.
+- **Three typefaces and a light theme**: the three families come from the Bugatti `DESIGN.md` (which has no light mode; the optional light theme was kept because the original app had a theme toggle).
 - **3D**: auto-loads only on wide screens with WebGL, without data saver or reduced motion; phones get the still image and an explicit "Ruota in 3D" button. The model is a generic stylised car, not a reconstruction of a real one.
-- **No photographs** of the workshop exist in the project, and none were invented.
 - **VIP extended hours** (08:00 and evening starts up to 23:15) are inherited from the barbershop version and still to be confirmed with the workshop; they are now visible in the day view.
 - **Logout** clears the cookie but does not revoke the token on the server (a password reset does); sessions last 7 days.
 - **Guest emails are not verified**: a guest booking made with a registered customer's email appears in that account (decision D-9).

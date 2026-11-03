@@ -20,12 +20,14 @@ body:has(.action-bar) .theme-toggle {
   justify-content: center;
   width: 44px;
   height: 44px;
-  background-color: var(--paper-2);
+  background-color: var(--paper);
   color: var(--ink);
-  border: 2px solid var(--paper-3);
-  border-radius: 0;
+  border: 1px solid var(--hair-strong);
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: border-color var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -103,4 +105,20 @@ body:has(.action-bar) .theme-toggle {
 
 .theme-wipe.is-on.rtl {
   animation: wipe-rtl 420ms ease-in-out forwards;
+}
+
+/* Home pubblica: il selettore sta in fondo alla pagina, non sopra il testo */
+.landing .theme-toggle {
+  position: static;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--gutter) var(--space-6);
+  background: var(--paper);
+}
+
+@media (max-width: 1023px) {
+  .theme-toggle {
+    bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+    right: var(--space-3);
+  }
 }

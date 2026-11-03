@@ -57,8 +57,8 @@
 
 /* Pending states */
 .user-item.pending-vip-add {
-  background-color: #fffbe6;
   border-left: 0;
+  background-color: var(--warn-bg);
 }
 
 .user-item.pending-vip-remove {
@@ -67,13 +67,13 @@
 }
 
 .user-item.pending-ban-add {
-  background-color: #ffe6e6;
   border-left: 0;
+  background-color: var(--danger-bg);
 }
 
 .user-item.pending-ban-remove {
-  background-color: #e6ffe6;
   border-left: 0;
+  background-color: var(--ok-bg);
 }
 
 .user-info {
@@ -84,7 +84,7 @@
 }
 
 .user-name {
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   color: var(--color-text-primary);
 }
@@ -101,15 +101,23 @@
 }
 
 .badge-vip {
-  background-color: #fffbe6;
-  color: #8b7000;
-  border: 1px solid #d4a800;
+  background-color: transparent;
+  color: var(--accent-ink);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .badge-banned {
-  background-color: #ffe6e6;
-  color: #cc0000;
-  border: 1px solid #cc0000;
+  background-color: transparent;
+  color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--danger);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 /* ==================== USER ACTIONS ==================== */
@@ -132,11 +140,11 @@
 }
 
 .action-label.vip {
-  color: #8b7000;
+  color: var(--accent-ink);
 }
 
 .action-label.ban {
-  color: #cc0000;
+  color: var(--danger);
 }
 
 .action-checkbox {
@@ -146,11 +154,11 @@
 }
 
 .action-checkbox.vip {
-  accent-color: #d4a800;
+  accent-color: var(--accent);
 }
 
 .action-checkbox.ban {
-  accent-color: #cc0000;
+  accent-color: var(--danger);
 }
 
 .no-users {
@@ -176,23 +184,23 @@
 }
 
 .pending-badge.vip-add {
-  background-color: #d4a800;
-  color: #fff;
+  background-color: var(--accent);
+  color: var(--on-accent);
 }
 
 .pending-badge.vip-remove {
-  background-color: #999;
-  color: #fff;
+  background-color: var(--ink-3);
+  color: var(--paper);
 }
 
 .pending-badge.ban-add {
-  background-color: #cc0000;
-  color: #fff;
+  background-color: var(--danger);
+  color: var(--paper);
 }
 
 .pending-badge.ban-remove {
-  background-color: #00aa00;
-  color: #fff;
+  background-color: var(--ok);
+  color: var(--paper);
 }
 
 /* ==================== CONFIRM BAR ==================== */
@@ -228,7 +236,7 @@
   padding: var(--space-3) var(--space-6);
   font-size: 1rem;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   border-radius: var(--radius-md);
 }
 
@@ -255,7 +263,7 @@
 .btn-vehicles-toggle {
   background: none;
   border: 1px solid var(--color-border, #e0e0e0);
-  border-radius: 6px;
+  border-radius: var(--radius-full);
   padding: 3px 8px;
   cursor: pointer;
   font-size: 1rem;
@@ -289,7 +297,7 @@
 
 .vh-title {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-text-secondary, #888);
@@ -308,7 +316,7 @@
 
 .vh-targa {
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.05em;
 }
 
@@ -320,11 +328,13 @@
 
 .vh-anno {
   font-size: 0.75rem;
-  background: #e8f4ff;
-  color: #1e40af;
+
   padding: 1px 6px;
-  border-radius: 10px;
+  border-radius: 0;
   margin-left: 6px;
+  background: transparent;
+  color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px var(--ink-3);
 }
 
 .vh-card-meta {
@@ -343,18 +353,18 @@
   background: none;
   border: 1px solid var(--brand-accent, #ff6b00);
   color: var(--brand-accent, #ff6b00);
-  border-radius: 5px;
+  border-radius: var(--radius-full);
   padding: 3px 8px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   transition:
     background 0.15s,
     color 0.15s;
 }
 
 .vh-storico-btn:hover {
-  background: var(--brand-accent, #ff6b00);
-  color: #fff;
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 /* ─── Targa storico ─── */
@@ -368,7 +378,7 @@
 
 .vh-storico-title {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 500;
   margin-bottom: 6px;
   color: var(--color-text-secondary, #888);
   text-transform: uppercase;
@@ -398,7 +408,7 @@
 
 .vhsr-stato {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .vh-storico-row.stato-annullato {

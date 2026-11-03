@@ -1,53 +1,54 @@
 /* ============================================================================
-   ELLEBI SERVICE — DESIGN TOKENS
-   Direzione: "La meccanica prende forma". Carta da disegno tecnico, grafite e
-   l'arancio del marchio. Il modulo grafico è il quarto d'ora dell'officina:
-   un blocco pieno ad angoli vivi (pulsanti, indicatori, striscia degli orari).
-   I nomi delle variabili storiche restano invariati: le pagine esistenti li usano.
+   ELLEBI SERVICE — TOKEN DI DESIGN
+   Direzione: sistema "Bugatti" del repository awesome-design-md (VoltAgent),
+   adattato a un'officina. Nero puro, titoli maiuscoli a lettere molto spaziate in
+   peso 400, corpo in serif, etichette in monospazio, fili sottili al posto di ombre
+   e riquadri, bottoni a pillola. Eccezione dichiarata: il rame del logo
+   (#d97030) è l'unico accento e compare solo sull'azione principale e su
+   pochi segni; Bugatti non ha accento, ma qui il logo del cliente lo è.
+   I nomi delle variabili storiche restano: le pagine esistenti li usano.
    ============================================================================ */
 
 :root {
-  /* ==================== PALETTE (scuro, predefinito) ==================== */
-  /* Banco prova di notte: carbonio, alluminio, arancio segnale */
-  --paper: #0b0c0e; /* fondo */
-  --paper-2: #16181b; /* superficie */
-  --paper-3: #2a2e34; /* bordi dei controlli, divisori */
-  --ink: #f1f2f3; /* testo */
-  --ink-2: #b0b5bc; /* testo secondario (9.4:1) */
-  --ink-3: #868c94; /* note minori (5.6:1) */
+  /* ==================== PALETTE ==================== */
+  --paper: #000000; /* tela */
+  --paper-2: #0f0f0f; /* superficie appena sopra il nero */
+  --paper-3: #262626; /* filo sottile (hairline) */
+  --hair-strong: #3a3a3a; /* filo marcato: sottolineatura dei campi */
+  --card: #141414;
+  --ink: #ffffff;
+  --ink-2: #cccccc; /* testo corrente */
+  --ink-3: #999999; /* didascalie, metadati (7.4:1 sul nero) */
   --graphite: #000000;
-  --on-graphite: #f3f1ec;
-  --accent: #ff4d00; /* arancio segnale: riempimenti */
-  --accent-press: #ff6a2b;
-  --on-accent: #0b0c0e;
-  --accent-ink: #ff7a3d; /* arancio per testo e link sul fondo (7.3:1) */
-  --ok: #5fd08c;
-  --warn: #ffb84d;
+  --on-graphite: #ffffff;
+  --accent: #d97030; /* rame del logo: azione principale */
+  --accent-press: #ec8a47;
+  --on-accent: #000000;
+  --accent-ink: #e8873f; /* rame come testo su nero (7.1:1) */
+  --link: #c3d9f3; /* unico altro colore del sistema Bugatti */
+  --ok: #5fa657;
+  --warn: #d4a017;
   --danger: #ff7b72;
-  --info: #7fb2ff;
-  --ok-bg: #12301f;
-  --warn-bg: #3a2a10;
-  --danger-bg: #3d1915;
-  --info-bg: #13263f;
+  --info: #c3d9f3;
+  --ok-bg: #0f1d0e;
+  --warn-bg: #1d1604;
+  --danger-bg: #231009;
+  --info-bg: #0d1620;
 
-  --slot-free: #f3f1ec;
-  --slot-busy: #2a2e34;
+  --slot-free: #ffffff;
+  --slot-busy: #262626;
   --slot-closed: transparent;
-
-  /* Smusso a 45° dei pezzi lavorati: pulsanti, superfici, indicatori */
-  --cut: 12px;
-  --cut-lg: 28px;
 
   /* ==================== COMPATIBILITÀ (nomi storici) ==================== */
   --brand-accent: var(--accent);
   --brand-accent-hover: var(--accent-press);
-  --brand-accent-dark: #f7853f;
-  --brand-shadow-color: rgba(0, 0, 0, 0.6);
-  --brand-shadow-color-dark: rgba(0, 0, 0, 0.55);
+  --brand-accent-dark: var(--accent-press);
+  --brand-shadow-color: rgba(0, 0, 0, 0.7);
+  --brand-shadow-color-dark: rgba(0, 0, 0, 0.7);
   --brand-text-primary: var(--ink);
   --brand-text-on-accent: var(--on-accent);
 
-  /* ==================== SPAZIO (griglia 8pt) ==================== */
+  /* ==================== SPAZIO (base 4px) ==================== */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -60,59 +61,63 @@
   --space-12: 3rem;
   --space-16: 4rem;
   --space-20: 5rem;
-  --gutter: clamp(16px, 4vw, 40px); /* margini esterni della pagina */
+  --section: clamp(4.5rem, 2.5rem + 6vw, 8rem); /* respiro tra le bande */
+  --gutter: clamp(20px, 4.5vw, 56px);
 
   /* ==================== TIPOGRAFIA ==================== */
-  --font-primary: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'Archivo', 'Arial Black', sans-serif;
+  /* La trinità di Bugatti con sostituti open source (come indicato dal DESIGN.md):
+     Display → Saira Condensed, Text → EB Garamond, Monospace → JetBrains Mono */
+  --font-display: 'Saira Condensed', 'Arial Narrow', sans-serif;
+  --font-primary: 'EB Garamond', Garamond, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', monospace;
 
-  /* Cinque passi visibili: piccolo, testo, introduzione, titolo, display */
   --step-small: 0.875rem;
-  --step-body: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
-  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
-  --step-head: clamp(1.875rem, 1.3rem + 2.6vw, 3.25rem);
-  --step-display: clamp(2.75rem, 1.4rem + 6.2vw, 6.25rem);
+  --step-body: clamp(1.125rem, 1.08rem + 0.22vw, 1.25rem);
+  --step-lead: clamp(1.375rem, 1.2rem + 0.8vw, 1.875rem);
+  --step-head: clamp(2.25rem, 1.4rem + 3.6vw, 4.5rem);
+  --step-display: clamp(3rem, 1.2rem + 7.6vw, 7.5rem);
 
   --font-size-xs: 0.8125rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 2rem;
-  --font-size-4xl: 2.5rem;
+  --font-size-sm: 0.9375rem;
+  --font-size-base: 1.125rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 1.875rem;
+  --font-size-3xl: 2.5rem;
+  --font-size-4xl: 3rem;
 
   --font-weight-light: 400;
   --font-weight-regular: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 600;
+  --font-weight-medium: 400;
+  --font-weight-semibold: 400; /* nessun grassetto: l'enfasi viene da corpo e tracking */
+  --font-weight-bold: 400;
 
-  --line-height-tight: 1;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.6;
+  --line-height-tight: 1.1;
+  --line-height-normal: 1.55;
+  --line-height-relaxed: 1.7;
 
-  --letter-spacing-tight: -0.02em;
+  --tracking-display: 0.07em;
+  --tracking-label: 0.16em;
+  --letter-spacing-tight: 0;
   --letter-spacing-normal: 0;
-  --letter-spacing-wide: 0.02em;
+  --letter-spacing-wide: 0.06em;
 
   /* ==================== FORMA ==================== */
-  /* Angoli vivi ovunque: il modulo è un rettangolo pieno */
   --radius-xs: 0;
   --radius-sm: 0;
   --radius-md: 0;
   --radius-lg: 0;
   --radius-xl: 0;
   --radius-2xl: 0;
-  --radius-full: 9999px;
+  --radius-full: 9999px; /* solo bottoni e pulsanti circolari */
 
-  /* Nessuna ombra su ciò che è fermo: solo menu e finestre che galleggiano */
+  /* Niente ombre su ciò che è fermo (profondità solo da fotografia e filo) */
   --shadow-xs: none;
   --shadow-sm: none;
   --shadow-md: none;
-  --shadow-lg: 0 12px 32px -8px var(--brand-shadow-color);
-  --shadow-xl: 0 18px 48px -12px var(--brand-shadow-color);
-  --shadow-2xl: 0 24px 64px -16px var(--brand-shadow-color);
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
 
   /* ==================== MOVIMENTO ==================== */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -134,7 +139,7 @@
   /* ==================== SEMANTICA ==================== */
   --system-background: var(--paper);
   --secondary-system-background: var(--paper-2);
-  --tertiary-system-background: var(--paper-2);
+  --tertiary-system-background: var(--card);
   --system-red: var(--danger);
   --system-green: var(--ok);
   --system-orange: var(--warn);
@@ -150,10 +155,10 @@
   --color-bg: var(--paper);
   --color-bg-primary: var(--paper);
   --color-bg-secondary: var(--paper-2);
-  --color-bg-tertiary: var(--paper-3);
+  --color-bg-tertiary: var(--card);
   --color-bg-elevated: var(--paper);
   --color-surface: var(--paper-2);
-  --color-surface-raised: var(--paper);
+  --color-surface-raised: var(--card);
 
   --color-text: var(--ink);
   --color-text-primary: var(--ink);
@@ -165,48 +170,51 @@
   --color-border-primary: var(--paper-3);
   --color-border-secondary: var(--paper-3);
   --color-border-strong: var(--ink);
-  --color-border-dark: var(--ink-2);
+  --color-border-dark: var(--hair-strong);
 
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-press);
   --color-success: var(--ok);
   --color-warning: var(--warn);
   --color-error: var(--danger);
-  --color-overlay: rgba(0, 0, 0, 0.72);
+  --color-overlay: rgba(0, 0, 0, 0.78);
   --color-shadow: var(--brand-shadow-color);
 
-  --color-special-bg: var(--paper-2);
+  --color-special-bg: var(--card);
   --color-special-border: var(--accent);
   --color-special-text: var(--ink);
 
   color-scheme: dark;
 }
 
-/* Tema chiaro: alluminio spazzolato. Stessi ruoli, toni invertiti. */
+/* Tema chiaro facoltativo (Bugatti non ne ha uno: resta per chi lavora in piena luce) */
 [data-theme='light'] {
-  --paper: #e8eaed;
-  --paper-2: #dbdee2;
-  --paper-3: #b9bec5;
-  --ink: #0b0c0e;
-  --ink-2: #3c4148;
-  --ink-3: #5a6068;
-  --graphite: #0b0c0e;
-  --on-graphite: #f3f1ec;
-  --accent: #ff4d00;
-  --accent-press: #e04300;
-  --on-accent: #0b0c0e;
-  --accent-ink: #a83400;
-  --ok: #1f6b3f;
-  --warn: #8a5600;
+  --paper: #f5f4f1;
+  --paper-2: #ebe9e4;
+  --paper-3: #c9c6bf;
+  --hair-strong: #8c8982;
+  --card: #e3e0da;
+  --ink: #0b0b0b;
+  --ink-2: #2b2b2b;
+  --ink-3: #54514b;
+  --graphite: #0b0b0b;
+  --on-graphite: #ffffff;
+  --accent: #d97030;
+  --accent-press: #bf5e22;
+  --on-accent: #000000;
+  --accent-ink: #9a4410;
+  --link: #1f4f8a;
+  --ok: #2f6a2a;
+  --warn: #7a5800;
   --danger: #b3261e;
-  --info: #2b5aa3;
-  --ok-bg: #cfe5d7;
-  --warn-bg: #f2e1c2;
+  --info: #1f4f8a;
+  --ok-bg: #d8e6d6;
+  --warn-bg: #efe2bd;
   --danger-bg: #f3d3cf;
-  --info-bg: #d3def0;
-  --slot-free: #0b0c0e;
-  --slot-busy: #b9bec5;
-  --brand-shadow-color: rgba(11, 12, 14, 0.25);
-  --color-overlay: rgba(11, 12, 14, 0.6);
+  --info-bg: #d6e1f0;
+  --slot-free: #0b0b0b;
+  --slot-busy: #c9c6bf;
+  --brand-shadow-color: rgba(0, 0, 0, 0.25);
+  --color-overlay: rgba(11, 11, 11, 0.62);
   color-scheme: light;
 }

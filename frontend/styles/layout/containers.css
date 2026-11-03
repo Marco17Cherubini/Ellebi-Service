@@ -31,7 +31,7 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--space-4);
-  min-height: 64px;
+  min-height: 72px;
   padding: var(--space-2) var(--gutter);
   padding-top: max(var(--space-2), env(safe-area-inset-top));
   background-color: var(--paper);
@@ -51,11 +51,11 @@
 .header-title {
   font-family: var(--font-display);
   font-size: var(--font-size-xl);
-  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-display);
   margin: 0;
 }
 
-/* Il logo raster resta nei documenti legali; le pagine usano il marchio composto */
 .header-logo {
   display: none;
 }
@@ -63,26 +63,44 @@
 .header-select {
   min-height: 44px;
   padding: 0 var(--space-3);
-  border: 2px solid var(--paper-3);
+  border: 1px solid var(--hair-strong);
   background: var(--paper);
-  border-radius: 0;
+  color: var(--ink);
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
 }
 
-/* ==================== MARCHIO COMPOSTO ==================== */
-/* "Ellebi" (L e B, lette in italiano) con il blocco arancio del quarto d'ora */
+/* ==================== TARGA DEL LOGO ==================== */
+/* Il file originale del logo (sfondo bianco) viene mostrato intatto su una targa:
+   non è mai ricolorato né deformato. */
 
+.brand {
+  display: inline-flex;
+  flex: none;
+  background: #ffffff;
+  line-height: 0;
+}
+
+.brand img {
+  height: 52px;
+  width: auto;
+  display: block;
+}
+
+.brand:focus-visible {
+  outline-offset: 4px;
+}
+
+/* Wordmark testuale (stile Bugatti: Display piccolo con il tracking più largo) */
 .wordmark {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   min-height: 44px;
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 850;
-  font-stretch: 125%;
+  font-size: 0.95rem;
+  letter-spacing: 0.42em;
   text-transform: uppercase;
-  letter-spacing: 0.01em;
-  line-height: 1;
   color: var(--ink);
   text-decoration: none;
 }
@@ -91,28 +109,9 @@
   color: var(--ink);
 }
 
-/* Il segno: un parallelogramma arancio inclinato come una bandiera di partenza */
-.wordmark-block {
-  width: 22px;
-  height: 18px;
-  background: var(--accent);
-  transform: skewX(-18deg);
-  flex: none;
-}
-
+.wordmark-block,
 .wordmark-sub {
-  font-family: var(--font-primary);
-  font-weight: 500;
-  font-stretch: 100%;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  color: var(--ink-2);
-  margin-left: 2px;
-}
-
-.sidebar .wordmark,
-.sidebar .wordmark-sub {
-  color: var(--on-graphite);
+  display: none;
 }
 
 /* ==================== TESTATA DI PAGINA ==================== */
@@ -128,6 +127,10 @@
 
 .page-head h1 {
   margin: 0;
+}
+
+.page-head p {
+  color: var(--ink-3);
 }
 
 .page-head p {
@@ -160,7 +163,32 @@
 }
 
 .auth-aside {
-  margin-top: var(--space-6);
+  margin-top: var(--space-8);
   padding: var(--space-4) var(--space-5);
   background: var(--paper-2);
+  box-shadow: inset 0 0 0 1px var(--paper-3);
+}
+
+/* Il cerchio e il battistrada del logo, ricalcati, come fondale molto discreto.
+   È un pseudo-elemento fisso con opacità propria, così non appesantisce i moduli. */
+.auth-page,
+.booking-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.auth-page::before,
+.booking-page::before {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background: url('/images/motivo-battistrada.svg') right -24vw bottom -16vw / min(80vw, 760px) auto
+    no-repeat;
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+.auth-page .auth {
+  position: relative;
 }

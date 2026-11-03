@@ -1,82 +1,52 @@
 /* ============================================================================
-   PULSANTI — un rettangolo pieno ad angoli vivi, come il modulo del quarto d'ora.
-   Primario: arancio con testo grafite. Secondario: contorno grafite.
+   PULSANTI — la pillola trasparente con filo bianco è il pulsante del sistema
+   Bugatti. Unica eccezione: l'azione principale della pagina è piena di rame
+   (il colore del logo), perché deve essere subito individuabile.
+   Etichetta in monospazio maiuscolo con tracking largo.
    ============================================================================ */
 
 .btn {
-  /* Il bordo è lo sfondo dell'elemento, il riempimento è ::before rientrato di 2px:
-     così anche le varianti a contorno mantengono lo smusso a 45° */
   --btn-edge: var(--ink);
-  --btn-fill: var(--ink);
-  --btn-ink: var(--paper);
-  --chamfer: polygon(
-    0 0,
-    calc(100% - var(--cut)) 0,
-    100% var(--cut),
-    100% 100%,
-    var(--cut) 100%,
-    0 calc(100% - var(--cut))
-  );
-  position: relative;
-  isolation: isolate;
+  --btn-fill: transparent;
+  --btn-ink: var(--ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   min-height: 48px;
-  padding: 0 var(--space-6);
-  border: 0;
-  background: var(--btn-edge);
+  padding: 0 var(--space-8);
+  border: 1px solid var(--btn-edge);
+  border-radius: var(--radius-full);
+  background: var(--btn-fill);
   color: var(--btn-ink);
-  clip-path: var(--chamfer);
-  font-family: var(--font-primary);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  font-stretch: 112%;
-  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  line-height: 1.1;
+  line-height: 1.2;
   text-decoration: none;
   text-align: center;
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   transition:
-    color 160ms var(--ease-out),
+    background-color 180ms var(--ease-out),
+    color 180ms var(--ease-out),
+    border-color 180ms var(--ease-out),
     transform 120ms var(--ease-out);
-}
-
-.btn::before {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  z-index: -1;
-  background: var(--btn-fill);
-  clip-path: polygon(
-    0 0,
-    calc(100% - var(--cut) + 1px) 0,
-    100% calc(var(--cut) - 1px),
-    100% 100%,
-    calc(var(--cut) - 1px) 100%,
-    0 calc(100% - var(--cut) + 1px)
-  );
-  transition: background-color 160ms var(--ease-out);
 }
 
 .btn:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-.btn:focus-visible {
-  outline: none;
-  --btn-edge: var(--accent);
-}
-
 @media (hover: hover) and (pointer: fine) {
   .btn:hover:not(:disabled) {
-    --btn-fill: var(--paper-3);
-    --btn-edge: var(--paper-3);
-    --btn-ink: var(--ink);
+    --btn-fill: var(--ink);
+    --btn-ink: var(--paper);
+    --btn-edge: var(--ink);
+    color: var(--paper);
   }
 }
 
@@ -86,7 +56,7 @@
   cursor: not-allowed;
 }
 
-/* Azione principale: il blocco arancio segnale */
+/* Azione principale: rame pieno con testo nero */
 .btn-primary,
 .btn-accent {
   --btn-edge: var(--accent);
@@ -100,61 +70,60 @@
     --btn-edge: var(--accent-press);
     --btn-fill: var(--accent-press);
     --btn-ink: var(--on-accent);
+    color: var(--on-accent);
   }
-}
-
-.btn-primary:focus-visible,
-.btn-accent:focus-visible {
-  --btn-edge: var(--ink);
 }
 
 .btn-outline {
-  --btn-edge: var(--ink-3);
-  --btn-fill: var(--paper);
+  --btn-edge: var(--ink);
+  --btn-fill: transparent;
   --btn-ink: var(--ink);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .btn-outline:hover:not(:disabled) {
-    --btn-edge: var(--ink);
-    --btn-fill: var(--paper);
-    --btn-ink: var(--ink);
-  }
 }
 
 .btn-danger {
   --btn-edge: var(--danger);
-  --btn-fill: var(--danger);
-  --btn-ink: var(--paper);
+  --btn-fill: transparent;
+  --btn-ink: var(--danger);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-danger:hover:not(:disabled) {
+    --btn-edge: var(--danger);
+    --btn-fill: var(--danger);
+    --btn-ink: var(--paper);
+    color: var(--paper);
+  }
 }
 
 .btn-quiet {
   --btn-edge: transparent;
   --btn-fill: transparent;
   --btn-ink: var(--ink);
+  padding: 0 var(--space-4);
   text-decoration: underline;
-  text-underline-offset: 0.25em;
-  padding: 0 var(--space-3);
+  text-underline-offset: 0.3em;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btn-quiet:hover:not(:disabled) {
-    --btn-edge: var(--paper-2);
-    --btn-fill: var(--paper-2);
+    --btn-edge: var(--paper-3);
+    --btn-fill: transparent;
+    --btn-ink: var(--ink);
+    color: var(--ink);
   }
 }
 
 .btn-sm {
   min-height: 44px;
-  padding: 0 var(--space-4);
-  font-size: var(--font-size-sm);
+  padding: 0 var(--space-5);
+  font-size: 0.8125rem;
 }
 
 .btn-lg,
 .btn-large {
   min-height: 56px;
-  padding: 0 var(--space-8);
-  font-size: var(--font-size-lg);
+  padding: 0 var(--space-10);
+  font-size: var(--font-size-sm);
 }
 
 .btn-full {
@@ -173,29 +142,23 @@
   gap: var(--space-3);
 }
 
-/* Stato "in corso": il testo resta, un blocco scorre sotto */
+/* Operazione in corso: un anello aperto che gira, il "C" del logo */
 .btn.is-busy {
-  position: relative;
   pointer-events: none;
 }
 
 .btn.is-busy::after {
   content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 4px;
-  width: 25%;
-  background: currentColor;
-  animation: busy-block 900ms var(--ease-in-out) infinite alternate;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ring-spin 800ms linear infinite;
 }
 
-@keyframes busy-block {
-  from {
-    transform: translateX(0);
-  }
-
+@keyframes ring-spin {
   to {
-    transform: translateX(300%);
+    transform: rotate(360deg);
   }
 }

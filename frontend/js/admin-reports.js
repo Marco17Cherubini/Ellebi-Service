@@ -25,23 +25,15 @@ async function loadStats(period = 'weekly') {
   }
 }
 
+// I colori del grafico seguono i token del tema (rame del logo su fili sottili)
 function getChartColors() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-
-  if (isDark) {
-    return {
-      grid: '#60a5fa', // Light Blue Grid
-      text: '#ffffff', // White Text
-      barBg: '#60a5fa', // Light Blue Bars (matching requested style)
-      barBorder: '#3b82f6'
-    };
-  }
-
+  const css = getComputedStyle(document.documentElement);
+  const token = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
   return {
-    grid: '#e5e7eb',
-    text: '#666666',
-    barBg: '#fef3c7',
-    barBorder: '#f59e0b'
+    grid: token('--paper-3', '#262626'),
+    text: token('--ink-3', '#999999'),
+    barBg: token('--accent', '#d97030'),
+    barBorder: token('--accent', '#d97030')
   };
 }
 

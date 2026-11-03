@@ -120,7 +120,27 @@
     });
 
     if (state.editing) await startEditing();
-    else show(1);
+    else if (!(await startFromLink())) show(1);
+  }
+
+  // Collegamento dalla home (?servizio=ID): salta veicolo e servizio e parte dal giorno
+  async function startFromLink() {
+    const id = new URLSearchParams(window.location.search).get('servizio');
+    if (!id) return false;
+    try {
+      await loadServices();
+    } catch (e) {
+      return false;
+    }
+    const svc = state.services.find(s => String(s.id) === String(id));
+    if (!svc) return false;
+    state.vehicleType = svc.tipo_veicolo;
+    state.service = svc;
+    document
+      .querySelectorAll('[data-vehicle]')
+      .forEach(b => b.setAttribute('aria-pressed', String(b.dataset.vehicle === svc.tipo_veicolo)));
+    show(3);
+    return true;
   }
 
   // Modifica di una prenotazione esistente (dalla pagina "Le tue prenotazioni")

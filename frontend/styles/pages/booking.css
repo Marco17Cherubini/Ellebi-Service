@@ -1,10 +1,11 @@
 /* ============================================================================
-   PRENOTAZIONE — una colonna su telefono, barra delle azioni in basso a portata
-   di pollice. I blocchi del quarto d'ora segnano l'avanzamento.
+   PRENOTAZIONE — una colonna, barra delle azioni in basso a portata di pollice.
+   Sistema Bugatti: fili sottili, etichette in monospazio, scelta evidenziata da
+   filo bianco pieno. L'avanzamento è una fila di segmenti sottili.
    ============================================================================ */
 
 .booking-page {
-  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  padding-bottom: calc(104px + env(safe-area-inset-bottom));
 }
 
 .flow {
@@ -15,12 +16,12 @@
 
 .flow-head h1 {
   font-size: var(--step-head);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 .flow-who {
-  color: var(--ink-2);
-  margin-bottom: var(--space-5);
+  color: var(--ink-3);
+  margin-bottom: var(--space-6);
 }
 
 .flow-who:empty {
@@ -30,39 +31,42 @@
 .progress {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  margin-bottom: var(--space-2);
+  gap: 6px;
+  margin-bottom: var(--space-3);
 }
 
 .progress span {
-  height: 10px;
+  height: 2px;
   background: var(--paper-3);
-  transition: background-color 200ms var(--ease-out);
+  transition: background-color 220ms var(--ease-out);
 }
 
 .progress span.is-on {
-  background: var(--accent);
+  background: var(--ink);
 }
 
 .progress-text {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  margin-bottom: var(--space-8);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: var(--space-10);
 }
 
 .step h2 {
-  font-size: var(--font-size-3xl);
-  margin-bottom: var(--space-6);
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
+  margin-bottom: var(--space-8);
   outline: none;
 }
 
 .step-sub {
-  margin-top: calc(var(--space-4) * -1);
-  color: var(--ink-2);
+  margin-top: calc(var(--space-6) * -1);
+  color: var(--ink-3);
 }
 
 .loading-line {
-  color: var(--ink-2);
+  color: var(--ink-3);
 }
 
 /* ==================== VEICOLO ==================== */
@@ -70,20 +74,21 @@
 .choice-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .choice {
-  min-height: 120px;
-  padding: var(--space-5);
+  min-height: 140px;
+  padding: var(--space-6);
   display: flex;
   align-items: flex-end;
-  background: var(--paper-2);
-  border: 3px solid transparent;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--paper-3);
+  border: 0;
   color: var(--ink);
   text-align: left;
   transition:
-    border-color var(--transition-fast),
+    box-shadow 180ms var(--ease-out),
     transform 120ms var(--ease-out);
 }
 
@@ -92,42 +97,42 @@
 }
 
 .choice[aria-pressed='true'] {
-  border-color: var(--ink);
-  background: var(--accent);
-  color: var(--on-accent);
+  box-shadow: inset 0 0 0 2px var(--ink);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .choice:hover {
-    border-color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
   }
 }
 
 .choice-name {
   font-family: var(--font-display);
   font-size: var(--font-size-3xl);
-  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-display);
 }
 
 /* ==================== SERVIZI ==================== */
 
 .service-list {
   display: grid;
-  gap: var(--space-8);
+  gap: var(--space-10);
 }
 
 .service-group {
   border: 0;
   display: grid;
-  gap: 4px;
 }
 
 .service-group legend,
 .slot-group legend,
 .fieldset legend {
-  font-family: var(--font-display);
-  font-size: var(--font-size-xl);
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink-3);
   margin-bottom: var(--space-3);
 }
 
@@ -136,43 +141,51 @@
   grid-template-columns: 24px 1fr auto;
   align-items: center;
   gap: var(--space-4);
-  min-height: 60px;
-  padding: var(--space-3) var(--space-4);
-  background: var(--paper-2);
+  min-height: 64px;
+  padding: var(--space-3) var(--space-2);
+  border-top: 1px solid var(--paper-3);
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 
+.service-option:last-child {
+  border-bottom: 1px solid var(--paper-3);
+}
+
 .service-option input {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 }
 
 .service-option:has(input:checked) {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--paper-2);
+  border-top-color: var(--ink);
+  border-bottom-color: var(--ink);
 }
 
 .service-option:has(input:focus-visible) {
-  outline: 3px solid var(--accent);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 .service-name {
-  font-weight: 600;
-  font-size: var(--font-size-lg);
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 
 .service-meta {
-  font-size: var(--font-size-sm);
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
   text-align: right;
 }
 
 .consegna-info {
-  margin-top: var(--space-5);
-  border-left: 0;
-  background: var(--warn-bg);
+  margin-top: var(--space-6);
 }
 
 /* ==================== GIORNO E ORA ==================== */
@@ -180,12 +193,12 @@
 .day-picker {
   display: grid;
   gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-8);
 }
 
 .day-strip {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   overflow-x: auto;
   scroll-snap-type: x proximity;
   overscroll-behavior-x: contain;
@@ -195,44 +208,55 @@
 }
 
 .day-chip {
-  flex: 0 0 64px;
+  flex: 0 0 68px;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: var(--space-2) 0;
-  min-height: 76px;
-  background: var(--paper-2);
+  padding: var(--space-3) 0;
+  min-height: 84px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--paper-3);
   border: 0;
   color: var(--ink);
 }
 
 .day-chip-name,
 .day-chip-month {
-  font-size: var(--font-size-sm);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
 .day-chip-num {
   font-family: var(--font-display);
   font-size: var(--font-size-2xl);
-  font-weight: 700;
-  line-height: 1;
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 
 .day-chip[aria-pressed='true'] {
-  background: var(--ink);
-  color: var(--paper);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.day-chip[aria-pressed='true'] .day-chip-name,
+.day-chip[aria-pressed='true'] .day-chip-month {
+  color: var(--ink);
 }
 
 .other-date {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  gap: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
 .other-date .form-input {
@@ -242,7 +266,7 @@
 
 .slot-area {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--space-8);
   min-height: 160px;
 }
 
@@ -252,55 +276,56 @@
 
 .slot-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 6px;
 }
 
 .slot-btn {
-  min-height: 56px;
+  min-height: 60px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  padding: var(--space-2) var(--space-3);
-  background: var(--paper-2);
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--paper-3);
   border: 0;
   color: var(--ink);
   text-align: left;
-  transition: background-color var(--transition-fast);
+  transition: box-shadow 160ms var(--ease-out);
 }
 
 .slot-start {
+  font-family: var(--font-mono);
   font-size: var(--font-size-lg);
-  font-weight: 600;
 }
 
 .slot-end {
-  font-size: var(--font-size-sm);
-  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-3);
 }
 
 .slot-btn[aria-pressed='true'] {
-  background: var(--accent);
-  color: var(--on-accent);
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
-.slot-btn[aria-pressed='true'] .slot-end {
-  color: var(--on-accent);
+.slot-btn[aria-pressed='true'] .slot-start {
+  color: var(--accent-ink);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .slot-btn:hover,
   .day-chip:hover {
-    background: var(--paper-3);
+    box-shadow: inset 0 0 0 1px var(--ink);
   }
 
   .slot-btn[aria-pressed='true']:hover {
-    background: var(--accent-press);
+    box-shadow: inset 0 0 0 2px var(--accent);
   }
 
   .day-chip[aria-pressed='true']:hover {
-    background: var(--ink-2);
+    box-shadow: inset 0 0 0 2px var(--ink);
   }
 }
 
@@ -309,16 +334,15 @@
 .fieldset {
   border: 0;
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .fieldset + .fieldset {
-  margin-top: var(--space-8);
+  margin-top: var(--space-10);
 }
 
 .optional {
-  font-weight: 400;
-  color: var(--ink-2);
+  color: var(--ink-3);
 }
 
 .saved-vehicles {
@@ -335,11 +359,15 @@
 
 .vehicle-chip {
   min-height: 44px;
-  padding: 0 var(--space-4);
-  background: var(--paper-2);
-  border: 2px solid var(--paper-3);
+  padding: 0 var(--space-5);
+  background: transparent;
+  border: 1px solid var(--hair-strong);
+  border-radius: var(--radius-full);
   color: var(--ink);
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .vehicle-chip:hover {
@@ -351,22 +379,22 @@
 .summary {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-6);
 }
 
 .summary dt {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--ink-2);
-  padding-top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-top: var(--space-5);
 }
 
 .summary dd {
   font-size: var(--font-size-lg);
-  font-weight: 500;
-  padding-bottom: var(--space-4);
-  border-bottom: 2px solid var(--paper-3);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--paper-3);
   overflow-wrap: anywhere;
 }
 
@@ -377,8 +405,8 @@
 
   .summary dt,
   .summary dd {
-    padding: var(--space-4) 0;
-    border-bottom: 2px solid var(--paper-3);
+    padding: var(--space-5) 0;
+    border-bottom: 1px solid var(--paper-3);
   }
 }
 
@@ -391,36 +419,37 @@
   margin: 0;
 }
 
+/* Conferma: i tre segmenti del battistrada si accendono uno dopo l'altro */
 .done-mark {
   display: flex;
-  gap: 4px;
-  margin-bottom: var(--space-6);
+  gap: 6px;
+  margin-bottom: var(--space-8);
 }
 
 .done-mark span {
-  width: 18px;
-  height: 40px;
+  width: 36px;
+  height: 2px;
   background: var(--accent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .done-mark span {
-    animation: q-rise 420ms var(--ease-out) backwards;
+    animation: seg-in 420ms var(--ease-out) backwards;
   }
 
   .done-mark span:nth-child(2) {
-    animation-delay: 70ms;
+    animation-delay: 90ms;
   }
 
   .done-mark span:nth-child(3) {
-    animation-delay: 140ms;
+    animation-delay: 180ms;
   }
 }
 
-@keyframes q-rise {
+@keyframes seg-in {
   from {
-    transform: translateY(12px);
-    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left;
   }
 }
 
@@ -458,53 +487,10 @@
     position: sticky;
     max-width: 760px;
     margin: 0 auto;
-    box-shadow: none;
+    box-shadow: 0 -1px 0 var(--paper-3);
   }
 
   .booking-page {
     padding-bottom: 0;
   }
-}
-
-/* ==================== IDENTITÀ "BANCO PROVA" ==================== */
-
-.progress span {
-  transform: skewX(-16deg);
-  height: 12px;
-}
-
-.choice-name,
-.day-chip-num,
-.slot-start {
-  font-family: var(--font-display);
-  font-stretch: 125%;
-  font-weight: 800;
-}
-
-.choice-name {
-  text-transform: uppercase;
-}
-
-.flow-head h1 {
-  font-size: clamp(1.75rem, 1rem + 3.4vw, 3.25rem);
-}
-
-.step h2 {
-  font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.25rem);
-}
-
-.progress-text {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: var(--font-size-xs);
-  color: var(--accent-ink);
-}
-
-.service-option:has(input:checked) {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.service-option:has(input:checked) .service-meta {
-  color: var(--on-accent);
 }
