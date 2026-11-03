@@ -54,8 +54,24 @@ function depositLimitMessage(suffix) {
 
 // ─── Query ────────────────────────────────────────────────────────────────────
 
+// Lavoro effettivamente in agenda per un deposito: i blocchi extra_work collegati.
+// Lo stato ("in corso") descrive il lavoro, non blocca alcun orario: solo i blocchi lo fanno.
+function planningOf(depositId) {
+  const blocks = bookingsDB
+    .findMany(b => b.service_id === EXTRA_WORK && String(b.deposit_id) === String(depositId))
+    .sort((a, b) => (a.giorno + a.ora).localeCompare(b.giorno + b.ora));
+  const future = blocks.filter(b => !hasStarted(b.giorno, b.ora));
+  return {
+    pianificato_minuti: blocks.length * 15,
+    pianificato_futuro_minuti: future.length * 15,
+    prossimo_blocco: future.length ? { giorno: future[0].giorno, ora: future[0].ora } : null
+  };
+}
+
 function getActiveDeposits() {
-  return depositsDB.findMany(d => d.stato !== 'completato');
+  return depositsDB
+    .findMany(d => d.stato !== 'completato')
+    .map(d => ({ ...d, ...planningOf(d.id) }));
 }
 
 function getAllDeposits() {
@@ -79,7 +95,10 @@ function getAllDepositsWithBookings() {
     const booking = d.booking_id
       ? bookingsDB.findOne(b => String(b.id) === String(d.booking_id))
       : null;
-    if (!booking) return { ...d, booking_giorno: '', booking_ora: '', booking_durata: '' };
+    const planning = planningOf(d.id);
+    if (!booking) {
+      return { ...d, ...planning, booking_giorno: '', booking_ora: '', booking_durata: '' };
+    }
 
     let servizio = d.servizio || booking.servizio || '';
     if (!servizio && booking.service_id) {
@@ -88,6 +107,7 @@ function getAllDepositsWithBookings() {
     }
     return {
       ...d,
+      ...planning,
       booking_giorno: booking.giorno || '',
       booking_ora: booking.ora || '',
       booking_durata: booking.durata_minuti || '',

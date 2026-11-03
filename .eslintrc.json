@@ -79,6 +79,28 @@
         "browser": true,
         "es2022": true
       }
+    },
+    {
+      "files": ["test/e2e/**/*.js"],
+      "env": {
+        "node": true,
+        "browser": true,
+        "es2022": true
+      },
+      "globals": {
+        "selectedExtraWorkSlots": "readonly"
+      }
+    },
+    {
+      "files": ["client-src/render-stills.js"],
+      "parserOptions": {
+        "sourceType": "script"
+      },
+      "env": {
+        "node": true,
+        "browser": true,
+        "es2022": true
+      }
     }
   ],
   "ignorePatterns": ["frontend/js/garage3d.js"]

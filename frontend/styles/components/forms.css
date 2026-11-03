@@ -28,11 +28,11 @@
 }
 
 .form-label {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+  font-family: var(--font-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--ink);
 }
 
 .form-hint {
@@ -115,7 +115,6 @@ input[type='date'].form-input {
 
 .text-uppercase,
 .form-input.text-uppercase {
-  text-transform: uppercase;
 }
 
 .field-error {

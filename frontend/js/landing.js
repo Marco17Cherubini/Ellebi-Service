@@ -38,11 +38,11 @@
     },
     carrozzeria: {
       title: 'Consegna del veicolo',
-      text: "Per i lavori lunghi lasci il veicolo: prenoti 30 minuti di accoglienza per raccontare il problema, poi l'officina pianifica il lavoro e ti scrive quando è pronto. La data di riconsegna non è fissata in anticipo."
+      text: "Per i lavori lunghi lasci il veicolo. Prenoti 30 minuti di accoglienza per consegnarlo e raccontare il problema: non è la durata del lavoro. L'officina pianifica la riparazione e ti scrive quando è pronto; i tempi si concordano in officina."
     },
     telaio: {
       title: 'Orari',
-      text: "Quando l'officina è aperta e come è occupata la giornata. Ogni segmento vale 15 minuti."
+      text: "Quando l'officina è aperta e quanta parte della giornata è ancora libera."
     },
     cabina: {
       title: 'Contatti',
@@ -51,7 +51,7 @@
   };
 
   const $ = id => document.getElementById(id);
-  const state = { exploded: true, active: null, services: null, daySummary: null };
+  const state = { exploded: false, active: null, services: null, daySummary: null };
   let scene3d = null;
 
   function toDateString(d) {
@@ -70,6 +70,12 @@
     return res.json();
   }
 
+  // Durata pubblica di un servizio: quella del listino; se il listino non la definisce,
+  // si dice che sarà concordata (nessun valore inventato)
+  function durationLabel(s) {
+    return s.durata_definita === false ? 'durata da concordare' : formatDuration(s.durata_minuti);
+  }
+
   function formatDuration(min) {
     const h = Math.floor(min / 60);
     const m = min % 60;
@@ -84,7 +90,7 @@
       const me = await getJSON('/api/auth/session');
       const link = $('account-link');
       if (me.user && link) {
-        link.textContent = me.user.isAdmin ? 'Agenda' : 'La tua area';
+        link.textContent = me.user.isAdmin ? 'Agenda officina' : 'Le tue prenotazioni';
         link.href = me.user.isAdmin ? '/admin' : '/home';
       }
     } catch (e) {
@@ -108,7 +114,7 @@
     meta.className = 'row-meta';
     const bits = [];
     if (showVehicle) bits.push(s.tipo_veicolo === 'moto' ? 'Moto' : 'Auto');
-    bits.push(consegna ? '30 min · consegna' : formatDuration(s.durata_minuti));
+    bits.push(consegna ? 'Consegna · accoglienza 30 min' : durationLabel(s));
     meta.textContent = bits.join(' · ') + ' →';
     a.append(title, meta);
     return a;
@@ -122,7 +128,22 @@
     } catch (e) {
       state.services = [];
     }
+    showDurationRange(state.services);
     return state.services;
+  }
+
+  // "Appuntamento": l'intervallo reale delle durate del listino (es. "45 min – 2 h")
+  function showDurationRange(services) {
+    const el = $('way-durations');
+    const mins = services
+      .filter(s => s.tipo_servizio !== 'consegna' && s.durata_definita !== false)
+      .map(s => Number(s.durata_minuti))
+      .filter(n => n > 0);
+    if (!el || !mins.length) return;
+    const lo = Math.min(...mins);
+    const hi = Math.max(...mins);
+    el.textContent =
+      lo === hi ? formatDuration(lo) : formatDuration(lo) + ' – ' + formatDuration(hi);
   }
 
   async function renderServicesSection() {
@@ -250,12 +271,10 @@
       p.textContent =
         label +
         ': ' +
-        info.free.size +
-        " quarti d'ora liberi su " +
-        info.all.length +
-        '. Il primo libero è alle ' +
+        formatDuration(info.free.size * 15) +
+        ' ancora liberi in agenda. Il primo orario libero è alle ' +
         first +
-        ' (in rame).';
+        ' (in rame). La durata di ogni intervento dipende dal servizio scelto.';
       body.appendChild(p);
       body.appendChild(
         shiftBars(
@@ -397,8 +416,9 @@
 
     toggle.addEventListener('click', () => {
       state.exploded = !state.exploded;
-      toggle.textContent = state.exploded ? 'Vista esplosa' : 'Assemblata';
+      toggle.textContent = state.exploded ? 'Riassembla' : "Mostra l'esploso";
       toggle.setAttribute('aria-pressed', String(state.exploded));
+      stage.classList.toggle('is-exploded', state.exploded);
       poster.src = state.exploded ? '/images/auto-esplosa.webp' : '/images/auto-assemblata.webp';
       poster.alt = state.exploded
         ? 'Auto stilizzata in vista esplosa: abitacolo, carrozzeria, motore, telaio e ruote separati'

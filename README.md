@@ -152,6 +152,23 @@ Also included: guest booking without an account, email confirmations and passwor
 
 Frame rate could not be measured meaningfully (software GPU, headless browser) and **no physical phone was tested**; see the limitations below.
 
+## November 2026 (second round): fixes and "L'insegna"
+
+**Verified defects and fixes** (tests in `test/` and browser e2e in `test/e2e/`, `npm run test:e2e`):
+
+- **Extra work planning on phones**: the page opened in the day view, which had no planning tools, so no blocks were ever saved. The day view now lists free quarter-hours as buttons (touch, mouse, keyboard); the weekly grid stays for wide screens. A failed hours save no longer opens the planning, and deposit cards show the work actually in the agenda, separate from the "in corso" state.
+- **Admin pages**: all admin APIs already answered 401/403 to visitors and customers (verified for every route); now the admin pages themselves, including the `.html` files, are only sent to an admin session, and the client area to a customer session.
+- **3D controls**: below 760 px the 3D canvas covered the car's part labels (the home menu). Labels now sit above the canvas.
+- **Durations**: the public site no longer presents the internal 15-minute grid as a duration; appointments show the price-list duration range, drop-offs show a 30-minute reception that is not the repair time, and undefined durations read "da concordare".
+
+**New identity, direction B "L'insegna"** ([DESIGN.md](DESIGN.md)): the original logo, traced to vector, is a round lit sign behind the car; a dark stage presents, a light sheet is used for booking, sign-in and the client area; Ellebi orange is for actions, blue for structure and light; Saira Condensed titles and Barlow text, self-hosted. The car is a procedural mid-engine GT with Ferrari-like proportions, generic and unbranded (not a real model); the stills are rendered from it (`npm run render:stills`).
+
+| Home on a phone                                                                                                          | Booking                                                              | Planning on a phone                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| ![Home on a phone: the logo as a lit sign behind the car, title and booking buttons](docs/images/fase3/home-mobile.webp) | ![Booking on the light sheet](docs/images/fase3/prenota-mobile.webp) | ![Admin day view with free quarter-hours as buttons and the save bar](docs/images/fase3/pianificazione-mobile.webp) |
+
+Lab measurements (Chromium headless, software GPU, 4× CPU, ~1.6 Mbps): home 271 KB → 206 KB, LCP 1.80 s → 1.63 s, CLS 0; booking 211 KB → 158 KB; optional 3D 141 KB gzip, 19,498 triangles, 30 draw calls. Not verified on a physical phone.
+
 ## Under the hood
 
 ### Tech stack
@@ -222,15 +239,17 @@ Demo logins: the admin from your `.env`, or any demo customer such as `giulia.bi
 
 ### Useful scripts
 
-| Command                                 | What it does                                                  |
-| --------------------------------------- | ------------------------------------------------------------- |
-| `npm run dev`                           | Start with auto-reload (nodemon)                              |
-| `npm test`                              | Run the test suite                                            |
-| `npm run lint` / `npm run format:check` | ESLint and Prettier checks                                    |
-| `npm run seed`                          | Fill an **empty** database with demo data                     |
-| `npm run backup`                        | Copy the database to `BACKUP_DIR` (keeps the last 4)          |
-| `npm run start:prod`                    | Start in production with PM2                                  |
-| `npm run build:3d`                      | Rebuild `frontend/js/garage3d.js` after editing `client-src/` |
+| Command                                 | What it does                                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------------ |
+| `npm run dev`                           | Start with auto-reload (nodemon)                                               |
+| `npm test`                              | Run the test suite                                                             |
+| `npm run lint` / `npm run format:check` | ESLint and Prettier checks                                                     |
+| `npm run seed`                          | Fill an **empty** database with demo data                                      |
+| `npm run backup`                        | Copy the database to `BACKUP_DIR` (keeps the last 4)                           |
+| `npm run start:prod`                    | Start in production with PM2                                                   |
+| `npm run build:3d`                      | Rebuild `frontend/js/garage3d.js` after editing `client-src/`                  |
+| `npm run render:stills`                 | Render the car stills and label positions from the 3D model (needs Playwright) |
+| `npm run test:e2e`                      | Browser end-to-end tests (needs Playwright with Chromium; not run in CI)       |
 
 ### Configuration
 
