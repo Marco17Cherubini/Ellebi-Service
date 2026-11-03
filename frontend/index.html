@@ -6,7 +6,7 @@
     <title>Ellebi Service · Officina auto e moto a San Giuliano Vecchio</title>
     <meta
       name="description"
-      content="Officina auto e moto a San Giuliano Vecchio (AL). Prenota online un intervento o la consegna del veicolo, scegliendo tra gli orari liberi."
+      content="Officina auto e moto a San Giuliano Vecchio (AL). Accedi, registrati o prenota come ospite."
     />
     <meta name="theme-color" content="#101317" />
     <link
@@ -16,288 +16,45 @@
       type="font/woff2"
       crossorigin
     />
-    <link rel="preload" href="/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/images/auto-assemblata.webp" as="image" fetchpriority="high" />
     <link rel="stylesheet" href="/styles.css" />
-    <link rel="stylesheet" href="/styles/pages/landing.css" />
+    <link rel="stylesheet" href="/styles/pages/entry.css" />
   </head>
 
-  <body class="landing">
-    <a class="skip-link" href="#contenuto">Vai al contenuto</a>
+  <!-- Ingresso: come in origine si entra solo da accesso, registrazione o prenotazione
+       come ospite. Nessun collegamento dipende dalla sessione o porta all'area riservata. -->
+  <body class="entry">
+    <main class="entry-main" id="contenuto">
+      <div class="entry-stage" aria-hidden="true">
+        <div class="sign">
+          <img src="/images/logo-ellebi.svg" alt="" width="1179" height="883" />
+        </div>
+        <img
+          class="entry-car"
+          src="/images/auto-assemblata.webp"
+          width="1120"
+          height="688"
+          alt=""
+          fetchpriority="high"
+        />
+      </div>
 
-    <header class="site-bar">
-      <a class="brand" href="/" aria-label="Ellebi Service, pagina iniziale"
-        ><img
-          src="/images/logo-ellebi.svg"
-          width="69"
-          height="52"
-          alt="Ellebi Service S.R.L. di Lorenzo Barbetta"
-      /></a>
-      <p class="site-bar-word" aria-hidden="true">Ellebi Service</p>
-      <nav class="site-bar-actions" aria-label="Principale">
-        <a class="site-link" href="#servizi">Servizi</a>
-        <a class="site-link" href="#contatti">Contatti</a>
-        <a class="site-link site-link-account" href="/login" id="account-link">Accedi</a>
-        <a class="btn btn-primary btn-sm site-bar-cta" href="/prenota">Prenota</a>
+      <div class="entry-text">
+        <p class="entry-eyebrow">Benvenuto da</p>
+        <h1 class="entry-title">Ellebi Service</h1>
+        <p class="entry-sub">Officina auto e moto · San Giuliano Vecchio (AL)</p>
+      </div>
+
+      <nav class="entry-ways" aria-label="Come vuoi entrare">
+        <a class="btn btn-primary btn-lg btn-full" href="/login">Accedi</a>
+        <a class="btn btn-lg btn-full" href="/register">Registrati</a>
+        <a class="btn btn-quiet btn-full" href="/guest-booking">Prenota come ospite</a>
       </nav>
-    </header>
 
-    <main id="contenuto">
-      <!-- 1. Il palco: il cerchio del logo, l'auto in vista esplosa come menu -->
-      <section class="stage" aria-labelledby="hero-title">
-        <div class="stage-head">
-          <h1 id="hero-title" class="stage-title">Officina auto e moto</h1>
-          <p class="stage-caption">San Giuliano Vecchio · Alessandria</p>
-        </div>
-
-        <div class="stage-car" id="stage-car">
-          <div class="sign" aria-hidden="true">
-            <img src="/images/logo-ellebi.svg" alt="" width="1179" height="883" />
-          </div>
-          <img
-            class="stage-poster"
-            id="stage-poster"
-            src="/images/auto-assemblata.webp"
-            width="1120"
-            height="688"
-            alt="Auto sportiva stilizzata davanti all'insegna dell'officina"
-            fetchpriority="high"
-          />
-          <ul
-            class="hotspots"
-            aria-label="Pezzi dell'auto: scegline uno per vedere servizi e informazioni"
-          >
-            <li class="hotspot-item">
-              <button
-                type="button"
-                class="hotspot"
-                data-part="carrozzeria"
-                aria-expanded="false"
-                aria-controls="part-panel"
-                style="--x: 31.6; --y: 67.04"
-                data-x-esplosa="31.27"
-                data-y-esplosa="45.37"
-                data-x-assemblata="31.6"
-                data-y-assemblata="67.04"
-              >
-                <span class="hotspot-dot" aria-hidden="true"></span>Consegna
-              </button>
-            </li>
-            <li class="hotspot-item">
-              <button
-                type="button"
-                class="hotspot"
-                data-part="cabina"
-                aria-expanded="false"
-                aria-controls="part-panel"
-                style="--x: 47.78; --y: 50.13"
-                data-x-esplosa="47.72"
-                data-y-esplosa="13.18"
-                data-x-assemblata="47.78"
-                data-y-assemblata="50.13"
-              >
-                <span class="hotspot-dot" aria-hidden="true"></span>Contatti
-              </button>
-            </li>
-            <li class="hotspot-item">
-              <button
-                type="button"
-                class="hotspot"
-                data-part="motore"
-                aria-expanded="false"
-                aria-controls="part-panel"
-                style="--x: 37.15; --y: 63.74"
-                data-x-esplosa="20.92"
-                data-y-esplosa="53.52"
-                data-x-assemblata="37.15"
-                data-y-assemblata="63.74"
-              >
-                <span class="hotspot-dot" aria-hidden="true"></span>Meccanica
-              </button>
-            </li>
-            <li class="hotspot-item">
-              <button
-                type="button"
-                class="hotspot"
-                data-part="telaio"
-                aria-expanded="false"
-                aria-controls="part-panel"
-                style="--x: 37.59; --y: 73.33"
-                data-x-esplosa="37.59"
-                data-y-esplosa="73.33"
-                data-x-assemblata="37.59"
-                data-y-assemblata="73.33"
-              >
-                <span class="hotspot-dot" aria-hidden="true"></span>Orari
-              </button>
-            </li>
-            <li class="hotspot-item">
-              <button
-                type="button"
-                class="hotspot"
-                data-part="ruote"
-                aria-expanded="false"
-                aria-controls="part-panel"
-                style="--x: 56.44; --y: 77.22"
-                data-x-esplosa="50.87"
-                data-y-esplosa="81.46"
-                data-x-assemblata="56.44"
-                data-y-assemblata="77.22"
-              >
-                <span class="hotspot-dot" aria-hidden="true"></span>Gomme e freni
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        <div class="stage-tools" role="group" aria-label="Vista dell'auto">
-          <button type="button" class="btn btn-sm" id="explode-toggle" aria-pressed="false">
-            Mostra l'esploso
-          </button>
-          <button type="button" class="btn btn-sm" id="open-3d" hidden>Ruota in 3D</button>
-          <span class="stage-status" id="mechanics-status" role="status" aria-live="polite"></span>
-        </div>
-
-        <section
-          class="part-panel"
-          id="part-panel"
-          role="region"
-          aria-labelledby="part-title"
-          hidden
-        >
-          <button type="button" class="part-close" id="part-close" aria-label="Chiudi il pannello">
-            ×
-          </button>
-          <h2 id="part-title" class="part-title" tabindex="-1"></h2>
-          <p class="part-text" id="part-text"></p>
-          <div id="part-body" class="part-body"></div>
-        </section>
-
-        <div class="stage-foot">
-          <p class="stage-lead">
-            Tocca un pezzo dell'auto per vedere i servizi che lo riguardano, oppure prenota subito:
-            la conferma arriva via email.
-          </p>
-          <div class="stage-actions">
-            <a class="btn btn-primary btn-lg" href="/prenota">Prenota un intervento</a>
-            <a class="btn btn-lg" href="tel:+393663043908">Chiama 366 304 3908</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- 2. Appuntamento o consegna -->
-      <section class="ways" aria-labelledby="ways-title">
-        <h2 id="ways-title">Appuntamento o consegna</h2>
-        <div class="ways-grid">
-          <article class="way">
-            <p class="way-figure" id="way-durations" aria-hidden="true">A orario</p>
-            <h3>Appuntamento</h3>
-            <p>
-              Tagliandi, freni, gomme e lavori brevi. Prenoti un orario: la durata dipende dal
-              servizio, è indicata nell'elenco e di nuovo prima di confermare.
-            </p>
-          </article>
-          <article class="way way-offset">
-            <p class="way-figure" aria-hidden="true">Lasci l'auto</p>
-            <h3>Consegna del veicolo</h3>
-            <p>
-              Per i lavori lunghi. Prenoti 30 minuti di accoglienza per lasciare il veicolo e
-              raccontare il problema: è il tempo della consegna, non quello della riparazione.
-              L'officina pianifica il lavoro e ti scrive quando è pronto; la data di riconsegna si
-              concorda.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <!-- 3. Servizi, letti dal gestionale -->
-      <section class="services" id="servizi" aria-labelledby="services-title">
-        <div class="services-head">
-          <h2 id="services-title">Servizi</h2>
-          <p>
-            Per ogni intervento, la durata prevista dell'appuntamento. Per le consegne, il tempo di
-            accoglienza: la riparazione si pianifica in officina. I prezzi non sono pubblicati
-            online.
-          </p>
-        </div>
-        <div class="services-cols" id="services-cols">
-          <p class="services-fallback">
-            L'elenco completo dei servizi è nella <a href="/prenota">prenotazione</a>.
-          </p>
-        </div>
-      </section>
-
-      <!-- 4. Orari e contatti -->
-      <section class="contact" id="contatti" aria-labelledby="contact-title">
-        <h2 id="contact-title">Orari e contatti</h2>
-        <div class="contact-grid">
-          <table class="hours">
-            <caption class="visually-hidden">
-              Orari di apertura
-            </caption>
-            <tbody>
-              <tr>
-                <th scope="row">Lunedì – venerdì</th>
-                <td>8:30 – 12:30</td>
-                <td>14:30 – 18:30</td>
-              </tr>
-              <tr>
-                <th scope="row">Sabato</th>
-                <td>8:30 – 12:00</td>
-                <td>chiuso</td>
-              </tr>
-              <tr>
-                <th scope="row">Domenica</th>
-                <td colspan="2">chiuso</td>
-              </tr>
-            </tbody>
-          </table>
-          <address class="contact-lines">
-            <a class="contact-big" href="tel:+393663043908">366 304 3908</a>
-            <a href="mailto:ellebi_service@libero.it">ellebi_service@libero.it</a>
-            <span>Via Zerbi 21, San Giuliano Vecchio (AL)</span>
-            <a
-              href="https://www.google.com/maps/search/?api=1&amp;query=Via%20Zerbi%2021%20San%20Giuliano%20Vecchio"
-              rel="noopener"
-              >Apri in Mappe</a
-            >
-          </address>
-        </div>
-      </section>
-
-      <!-- 5. Chiusura -->
-      <section class="cta-band" aria-labelledby="cta-title">
-        <h2 id="cta-title">Prenota quando ti fa comodo</h2>
-        <a class="btn btn-primary btn-lg" href="/prenota">Prenota un intervento</a>
-      </section>
+      <p class="entry-call">Preferisci chiamare? <a href="tel:+393663043908">366 304 3908</a></p>
     </main>
 
-    <footer class="site-foot">
-      <div class="site-foot-main">
-        <a class="brand brand-lg" href="/" aria-label="Ellebi Service, pagina iniziale"
-          ><img
-            src="/images/logo-ellebi.svg"
-            width="207"
-            height="155"
-            alt="Ellebi Service S.R.L. di Lorenzo Barbetta"
-            loading="lazy"
-        /></a>
-        <nav class="site-foot-links" aria-label="Collegamenti">
-          <a href="/prenota">Prenota</a>
-          <a href="/login">Accedi</a>
-          <a href="/register">Registrati</a>
-          <a href="/privacy-policy.html">Privacy</a>
-          <a href="/cookie-policy.html">Cookie</a>
-        </nav>
-      </div>
-      <p class="site-foot-legal">
-        © Ellebi Service SRL · P.IVA 02686660065 · Via Zerbi 21, San Giuliano Vecchio (AL). L'auto
-        3D è un modello stilizzato e generico, non un veicolo reale.
-      </p>
-      <p class="site-foot-mark" aria-hidden="true">Ellebi Service</p>
-    </footer>
-
     <script src="/js/theme.js"></script>
-    <script src="/js/landing.js"></script>
+    <script src="/js/legal-footer.js"></script>
   </body>
 </html>

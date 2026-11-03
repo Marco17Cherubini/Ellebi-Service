@@ -82,8 +82,9 @@
       const me = await apiRequest('/auth/session');
       if (me.user && !me.user.isAdmin) state.user = me.user;
       if (me.user && me.user.isAdmin) {
-        $('flow-who').innerHTML =
-          'Sei connesso come officina: per inserire appuntamenti usa <a href="/admin">l\'agenda</a>.';
+        // Nessun collegamento all'agenda dalle pagine pubbliche
+        $('flow-who').textContent =
+          "Sei connesso come officina: gli appuntamenti si inseriscono dall'area amministrativa.";
       }
     } catch (e) {
       /* ospite */

@@ -36,7 +36,7 @@ test('il listino pubblico riporta la durata del listino e segnala quella non def
 });
 
 test('le pagine pubbliche non presentano i 15 minuti come durata', () => {
-  const files = ['index.html', 'prenota.html', 'js/landing.js', 'js/booking-flow.js'];
+  const files = ['index.html', 'prenota.html', 'js/booking-flow.js'];
   for (const f of files) {
     const text = fs.readFileSync(path.join(__dirname, '../frontend', f), 'utf8');
     assert.doesNotMatch(text, />\s*15 min\s*</i, f);

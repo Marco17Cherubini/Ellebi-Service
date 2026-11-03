@@ -15,6 +15,9 @@ database/*
 # Backup
 backups/
 
+# Bundle del modello 3D (serve solo a generare l'immagine dell'auto)
+client-src/build/
+
 # Log
 logs/
 *.log

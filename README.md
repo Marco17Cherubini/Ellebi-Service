@@ -38,7 +38,7 @@ The app is a revisited version of the Lev Space booking system, customised aroun
 - **the mechanic plans the work on the weekly calendar**, in 15-minute blocks, next to the regular appointments; when the job is done the customer gets a pick-up email;
 - **the rules live on the server**: durations come from the price list, opening hours depend on the role, capacity is checked before accepting a drop-off, and every multi-step change is a single transaction.
 
-![Home page: the logo's circle and tread behind a stylised 3D car in exploded view; each part is a menu entry](docs/images/fase2/dopo-menu-auto-desktop.webp)
+![Entry page on a phone: the round sign with the logo, the car, and the three ways in: sign in, register, book as a guest](docs/images/fase4/ingresso-mobile.webp)
 
 | Booking on a phone: only start times where the whole job fits                                                       | Workshop day view on a phone, including free gaps                                                                  |
 | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -169,6 +169,15 @@ Frame rate could not be measured meaningfully (software GPU, headless browser) a
 
 Lab measurements (Chromium headless, software GPU, 4× CPU, ~1.6 Mbps): home 271 KB → 206 KB, LCP 1.80 s → 1.63 s, CLS 0; booking 211 KB → 158 KB; optional 3D 141 KB gzip, 19,498 triangles, 30 draw calls. Not verified on a physical phone.
 
+### November 2026, third round: back to the original structure
+
+The owner's feedback after the release: the public home had become a showcase (3D menu, price list, links that changed with the session, including "Agenda officina" for an admin session) and on phones some labels ran past the right edge, so the page could be zoomed out.
+
+- **Entry page as in the original app**: the round sign with the logo and the car (still image), then only **Accedi**, **Registrati** and **Prenota come ospite**. The same page for every visitor, with or without a session; no link to the admin area on any public page. The admin reaches the agenda only by signing in (and `/admin` stays protected on the server).
+- **The interactive 3D is no longer published**: `client-src/garage3d.js` is kept only to render the car still (`npm run build:3d && npm run render:stills`, bundle in the ignored `client-src/build/`).
+- **Mobile first, checked page by page** at 360, 390 and 430 px in the three roles: nothing wider than the screen. Fixes: the home price list (gone with the showcase), the admin price list (a card per service instead of a table that scrolled sideways), the client list (name and controls on two lines), the day strip of the booking flow (first day no longer flush with the edge), the theme switch (no longer over the footer text).
+- Tests: `test/entry.test.js` (entry links, no admin links on public pages) and `test/e2e/mobile-layout.e2e.js` (no page wider than the screen, admin session on the home).
+
 ## Under the hood
 
 ### Tech stack
@@ -179,7 +188,7 @@ Lab measurements (Chromium headless, software GPU, 4× CPU, ~1.6 Mbps): home 271
 | Database | SQLite via [sql.js](https://sql.js.org) (WASM) | One file on a volume, no native build; atomic writes and transactions for multi-row work                                  |
 | Auth     | JWT in an `httpOnly`, `SameSite=Lax` cookie    | No token reachable from JavaScript; argon2id hashes (older bcrypt hashes upgraded at login)                               |
 | Frontend | HTML, CSS and vanilla JavaScript               | No build step for pages; design tokens and layered CSS; self-hosted Saira Condensed, EB Garamond and JetBrains Mono (OFL) |
-| 3D       | Three.js, bundled once with esbuild            | `client-src/garage3d.js` → `frontend/js/garage3d.js`, loaded with a dynamic `import()` only                               |
+| 3D       | Three.js, bundled with esbuild (not published) | `client-src/garage3d.js` → `client-src/build/`, used only to render the car still of the entry page                       |
 | Email    | Resend                                         | Booking confirmations, pick-up notices, password reset                                                                    |
 | Charts   | Chart.js, served from the npm package          | Admin reports, version pinned in the lockfile                                                                             |
 | Tests    | `node:test` (built into Node)                  | No test framework to install                                                                                              |
@@ -192,7 +201,6 @@ frontend/ (static pages, vanilla JS)          server/
                   sidebar, keyboard helper      app.js            security headers, JSON parser, static files, routes
   js/<page>.js    one script per page           routes/           auth · bookings · admin · catalog · deposits · pages
   js/booking-flow.js  guest + customer booking
-  js/garage3d.js  built from client-src/
   styles/         tokens → base → layout        bookingService    availability, bookings, drop-offs, moves, work blocks
                   → components → pages          depositService    capacity, states, deposit board
                                                 catalogService · holidayService · vehicleService · reportService
@@ -204,7 +212,7 @@ Routes only translate HTTP; the workshop rules live in the services, which throw
 
 ### Quality and security
 
-- **118 automated tests** against the real server and a temporary SQLite file: availability and durations, opening hours by role, overlaps and concurrent requests, customer/guest/admin bookings, drop-offs and deposits, moves and cancellations, holidays, price list, auth and bans, rate limiting, error handling, reports, persistence, migrations, backup and demo seed.
+- **136 automated tests** against the real server and a temporary SQLite file: availability and durations, opening hours by role, overlaps and concurrent requests, customer/guest/admin bookings, drop-offs and deposits, moves and cancellations, holidays, price list, auth and bans, rate limiting, error handling, reports, persistence, migrations, backup and demo seed.
 - **Content Security Policy** with scripts only from the app and no inline handlers; every user-provided value is escaped before entering HTML, in pages and emails; JSON-only API; rate limiting on login and guest bookings.
 - **Data integrity**: the database file is written atomically (temporary file + rename) and multi-row operations run in transactions.
 - **Accessibility**: the booking flow works with the keyboard only, fields have visible labels and errors tied to them (`aria-describedby`), focus moves to each step's heading, touch targets are at least 44 px, and motion respects `prefers-reduced-motion`.
@@ -239,17 +247,17 @@ Demo logins: the admin from your `.env`, or any demo customer such as `giulia.bi
 
 ### Useful scripts
 
-| Command                                 | What it does                                                                   |
-| --------------------------------------- | ------------------------------------------------------------------------------ |
-| `npm run dev`                           | Start with auto-reload (nodemon)                                               |
-| `npm test`                              | Run the test suite                                                             |
-| `npm run lint` / `npm run format:check` | ESLint and Prettier checks                                                     |
-| `npm run seed`                          | Fill an **empty** database with demo data                                      |
-| `npm run backup`                        | Copy the database to `BACKUP_DIR` (keeps the last 4)                           |
-| `npm run start:prod`                    | Start in production with PM2                                                   |
-| `npm run build:3d`                      | Rebuild `frontend/js/garage3d.js` after editing `client-src/`                  |
-| `npm run render:stills`                 | Render the car stills and label positions from the 3D model (needs Playwright) |
-| `npm run test:e2e`                      | Browser end-to-end tests (needs Playwright with Chromium; not run in CI)       |
+| Command                                 | What it does                                                                |
+| --------------------------------------- | --------------------------------------------------------------------------- |
+| `npm run dev`                           | Start with auto-reload (nodemon)                                            |
+| `npm test`                              | Run the test suite                                                          |
+| `npm run lint` / `npm run format:check` | ESLint and Prettier checks                                                  |
+| `npm run seed`                          | Fill an **empty** database with demo data                                   |
+| `npm run backup`                        | Copy the database to `BACKUP_DIR` (keeps the last 4)                        |
+| `npm run start:prod`                    | Start in production with PM2                                                |
+| `npm run build:3d`                      | Bundle the 3D model into `client-src/build/` (needed by `render:stills`)    |
+| `npm run render:stills`                 | Render the car still of the entry page from the 3D model (needs Playwright) |
+| `npm run test:e2e`                      | Browser end-to-end tests (needs Playwright with Chromium; not run in CI)    |
 
 ### Configuration
 
@@ -291,7 +299,7 @@ Before pushing, run `npm run lint`, `npm run format:check` and `npm test` — th
 - **No physical device tested**: mobile checks are emulated (Chromium at 320–1440 px); frame rate, battery and heat on real phones are unverified.
 - **No photographs**: the project has no pictures of the workshop and none were invented; the Bugatti system leans on photography, here the 3D car and the logo motif take that place. The Taste inspector's "at least four pictures" floor is therefore not met.
 - **Three typefaces and a light theme**: the three families come from the Bugatti `DESIGN.md` (which has no light mode; the optional light theme was kept because the original app had a theme toggle).
-- **3D**: auto-loads only on wide screens with WebGL, without data saver or reduced motion; phones get the still image and an explicit "Ruota in 3D" button. The model is a generic stylised car, not a reconstruction of a real one.
+- **3D**: no longer on the site; the car on the entry page is a still rendered from a generic stylised model, not a reconstruction of a real one.
 - **VIP extended hours** (08:00 and evening starts up to 23:15) are inherited from the barbershop version and still to be confirmed with the workshop; they are now visible in the day view.
 - **Logout** clears the cookie but does not revoke the token on the server (a password reset does); sessions last 7 days.
 - **Guest emails are not verified**: a guest booking made with a registered customer's email appears in that account (decision D-9).
@@ -305,7 +313,7 @@ Before pushing, run `npm run lint`, `npm run format:check` and `npm test` — th
 ```
 config/        opening hours, slot grid and defaults
 docs/          refactoring plan, user guide, portfolio checklist, screenshots
-client-src/    source of the optional 3D module (built with `npm run build:3d`)
+client-src/    3D model used to render the car still (`npm run build:3d && npm run render:stills`)
 frontend/      HTML pages, js/, styles/ (tokens, base, layout, components, pages), fonts/, images/
 server/        app, routes, services, database, seed and backup scripts
 test/          node:test suites and helpers

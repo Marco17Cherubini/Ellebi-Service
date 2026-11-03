@@ -71,26 +71,26 @@ function buildRow(s) {
     '<tr class="' +
     (attivo ? '' : 'row-inactive') +
     '">' +
-    '<td class="td-nome"><strong>' +
+    '<td class="td-nome" data-label="Nome"><strong>' +
     escHtml(s.nome || '—') +
     '</strong>' +
     stagBadge +
     '</td>' +
-    '<td><span class="tipo-badge tipo-' +
+    '<td class="td-veicolo" data-label="Veicolo"><span class="tipo-badge tipo-' +
     escHtml(s.tipo_veicolo || 'auto') +
     '">' +
     tipoVeicoloLabel +
     '</span></td>' +
-    '<td>' +
+    '<td class="td-tipo" data-label="Tipo">' +
     tipoServizioLabel +
     '</td>' +
-    '<td class="td-center">' +
+    '<td class="td-center" data-label="Durata">' +
     durata +
     '</td>' +
-    '<td class="td-center">' +
+    '<td class="td-center" data-label="Prezzo">' +
     prezzo +
     '</td>' +
-    '<td class="td-center">' +
+    '<td class="td-center td-attivo" data-label="Attivo">' +
     '<label class="toggle-switch" title="' +
     (attivo ? 'Disattiva' : 'Attiva') +
     '">' +

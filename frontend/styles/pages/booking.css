@@ -199,6 +199,8 @@
   overscroll-behavior-x: contain;
   margin: 0 calc(var(--gutter) * -1);
   padding: 0 var(--gutter) var(--space-2);
+  /* l'aggancio rispetta il margine: il primo giorno non tocca il bordo dello schermo */
+  scroll-padding-inline: var(--gutter);
   scrollbar-width: thin;
 }
 

@@ -133,6 +133,20 @@ Direzione visiva: tre proposte (mockup), scelta del titolare **B · L'insegna**;
 
 Non verificato: telefono fisico, fps reali (GPU software), invio email reale.
 
+## Fase 4: ritorno alla struttura d'origine e mobile first (3 novembre 2026)
+
+Segnalazione del titolare dopo il rilascio di `f89b1e8` (screenshot da iPhone): in alto nella home compariva "Agenda officina" (sessione admin), la home era diventata una vetrina pubblica e nel listino le etichette uscivano a destra, tanto che la pagina si poteva rimpicciolire. Decisione: tenere la grafica B, riportare la struttura alle origini (ingresso con Accedi / Registrati / Ospite, come l'app originale e come l'ingresso di Lev Space).
+
+| Problema | Causa | Correzione | Verifica |
+|---|---|---|---|
+| Collegamento all'agenda nella home | `landing.js` cambiava "Accedi" in "Agenda officina" con una sessione admin | Home statica, uguale per tutti; nessun `href="/admin"` nelle pagine pubbliche; avviso testuale senza link nel flusso di prenotazione | `test/entry.test.js`, e2e con sessione admin |
+| Home come vetrina (listino, menu 3D) | Scelta delle fasi 2–3 | Pagina d'ingresso: insegna, auto statica, tre pulsanti; 3D non più pubblicato (`client-src/build/`, ignorato) | `test/entry.test.js` |
+| Scritte fuori schermo, zoom indietro | `.row-meta` in `nowrap` più larga della riga (pagina 456 px a 360) | Sparita con la vetrina | `test/e2e/mobile-layout.e2e.js` a 360/390/430 px in tre ruoli |
+| Listino admin largo 687 px | Tabella in un contenitore a scorrimento | Schede sotto i 760 px | e2e, rosso prima della correzione |
+| Elenco clienti stretto | Nome e controlli sulla stessa riga | Due righe sotto i 600 px | Screenshot 360 px |
+| Primo giorno attaccato al bordo | Aggancio dello scorrimento senza `scroll-padding` | `scroll-padding-inline` | Screenshot 360 px |
+| Selettore del tema sopra il footer | Pulsante fisso | Statico nella pagina d'ingresso | Screenshot 360/390 px |
+
 # Fase 1 (2026, portfolio cleanup): stato finale e decisioni
 
 Documento di lavoro del refactoring di Ellebi Service: rendere il progetto ordinato, affidabile e presentabile nel portfolio. Riporta decisioni, stato dei task, problemi trovati, verifiche eseguite e passi aperti.

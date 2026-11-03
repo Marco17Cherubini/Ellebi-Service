@@ -1,6 +1,7 @@
 // Auto stilizzata in 3D, dall'assemblato alla vista esplosa.
-// Sorgente compilato con `npm run build:3d` in frontend/js/garage3d.js (ES module con Three.js
-// ridotto ai moduli usati). La pagina lo importa solo quando serve (vedi landing.js).
+// Sorgente compilato con `npm run build:3d` in client-src/build/garage3d.js (ES module con
+// Three.js ridotto ai moduli usati). Non è pubblicato nel sito: serve a `npm run render:stills`
+// per generare l'immagine statica dell'auto della pagina d'ingresso.
 //
 // Modello procedurale, nessun asset esterno e nessun marchio: un'auto generica, non la
 // ricostruzione di un veicolo reale. Gruppi rigidi con posizione assemblata ed esplosa

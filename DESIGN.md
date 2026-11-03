@@ -56,8 +56,9 @@ Mobile first, progettato a 360–390 px. Margine pagina `--gutter` = `clamp(16px
 - **Pulsante secondario**: contorno `--paper-3` sul palco, `--sheet-line` sul foglio.
 - **Opzioni (servizi, giorni, orari)**: righe o tessere bianche sul foglio con bordo `--sheet-line`; selezionato = blu profondo (giorni) o arancio (orario, servizio scelto). Sempre `aria-pressed` o radio reali.
 - **Campi**: etichetta sempre visibile sopra, 48 px, bordo `--sheet-line`, focus blu 2 px, errore sotto il campo collegato con `aria-describedby`.
-- **Insegna**: disco `--sign` con il logo vettoriale, anello `--blue-deep`, alone `--blue` diffuso. Solo sulla homepage.
-- **Etichette dell'auto**: pillole scure semitrasparenti con punto arancio, sempre sopra la tela 3D.
+- **Insegna**: disco `--sign` con il logo vettoriale, anello `--blue-deep`, alone `--blue` diffuso. Solo sulla pagina d'ingresso.
+- **Pagina d'ingresso**: come nell'app originale, solo insegna, auto (immagine statica) e tre modi di entrare: **Accedi** (primario), **Registrati** (secondario), **Prenota come ospite** (discreto). Stessa pagina con o senza sessione; nessun collegamento all'area amministrativa da una pagina pubblica.
+- **Tabelle su telefono**: sotto i 760 px diventano schede (una per riga, etichetta sopra il valore); mai scorrimento laterale.
 
 ## 6. Superfici e profondità
 
@@ -65,20 +66,19 @@ Profondità da luce (alone dell'insegna, ombra a terra dell'auto) e da fili sott
 
 ## 7. Comportamento responsive
 
-- **360–430 px**: insegna 280–320 px, auto sovrapposta al terzo inferiore dell'insegna, titolo sotto, due pulsanti a tutta larghezza. Etichette dell'auto in fila sotto l'immagine.
-- **768 px**: insegna e auto più grandi, etichette sopra l'auto.
-- **≥ 1024 px**: testo a sinistra, insegna e auto a destra nella prima schermata; il 3D può avviarsi da solo.
-- Nessuno scroll orizzontale; tutto utilizzabile senza hover; zoom 200 % senza perdita di contenuto.
+- **Mobile first**: si progetta a 360–430 px e si allarga, mai il contrario. A ogni larghezza nessuna pagina è più larga dello schermo: i testi vanno a capo (`min-width: 0`, `overflow-wrap`), le etichette lunghe passano sotto il nome invece di uscire a destra. L'unico scorrimento laterale ammesso è la striscia dei giorni della prenotazione.
+- **Ingresso**: una colonna di al massimo 480 px anche su desktop: insegna, auto sovrapposta al terzo inferiore, titolo, tre pulsanti a tutta larghezza.
+- Tutto utilizzabile senza hover; zoom 200 % senza perdita di contenuto.
 
 ## 8. Movimento e fallback
 
 - Un solo momento firmato: l'insegna si accende (opacità e alone, 600 ms) e l'auto entra (scala 0,96 → 1). Poi niente si muove da solo.
 - Feedback ai controlli in 120–200 ms con easing `cubic-bezier(0.23, 1, 0.32, 1)`; niente animazioni sulle azioni da tastiera.
 - `prefers-reduced-motion`: niente ingressi né esploso animato, tutto è già al suo posto.
-- 3D: l'immagine statica (resa dal modello) è sempre il punto di partenza; il 3D si carica dopo, solo su richiesta su telefono, e non è mai necessario per prenotare. Senza WebGL resta l'immagine.
+- L'auto è un'immagine statica resa dal modello 3D (`client-src/`); il 3D interattivo non è pubblicato.
 
 ## 9. Ammesso e vietato
 
 Ammesso: l'insegna con il logo intero; un alone blu dietro l'insegna; titoli maiuscoli brevi; il foglio chiaro per ogni attività; cifre tabellari per orari e targhe.
 
-Vietato: copiare Lev Space o i marchi studiati; intere pagine in maiuscolo; finte telemetrie e numeri tecnici interni come decorazione (la griglia da 15 minuti non si mostra al pubblico); gradienti e glassmorphism decorativi; strisce colorate laterali sulle card; arancio come testo su fondo chiaro; effetti del palco nell'area amministrativa.
+Vietato: copiare Lev Space o i marchi studiati; listini, menu o collegamenti dipendenti dalla sessione nella pagina d'ingresso; intere pagine in maiuscolo; finte telemetrie e numeri tecnici interni come decorazione (la griglia da 15 minuti non si mostra al pubblico); gradienti e glassmorphism decorativi; strisce colorate laterali sulle card; arancio come testo su fondo chiaro; effetti del palco nell'area amministrativa.

@@ -107,8 +107,8 @@ body:has(.action-bar) .theme-toggle {
   animation: wipe-rtl 420ms ease-in-out forwards;
 }
 
-/* Home pubblica: il selettore sta in fondo alla pagina, non sopra il testo */
-.landing .theme-toggle {
+/* Ingresso: il selettore sta in fondo alla pagina, non sopra il testo */
+.entry .theme-toggle {
   position: static;
   display: flex;
   justify-content: flex-end;

@@ -416,3 +416,38 @@
 .sidebar-nav a.sidebar-item {
   display: block;
 }
+
+/* Telefono: nome e stato sulla prima riga, comandi sotto, nulla si sovrappone */
+@media (max-width: 599px) {
+  .user-item {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .user-info {
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .user-name {
+    overflow-wrap: anywhere;
+  }
+
+  .user-actions {
+    flex: 1 1 100%;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .action-checkbox {
+    width: 24px;
+    height: 24px;
+  }
+
+  .btn-vehicles-toggle {
+    min-height: 44px;
+    padding-inline: var(--space-4);
+  }
+}

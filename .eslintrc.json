@@ -103,5 +103,5 @@
       }
     }
   ],
-  "ignorePatterns": ["frontend/js/garage3d.js"]
+  "ignorePatterns": ["client-src/build/"]
 }
